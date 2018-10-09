@@ -1,6 +1,7 @@
+
 (function() {
     // Inertia's Util Modules V2 [www.khanacademy.org/cs/_/4952324744708096]
-    Define("Util", function() {
+    Inertia.Define("Util", function() {
         var Util, Core = Inertia.require("Core");
         
         // Util Object
@@ -98,22 +99,22 @@
         };
         
         Util._.allKeys = Util.allKeys;
-        Util._.isDefined = function (val) { 
-            return !Util._.isUndefined(val); 
+        Util._.isDefined = function (val) {
+            return !Util._.isUndefined(val);
         };
-        Util._.isColor = function (val) { 
-            return !Util._.isUndefined(val) && (/^\#|^rgb|^hsl|^hsb/g.test(val) || 
-                    (Util._.isArray(val) && Util._.isNumber(val[0])) || 
-                        Util._.isNumber(val) || val.value); 
+        Util._.isColor = function (val) {
+            return !Util._.isUndefined(val) && (/^\#|^rgb|^hsl|^hsb/g.test(val) ||
+                    (Util._.isArray(val) && Util._.isNumber(val[0])) ||
+                        Util._.isNumber(val) || val.value);
         };
         
         // Underscore specific functionality
-        Define("_", function() { return Util._; });
+        Inertia.Define("_", function() { return Util._; });
         // Iterates Over Object's mulitiple times
-        Define("each", function() { return Util.each; });
+        Inertia.Define("each", function() { return Util.each; });
 
         // Type Testing Functions
-        Define(["is", "Util.is"], function() {
+        Inertia.Define(["is", "Util.is"], function() {
             // Type Check Functions
             return Util._.reduce(['Object', 'Array', 'Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error', 'Undefined', 'Null', 'Equal', 'Empty', 'Match'], function(obj, name) {
                 obj[name.toLowerCase()] = obj[name] = Util._[["is" + name]];

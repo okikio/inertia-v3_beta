@@ -24,7 +24,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     var Find = Inertia.Find = function(path, obj) {
 		var result = obj, i = 0, $path;
 		while (isDef(result) && ($path = path[i ++])) {
-            if (!($path in result)) 
+            if (!($path in result))
                 { Inertia.$Required.push(path); }
             result = $path in result ? result[$path] : result[$path] = {};
         }
@@ -32,18 +32,18 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     };
     
     // Async Object for Module Loading Based on the Async Module
-    Inertia.Async = (function(rate) {
+    Inertia.Async = function(rate) {
         this._class = "Async"; // Class Name
-        this.Tasks = []; this.Indx = 0; // Tasks Array & Task Index
+        this.tasks = []; this.indx = 0; // Tasks Array & Task Index
         this.loopThru = this.complete = false;
-        this.Rate = rate || 12;
-        this.Prev = millis();
+        this.rate = rate || 100;
+        this.prev = millis();
         this.progress = 0;
-    });
+    };
     
     // Prototype in Object form
     Inertia.Async.prototype = {
-        readyArr: [],
+        readyFn: function () {},
         loadFn: function () {
             background(255);
             fill(230);
@@ -56,49 +56,55 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             fill(50);
             textAlign(CENTER, CENTER);
             textFont(createFont("Century Gothic Bold"), 25);
-            text("Loading! \"" + this.Tasks[this.Indx][1] + "\" \n " + 
-                this.Indx + " / " + (this.Tasks.length - 1), 50, - 56, 300, 400);
+            text("Loading! \"" + this.tasks[this.indx][1] + "\" \n " +
+                this.indx + " / " + (this.tasks.length - 1), 50, - 56, 300, 400);
         },
         
         // Set Rate
         setRate: function (rate) {
-            this.Rate = rate || 12;
+            this.rate = rate || 100;
             return this;
         },
         
         // Add New Tasks
         then: function(module, fn) {
-            this.Tasks.push([fn || function() {}, module || "Module"]);
+            this.tasks.push([fn || function() {}, module || "Module"]);
+            return this;
+        },
+        
+        // On Load
+        load: function (fn) {
+            this.loadFn = fn || function () {};
+            return this;
+        },
+            
+        // Ready
+        ready: function (fn) {
+            this.readyFn = fn || function () {};
+            return this;
+        },
+        
+        // Set Loop Thru
+        thruLoop: function (thru) {
+            this.loopThru = thru || true;
             return this;
         },
     
         // Run Async
         run: function() {
-            this.Prev = millis();
-            if (this.Tasks.length <= 0) { return this; }
+            if (this.tasks.length <= 0) { return this; }
             if (this.loopThru) {
-                while (millis() % this.Rate === 0) {
+                while ((millis() - this.prev) > this.rate) {
                     if (this.complete) { return this.clear(); }
-                    this.Tasks[this.Indx][0](); this.Indx++;
+                    this.tasks[this.indx][0](); this.indx++;
+                    this.prev = millis();
                 }
             } else {
-                for (var i = 0; i < this.Tasks.length; i ++) {
+                for (var i = 0; i < this.tasks.length; i ++) {
                     if (this.complete) { return this.clear(); }
-                    this.Indx = i; this.Tasks[this.Indx][0](); 
+                    this.indx = i; this.tasks[this.indx][0]();
                 }
             }
-            return this;
-        },
-        
-        // On Load
-        onload: function (fn) {
-            this.loadFn = fn || function () {};
-            return this;
-        },
-        
-        // Ready
-        ready: function (fn) {
-            this.readyArr.push(fn || function () {});
             return this;
         },
         
@@ -107,20 +113,17 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             var window = (0, eval)("this");
             var _draw = function(timestamp) {
                 this.run();
-                if (this.complete) { 
-                    this.readyArr.forEach(function (fn) { fn(); });
-                    return; 
-                } else { this.loadFn(); }
+                if (this.complete) { this.readyFn(); } 
+                else { this.loadFn(); }
                 window.requestAnimationFrame(_draw);
             }.bind(this);
             window.requestAnimationFrame(_draw);
-            this.loopThru = true;
             return this;
         },
     
         // Clear
         clear: function() {
-            this.Indx = 0; this.Tasks = [];
+            this.indx = 0; this.tasks = [];
             return this;
         },
     };
@@ -130,18 +133,18 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         // Complete
        complete: {
             get: function()
-                { return this.Indx >= this.Tasks.length; }
+                { return this.indx >= this.tasks.length; }
         },
     
         // Progress
         progress: {
             get: function()
-                { return this.Indx / (this.Tasks.length - 1) * 100; }
+                { return this.indx / (this.tasks.length - 1) * 100; }
         },
     });
     
     // Inertia's Load Manager
-    Inertia.Manager = new Inertia.Async(12);    
+    Inertia.Manager = new Inertia.Async();
 
     // Creates new Modules When Called
     Define = Inertia.define = Inertia.Define =  function(paths, fn, multi) {
