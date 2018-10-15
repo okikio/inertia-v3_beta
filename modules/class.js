@@ -1,4 +1,3 @@
-
 (function() {
     // Inertia's Class Module V2 [www.khanacademy.org/cs/_/5398825551822848]
     // Class Module acts like the ES6 `class` keyword replacement

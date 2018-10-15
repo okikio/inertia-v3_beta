@@ -69,13 +69,12 @@
 
             // Finds value of a path in an Object
             [["path", "prop"], Util.path],
-
+            
             // A more efficient `new` keyword that allows for arrays to be passed as Arguments
-            [["new"], function(Ctor, arg) {
-                var Fn = function() { return Ctor.apply(this, arg); };
-                Fn.prototype = Ctor.prototype;
-                return new Fn();
-            }],
+            [["new"], Native("Ctor", "arg",
+                "var F = function() { return (Ctor).apply(this, arg); };" +
+                "F.prototype = Ctor.prototype;" +
+                "return new F()")],
 
             // Prev Value in Object
             [["prev"], function(obj) {

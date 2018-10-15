@@ -1,0 +1,34 @@
+{
+  "name": "inertia",
+  "version": "1.0.0",
+  "description": "The Inertia processing js workspace",
+  "main": "inertia.js",
+  "dependencies": {},
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.1",
+    "underscore": "^1.9.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/okikio/inertia-v3_beta.git"
+  },
+  "keywords": [
+    "Inertia",
+    "Beta",
+    "v3",
+    "version",
+    "3",
+    "okikio",
+    "js"
+  ],
+  "author": "Okiki Ojo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/okikio/inertia-v3_beta/issues"
+  },
+  "homepage": "https://github.com/okikio/inertia-v3_beta#readme"
+}

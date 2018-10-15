@@ -1,4 +1,3 @@
-
 (function() {
     // Inertia's Async Module V2 [www.khanacademy.org/cs/_/4638346561486848]
     Define("Async", function () {
@@ -50,4 +49,4 @@
             },
         });
     });
-}) (); // Async 
+})(); // Async 

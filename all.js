@@ -211,6 +211,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         return Core;
     });
 })(); // Core
+
 (function() {
     // Inertia's Util Modules V2 [www.khanacademy.org/cs/_/4952324744708096]
     Inertia.Define("Util", function() {
@@ -387,6 +388,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         return Native;
     }, true);
 })(); // Function
+
 (function() {
     // Object Module [all] the Native Object's with some additions
     // Inertia's Object Modules V2 [www.khanacademy.org/computer-programming/_/5993936052584448]
@@ -574,6 +576,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         return Native;
     });
 })(); // Math
+
 (function() {
     // Inertia's Class Module V2 [www.khanacademy.org/cs/_/5398825551822848]
     // Class Module acts like the ES6 `class` keyword replacement
@@ -1446,6 +1449,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         });
     });
 })(); // Event
+
 (function() {
     // A Base Event Emmitter
     var Event = require("Event"), Emit, Core = require("Core");
@@ -1789,6 +1793,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         return Key;
     });
 })(); // Key
+
 (function() {
     // Inertia's Touch Module V2 [www.khanacademy.org/cs/_/4951327923011584]
     Define("Touch", function() {
@@ -1842,6 +1847,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         return Touch;
     });
 })(); // Touch
+
 (function() {
     // Inertia's Async Module V2 [www.khanacademy.org/cs/_/4638346561486848]
     Define("Async", function () {
@@ -1893,7 +1899,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             },
         });
     });
-})(); // Async 
+}) (); // Async 
+
 (function() {
     // Inertia's Accum Module V2 [www.khanacademy.org/cs/_/5750787651436544]
     Define("Accum", function() {
@@ -1920,6 +1927,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         }, {});
     });
 })(); // Accum
+
 (function() {
     // Inertia's Range Module V2 [www.khanacademy.org/cs/_/5953955266068480]
     // Range Module create an Array full of a Range of Objects

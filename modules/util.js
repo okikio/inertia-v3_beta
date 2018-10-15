@@ -1,4 +1,3 @@
-
 (function() {
     // Inertia's Util Modules V2 [www.khanacademy.org/cs/_/4952324744708096]
     Inertia.Define("Util", function() {

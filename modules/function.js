@@ -9,11 +9,13 @@
         $Map = [
             [["args"], Util.args], // Turn the Arguments Object into an Array
             // A more efficient `new` keyword that allows for arrays to be passed as Arguments
-            [["new"], function(Ctor, arg) {
-                var F = function() { return (Ctor).apply(this, arg); };
-                F.prototype = Ctor.prototype;
-                return new F();
-            }],
+            [["new"], Native("Ctor", "arg",
+                "var F = function() { return (Ctor).apply(this, arg); };" +
+                "F.prototype = Ctor.prototype;" +
+                "return new F()")],
+            
+            // Empty / Noop / Dummy function
+            [["empty", "noop", "dummy"], Native()],
 
             // List all the Names of a Functions Arguments
             [["argNames"], function(fn) {

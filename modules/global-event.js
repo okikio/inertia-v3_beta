@@ -1,4 +1,3 @@
-
 (function() {
     // A Base Event Emmitter
     var Event = require("Event"), Emit, Core = require("Core");

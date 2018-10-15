@@ -1,4 +1,3 @@
-
 (function() {
     // Inertia's Accum Module V2 [www.khanacademy.org/cs/_/5750787651436544]
     Define("Accum", function() {

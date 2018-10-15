@@ -1,4 +1,3 @@
-
 (function() {
     // Inertia's Range Module V2 [www.khanacademy.org/cs/_/5953955266068480]
     // Range Module create an Array full of a Range of Objects
