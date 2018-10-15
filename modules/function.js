@@ -1,4 +1,4 @@
-(function() {
+c(function() {
     // Inertia's Function Module V2 [www.khanacademy.org/cs/_/5415663367127040]
     // Function Module adds to the Native Function Object
     Define(["Func", "Function", "Fn"], function() {
@@ -9,10 +9,10 @@
         $Map = [
             [["args"], Util.args], // Turn the Arguments Object into an Array
             // A more efficient `new` keyword that allows for arrays to be passed as Arguments
-            [["new"], Native("Ctor", "arg",
-                "var F = function() { return (Ctor).apply(this, arg); };" +
-                "F.prototype = Ctor.prototype;" +
-                "return new F()")],
+            [["new"], Native("ctor", "args",
+                "var F = function() { return ctor.apply(this, args); };" +
+                "F.prototype = ctor.prototype;" +
+                "return n" + "ew F")],
             
             // Empty / Noop / Dummy function
             [["empty", "noop", "dummy"], Native()],

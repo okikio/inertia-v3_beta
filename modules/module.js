@@ -16,7 +16,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     };
     
     /* Check if a value is defined
-        eg: isDef() // true */
+        eg: isDef("Defined") // true */
     var isDef = Inertia.isDef = function (val)
         { return typeof val !== "undefined"; };
         
@@ -149,12 +149,14 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     // Creates new Modules When Called
     Define = Inertia.define = Inertia.Define =  function(paths, fn, multi) {
         var Define = function (path, fn) {
-            var paths = toArray(path), Module = paths.pop(), Temp = {},
-                result = Find(paths, Inertia.$Modules);
-    
-            Temp[Module] = { exports: {} };
-            fn = fn.call(Inertia.$Modules, Temp[Module]) || Temp[Module].exports;
-            return result && Module ? (result[Module] = fn) : undefined;
+            Inertia.Manager.then(path, function () {
+                var paths = toArray(path), Module = paths.pop(), Temp = {},
+                    result = Find(paths, Inertia.$Modules);
+                
+                Temp[Module] = { exports: {} };
+                fn = fn.call(Inertia.$Modules, Temp[Module]) || Temp[Module].exports;
+                return result && Module ? (result[Module] = fn) : undefined;
+            });
         };
         
         if (Array.isArray(paths) && multi) {
@@ -164,8 +166,9 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
 
     // Module Accessor better yet known as require
     require = Inertia.require = Inertia.Require = function(path) {
-        var result = Find(toArray(path), Inertia.$Modules);
-        if (!result) { throw "Cannot find module " + path; }
-        return result;
+        try {
+            var result = Find(toArray(path), Inertia.$Modules);
+            return result;
+        } catch (e) { throw "Cannot find module " + path; }
     };
 })();

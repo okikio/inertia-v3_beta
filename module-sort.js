@@ -18,6 +18,7 @@ module.exports = [
     "Touch",
     "Async",
     "Accum",
-    "Range"
+    "Range",
+    "Debug"
     // "Animate",
 ];

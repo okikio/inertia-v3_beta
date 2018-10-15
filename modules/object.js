@@ -71,10 +71,10 @@
             [["path", "prop"], Util.path],
             
             // A more efficient `new` keyword that allows for arrays to be passed as Arguments
-            [["new"], Native("Ctor", "arg",
-                "var F = function() { return (Ctor).apply(this, arg); };" +
-                "F.prototype = Ctor.prototype;" +
-                "return new F()")],
+            [["new"], Native("ctor", "args",
+                "var F = function() { return ctor.apply(this, args); };" +
+                "F.prototype = ctor.prototype;" +
+                "return n" + "ew F")],
 
             // Prev Value in Object
             [["prev"], function(obj) {

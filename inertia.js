@@ -16,7 +16,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     };
     
     /* Check if a value is defined
-        eg: isDef() // true */
+        eg: isDef("Defined") // true */
     var isDef = Inertia.isDef = function (val)
         { return typeof val !== "undefined"; };
         
@@ -149,12 +149,14 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     // Creates new Modules When Called
     Define = Inertia.define = Inertia.Define =  function(paths, fn, multi) {
         var Define = function (path, fn) {
-            var paths = toArray(path), Module = paths.pop(), Temp = {},
-                result = Find(paths, Inertia.$Modules);
-    
-            Temp[Module] = { exports: {} };
-            fn = fn.call(Inertia.$Modules, Temp[Module]) || Temp[Module].exports;
-            return result && Module ? (result[Module] = fn) : undefined;
+            Inertia.Manager.then(path, function () {
+                var paths = toArray(path), Module = paths.pop(), Temp = {},
+                    result = Find(paths, Inertia.$Modules);
+                
+                Temp[Module] = { exports: {} };
+                fn = fn.call(Inertia.$Modules, Temp[Module]) || Temp[Module].exports;
+                return result && Module ? (result[Module] = fn) : undefined;
+            });
         };
         
         if (Array.isArray(paths) && multi) {
@@ -164,9 +166,10 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
 
     // Module Accessor better yet known as require
     require = Inertia.require = Inertia.Require = function(path) {
-        var result = Find(toArray(path), Inertia.$Modules);
-        if (!result) { throw "Cannot find module " + path; }
-        return result;
+        try {
+            var result = Find(toArray(path), Inertia.$Modules);
+            return result;
+        } catch (e) { throw "Cannot find module " + path; }
     };
 })();
 (function() {
@@ -342,7 +345,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         return Util;
     });
 })(); // Util
-(function() {
+c(function() {
     // Inertia's Function Module V2 [www.khanacademy.org/cs/_/5415663367127040]
     // Function Module adds to the Native Function Object
     Define(["Func", "Function", "Fn"], function() {
@@ -353,10 +356,10 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         $Map = [
             [["args"], Util.args], // Turn the Arguments Object into an Array
             // A more efficient `new` keyword that allows for arrays to be passed as Arguments
-            [["new"], Native("Ctor", "arg",
-                "var F = function() { return (Ctor).apply(this, arg); };" +
-                "F.prototype = Ctor.prototype;" +
-                "return new F()")],
+            [["new"], Native("ctor", "args",
+                "var F = function() { return ctor.apply(this, args); };" +
+                "F.prototype = ctor.prototype;" +
+                "return n" + "ew F")],
             
             // Empty / Noop / Dummy function
             [["empty", "noop", "dummy"], Native()],
@@ -460,10 +463,10 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             [["path", "prop"], Util.path],
             
             // A more efficient `new` keyword that allows for arrays to be passed as Arguments
-            [["new"], Native("Ctor", "arg",
-                "var F = function() { return (Ctor).apply(this, arg); };" +
-                "F.prototype = Ctor.prototype;" +
-                "return new F()")],
+            [["new"], Native("ctor", "args",
+                "var F = function() { return ctor.apply(this, args); };" +
+                "F.prototype = ctor.prototype;" +
+                "return n" + "ew F")],
 
             // Prev Value in Object
             [["prev"], function(obj) {
@@ -1447,77 +1450,79 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     });
 })(); // Event
 (function() {
-    // A Base Event Emmitter
-    var Event = require("Event"), Emit, Core = require("Core");
-    Inertia.Event = new Event(); // Inertia Event
-    draw = function() { Inertia.Event.emit("draw"); }; // Global Draw Event
-
-    // Emit An Event
-    Emit = function(evt, fn) {
-        fn = fn || function() {};
-        return function() {
-            fn();
-            try {
-                // jshint noarg: false
-                var arg = arguments.callee.caller.arguments;
-                Inertia.Event.emit
-                    .apply(Inertia.Event, [evt, arg[0]]);
-            } catch (e) { Core.log(evt + " - " + e); }
-        };
-    };
-
-    // Emit Mouse Events
-    mouseReleased = Emit("onMouseRelease");
-    mouseScrolled = Emit("onMouseScroll");
-    mouseClicked = Emit("onMouseClick");
-    mousePressed = Emit("onMousePress");
-    mouseDragged = Emit("onMouseDrag");
-    mouseMoved = Emit("onMouseMove");
-    mouseOver = Emit("onMouseIn");
-    mouseOut = Emit("onMouseOut");
-
-    // Emit Key Events
-    var Key = Inertia.Key = {
-        List: [],
-        ListStr: [],
-    };
-
-    keyTyped = Emit("onKeyType");
-    keyReleased = Emit("onKeyRelease", function() {
-        var Code = (key.code === CODED ? keyCode : key.code);
-        if (Key.List.includes(Code)) {
-            var _i = Key.List.indexOf(Code);
-            Key.ListStr.splice(_i, 1);
-            Key.List.splice(_i, 1);
-        }
-    });
-
-    keyPressed = Emit("onKeyPress", function() {
-        var Code = (key.code === CODED ? keyCode : key.code);
-        if (!Key.List.includes(Code)) {
-            Key.ListStr.push(key.toString());
-            Key.List.push(Code);
-        }
-    });
-
-    // Emit Touch Events
-    if ('ontouchstart' in Core.window()) {
-        touchCancel = Emit("onTouchCancel");
-        touchStart = Emit("onTouchStart");
-        touchMove = Emit("onTouchMove");
-        touchEnd = Emit("onTouchEnd");
-    }
-    else {
-        Inertia.Event.on("onMouseRelease", Emit("onTouchEnd"));
-        Inertia.Event.on("onMousePress", Emit("onTouchStart"));
-        Inertia.Event.on("onMouseDrag", Emit("onTouchMove"));
-    }
-})(); // Global Event Emitter
-(function() {
     // Inertia's UI Event Module V2 [www.khanacademy.org/cs/_/6433526873882624]
     Define(["Event.UIEvent", "UIEvent"], function() {
-        var Class = require("Class"), Event = require("Event");
-    
+        var Class = require("Class"), Event = require("Event"), 
+            Core = require("Core"), Emit;
+        
+        // Default Inertia Events [www.khanacademy.org/cs/_/6433526873882624]
+        (function() {
+            Inertia.Event = Event(); // Inertia Event
+            draw = function() {  // Global Draw Event
+                if (Inertia.Event) { Inertia.Event.emit("draw"); } 
+            };
+        
+            // Emit An Event
+            Emit = function(evt, fn) {
+                return function() {
+                    (fn || function() {}) ();
+                    try {
+                        // jshint noarg: false
+                        var arg = arguments.callee.caller.arguments;
+                        Inertia.Event.emit
+                            .apply(Inertia.Event, [evt, arg[0]]);
+                    } catch (e) { Core.log(evt + " - " + e); }
+                };
+            };
+        
+            // Emit Mouse Events
+            mouseReleased = Emit("onMouseRelease");
+            mouseScrolled = Emit("onMouseScroll");
+            mouseClicked = Emit("onMouseClick");
+            mousePressed = Emit("onMousePress");
+            mouseDragged = Emit("onMouseDrag");
+            mouseMoved = Emit("onMouseMove");
+            mouseOver = Emit("onMouseIn");
+            mouseOut = Emit("onMouseOut");
+        
+            // Emit Key Events
+            var Key = Inertia.Key = {
+                List: [],
+                ListStr: [],
+            };
+        
+            keyTyped = Emit("onKeyType");
+            keyReleased = Emit("onKeyRelease", function() {
+                var Code = (key.code === CODED ? keyCode : key.code);
+                if (Key.List.includes(Code)) {
+                    var _i = Key.List.indexOf(Code);
+                    Key.ListStr.splice(_i, 1);
+                    Key.List.splice(_i, 1);
+                }
+            });
+        
+            keyPressed = Emit("onKeyPress", function() {
+                var Code = (key.code === CODED ? keyCode : key.code);
+                if (!Key.List.includes(Code)) {
+                    Key.ListStr.push(key.toString());
+                    Key.List.push(Code);
+                }
+            });
+        
+            // Emit Touch Events
+            if ('ontouchstart' in Core.window()) {
+                touchCancel = Emit("onTouchCancel");
+                touchStart = Emit("onTouchStart");
+                touchMove = Emit("onTouchMove");
+                touchEnd = Emit("onTouchEnd");
+            }
+            else {
+                Inertia.Event.on("onMouseRelease", Emit("onTouchEnd"));
+                Inertia.Event.on("onMousePress", Emit("onTouchStart"));
+                Inertia.Event.on("onMouseDrag", Emit("onTouchMove"));
+            }
+        })(); // Global Event Emitter
+
         // Creates Events with a Prefix before the Event is Called
         return function(_class) {
             // A Modified Extension of The Event Emitter `Inertia.Event`
@@ -1951,3 +1956,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         };
     });
 })(); // Range
+(function() {
+    Define("Debug", function () {
+        
+    });
+})(); // Debug
