@@ -1,6 +1,6 @@
 (function() {
     // Inertia's Util Modules V2 [www.khanacademy.org/cs/_/4952324744708096]
-    Inertia.Define("Util", function() {
+    Define("Util", function() {
         var Util, Core = Inertia.require("Core");
         
         // Util Object
@@ -108,12 +108,12 @@
         };
         
         // Underscore specific functionality
-        Inertia.Define("_", function() { return Util._; });
+        Define("_", function() { return Util._; });
         // Iterates Over Object's mulitiple times
-        Inertia.Define("each", function() { return Util.each; });
+        Define("each", function() { return Util.each; });
 
         // Type Testing Functions
-        Inertia.Define(["is", "Util.is"], function() {
+        Define(["is", "Util.is"], function() {
             // Type Check Functions
             return Util._.reduce(['Object', 'Array', 'Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error', 'Undefined', 'Null', 'Equal', 'Empty', 'Match'], function(obj, name) {
                 obj[name.toLowerCase()] = obj[name] = Util._[["is" + name]];

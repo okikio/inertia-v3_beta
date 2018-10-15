@@ -1,6 +1,6 @@
 (function() {
     // Inertia's Core Objects V2 [www.khanacademy.org/cs/_/6109672016216064]
-    Inertia.Define("Core", function() {
+    Define("Core", function() {
         var Core = {}; // Export
 
         // Window Object
