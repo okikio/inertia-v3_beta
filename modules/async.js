@@ -3,23 +3,17 @@
     Define("Async", function () {
         var Class = require("Class");
         return Class($in.Async, {
-            readyFn: function () {},
             init: function (rate) {
-                this.CallSuper("constructor", rate || 1000 / 60);
+                this.CallSuper("constructor", $in.isDef(rate) ? rate : 100);
+                this.loopThru = true; 
             },
-            
+        
             // Add New Tasks
-            then: function (fn) {
-                this.tasks.push(fn || function () {});
+            then: function(fn) {
+                this.tasks.push(fn || function() {});
                 return this;
             },
-            
-            // Ready
-            ready: function (fn) {
-                this.readyFn = fn || function () {};
-                return this;
-            }, 
-                
+                    
             // Run Async
             run: function () {
                 if (this.tasks.length <= 0) { return this; }

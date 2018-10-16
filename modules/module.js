@@ -32,136 +32,302 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     };
     
     // Async Object for Module Loading Based on the Async Module
-    Inertia.Async = function(rate) {
-        this._class = "Async"; // Class Name
-        this.tasks = []; this.indx = 0; // Tasks Array & Task Index
-        this.loopThru = this.complete = false;
-        this.rate = rate || 100;
-        this.prev = millis();
-        this.progress = 0;
-    };
+    Inertia.Async = (function () {
+        var Async = function(rate) {
+            this._class = "Async"; // Class Name
+            this.tasks = []; this.indx = 0; // Tasks Array & Task Index
+            this.loopThru = !(this.complete = false);
+            this.rate = isDef(rate) ? rate : 500;
+            this.prev = millis();
+            this.progress = 0;
+        };
     
-    // Prototype in Object form
-    Inertia.Async.prototype = {
-        readyFn: function () {},
-        loadFn: function () {
-            background(255);
-            fill(230);
-            noStroke();
-            rect(100, 200, 200, 3, 5);
-                
-            fill(150);
-            rect(100, 200, this.progress / 100 * 200, 3, 5);
-                
-            fill(50);
-            textAlign(CENTER, CENTER);
-            textFont(createFont("Century Gothic Bold"), 25);
-            text("Loading! \"" + this.tasks[this.indx][1] + "\" \n " +
-                this.indx + " / " + (this.tasks.length - 1), 50, - 56, 300, 400);
-        },
-        
-        // Set Rate
-        setRate: function (rate) {
-            this.rate = rate || 100;
-            return this;
-        },
-        
-        // Add New Tasks
-        then: function(module, fn) {
-            this.tasks.push([fn || function() {}, module || "Module"]);
-            return this;
-        },
-        
-        // On Load
-        load: function (fn) {
-            this.loadFn = fn || function () {};
-            return this;
-        },
+        // Prototype in Object form
+        Async.prototype = {
+            readyFn: function () {},
+            loadFn: function () {
+                background(255);
+                fill(230);
+                noStroke();
+                rect(100, 200, 200, 3, 5);
+                    
+                fill(150);
+                rect(100, 200, this.progress / 100 * 200, 3, 5);
+                    
+                fill(50);
+                textAlign(CENTER, CENTER);
+                textFont(createFont("Century Gothic Bold"), 25);
+                text("Loading! \"" + this.tasks[this.indx][1] + "\" \n " +
+                    this.indx + " / " + (this.tasks.length - 1), 50, - 56, 300, 400);
+            },
             
-        // Ready
-        ready: function (fn) {
-            this.readyFn = fn || function () {};
-            return this;
-        },
+            // Set Rate
+            setRate: function (rate) {
+                this.rate = !isDef(rate) ? rate : 500;
+                return this;
+            },
+            
+            // Add New Tasks
+            then: function(module, fn) {
+                this.tasks.push([fn || function() {}, module || "Module"]);
+                return this;
+            },
+            
+            // On Load
+            load: function (fn) {
+                this.loadFn = fn || function () {};
+                return this;
+            },
+                
+            // Ready
+            ready: function (fn) {
+                this.readyFn = fn || function () {};
+                return this;
+            },
+            
+            // Set Loop Thru
+            thruLoop: function (thru) {
+                this.loopThru = thru || true;
+                return this;
+            },
         
-        // Set Loop Thru
-        thruLoop: function (thru) {
-            this.loopThru = thru || true;
-            return this;
-        },
-    
-        // Run Async
-        run: function() {
-            if (this.tasks.length <= 0) { return this; }
-            if (this.loopThru) {
-                while ((millis() - this.prev) > this.rate) {
-                    if (this.complete) { return this.clear(); }
-                    this.tasks[this.indx][0](); this.indx++;
-                    this.prev = millis();
+            // Run Async
+            run: function() {
+                if (this.tasks.length <= 0) { return this; }
+                if (this.loopThru) {
+                    while ((millis() - this.prev) > this.rate) {
+                        if (this.complete) { return this.clear(); }
+                        this.tasks[this.indx][0](); this.indx++;
+                        this.prev = millis();
+                    }
+                } else {
+                    for (var i = 0; i < this.tasks.length; i ++) {
+                        if (this.complete) { return this.clear(); }
+                        this.indx = i; this.tasks[this.indx][0]();
+                    }
                 }
-            } else {
-                for (var i = 0; i < this.tasks.length; i ++) {
-                    if (this.complete) { return this.clear(); }
-                    this.indx = i; this.tasks[this.indx][0]();
-                }
-            }
-            return this;
-        },
-        
-        // Creates a Loop for Loading
-        loop: function () {
-            var window = (0, eval)("this");
-            var _draw = function(timestamp) {
-                this.run();
-                if (this.complete) { this.readyFn(); } 
-                else { this.loadFn(); }
+                return this;
+            },
+            
+            // Creates a Loop for Loading
+            loop: function () {
+                var window = (0, eval)("this");
+                var _draw = function() {
+                    this.run();
+                    if (this.complete) { this.readyFn(); return; } 
+                    else { this.loadFn(); }
+                    window.requestAnimationFrame(_draw);
+                }.bind(this);
                 window.requestAnimationFrame(_draw);
-            }.bind(this);
-            window.requestAnimationFrame(_draw);
-            return this;
-        },
+                return this;
+            },
+        
+            // Clear
+            clear: function() {
+                this.indx = 0; this.tasks = [];
+                return this;
+            },
+        };
+        
+        // More Info
+        Object.defineProperties(Async.prototype, {
+            // Complete
+           complete: {
+                get: function()
+                    { return this.indx >= this.tasks.length; }
+            },
+        
+            // Progress
+            progress: {
+                get: function()
+                    { return this.indx / (this.tasks.length - 1) * 100; }
+            },
+        });
+        return Async;
+    }) ();
     
-        // Clear
-        clear: function() {
-            this.indx = 0; this.tasks = [];
-            return this;
-        },
-    };
-    
-    // More Info
-    Object.defineProperties(Inertia.Async.prototype, {
-        // Complete
-       complete: {
-            get: function()
-                { return this.indx >= this.tasks.length; }
-        },
-    
-        // Progress
-        progress: {
-            get: function()
-                { return this.indx / (this.tasks.length - 1) * 100; }
-        },
-    });
+    // Inertia Event Emit
+    Inertia.EventEmitter = (function () {
+        var _ = (0, eval) ("_"), EventEmitter;
+        (EventEmitter = function () { })
+            .prototype = {
+                _class: "Event", // Set Class Name
+                _eventCount: 0, _events: {}, // Event Info.
+                
+                // Prepare the Event
+                preEvent: function(evt) {
+                    if (!this._events[evt]) // List Of Event's
+                        { this._events[evt] = []; }
+                    return this._events[evt];
+                },
+                
+                // Event Application
+                eventApp: function(callback, scope, event) {
+                    return {
+                        callback: callback,
+                        scope: scope || this,
+                        event: event
+                    };
+                },
+            
+                // Add a Listener / Function For a Given Event
+                on: function(evt, callback, scope) {
+                    if (_.isUndefined(evt)) { return; } // If There is No Event Break
+                    if (!_.isArray(evt) && !_.isObject(evt)) { evt = [evt]; } // Set Evt to an Array
+                    _.each(evt, function($evt, key) {
+                        var $Evt;
+                        if (_.isObject(evt) && !_.isArray(evt)) {
+                            $Evt = this.eventApp($evt, callback || this, key);
+                            this.preEvent(key).push($Evt); // Set Event List
+                        } else {
+                            $Evt = this.eventApp(callback, scope, $evt);
+                            this.preEvent($evt).push($Evt); // Set Event List
+                        }
+                    }, this);
+            
+                    // Length Of Events
+                    this._eventCount = _.keys(this._events).length;
+            
+                    // Name Of All Event's
+                    this.names = _.keys(this._events);
+                    return this;
+                },
+            
+                // Remove a Listener / Function For a Given Event
+                off: function(evt, callback, scope) {
+                    if (!evt) { return; } // If There is No Event Break
+                    if (!_.isArray(evt) && !_.isObject(evt)) { evt = [evt]; } // Set Evt to an Array
+                    
+                    var _off = function ($evt, callback, scope) {
+                        var _Evt = this.preEvent($evt);
+                        if (callback) {
+                            var i, app = this.eventApp(callback, scope, $evt);
+                            _.each(_Evt, function (val, _i) {
+                                if (_.isEqual(val, app)) { i = _i; }
+                            }, this);
+                            if (i > - 1) { _Evt.splice(i, 1); }
+                        } else { delete this._events[$evt]; }
+                    }.bind(this);
+                    
+                    _.each(evt, function($evt, key) {
+                        if (_.isObject(evt) && !_.isArray(evt)) {
+                            _off(key, $evt, scope);
+                        } else { _off($evt, callback, scope); }
+                    }, this);
+                    return this;
+                },
+                
+                // Call All Function(s) Within An Event
+                emit: function(evt) {
+                    var $Evt, arg = [].slice.call(arguments, 1);
+                    if (!evt) { return; } // If There is No Event, Break
+                    if (!_.isArray(evt)) { evt = [evt]; } // Set Evt to an Array
+                    _.each(evt, function($evt) {
+                        $Evt = this.preEvent($evt);
+                        _.each($Evt, function(_evt) {
+                            var $arg = arg;
+                            if (_evt.callback.argnames &&
+                                _evt.callback.argnames()[0] === "$evt")
+                                { $arg = [_evt].concat(arg); }
+                            _evt.callback.apply(_evt.scope, $arg);
+                        }, this);
+                    }, this);
+                    return this;
+                },
+                
+                // Clear
+                clear: function () { 
+                    this._eventCount = 0; this._events = {};
+                }
+            }; 
+        return EventEmitter;
+    }) ();
     
     // Inertia's Load Manager
     Inertia.Manager = new Inertia.Async();
 
+    // A Base Global Event Emmitter
+    (function() {
+        var Emit;
+        $in.Event = new $in.EventEmitter(); // Inertia Event
+        draw = function() { $in.Event.emit("draw"); }; // Global Draw Event
+        
+        // Emit An Event
+        Emit = function(evt, fn) {
+            fn = fn || function() {};
+            return function() {
+                fn();
+                try {
+                    // jshint noarg: false
+                    var arg = arguments.callee.caller.arguments;
+                    $in.Event.emit
+                        .apply(Inertia.Event, [evt, arg[0]]);
+                } catch (e) { println(evt + " - " + e); }
+            };
+        };
+    
+        // Emit Mouse Events
+        mouseReleased = Emit("onMouseRelease");
+        mouseScrolled = Emit("onMouseScroll");
+        mouseClicked = Emit("onMouseClick");
+        mousePressed = Emit("onMousePress");
+        mouseDragged = Emit("onMouseDrag");
+        mouseMoved = Emit("onMouseMove");
+        mouseOver = Emit("onMouseIn");
+        mouseOut = Emit("onMouseOut");
+    
+        // Emit Key Events
+        var Key = Inertia.Key = {
+            List: [],
+            ListStr: [],
+        };
+    
+        keyTyped = Emit("onKeyType");
+        keyReleased = Emit("onKeyRelease", function() {
+            var Code = (key.code === CODED ? keyCode : key.code);
+            if (Key.List.includes(Code)) {
+                var _i = Key.List.indexOf(Code);
+                Key.ListStr.splice(_i, 1);
+                Key.List.splice(_i, 1);
+            }
+        });
+    
+        keyPressed = Emit("onKeyPress", function() {
+            var Code = (key.code === CODED ? keyCode : key.code);
+            if (!Key.List.includes(Code)) {
+                Key.ListStr.push(key.toString());
+                Key.List.push(Code);
+            }
+        });
+    
+        // Emit Touch Events
+        if ('ontouchstart' in (0, eval) ("this")) {
+            touchCancel = Emit("onTouchCancel");
+            touchStart = Emit("onTouchStart");
+            touchMove = Emit("onTouchMove");
+            touchEnd = Emit("onTouchEnd");
+        } else {
+            Inertia.Event.on("onMouseRelease", Emit("onTouchEnd"));
+            Inertia.Event.on("onMousePress", Emit("onTouchStart"));
+            Inertia.Event.on("onMouseDrag", Emit("onTouchMove"));
+        }
+    })();
+
     // Creates new Modules When Called
     Define = Inertia.define = Inertia.Define =  function(paths, fn, multi) {
-        var Define = function (path, fn) {
-            Inertia.Manager.then(path, function () {
+        Inertia.Manager.then(paths, function () {
+            var Define = function (path, fn) {
                 var paths = toArray(path), Module = paths.pop(), Temp = {},
                     result = Find(paths, Inertia.$Modules);
-                
                 Temp[Module] = { exports: {} };
                 fn = fn.call(Inertia.$Modules, Temp[Module]) || Temp[Module].exports;
                 return result && Module ? (result[Module] = fn) : undefined;
-            });
-        };
-        
-        if (Array.isArray(paths) && multi) {
-            paths.forEach(function (path) { Define(path, fn); });
-        } else { return Define(paths, fn); }
+            };
+            
+            if (Array.isArray(paths) && multi) {
+                paths.forEach(function (path) { Define(path, fn); });
+            } else { return Define(paths, fn); }
+        });
     };
 
     // Module Accessor better yet known as require
@@ -169,6 +335,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         try {
             var result = Find(toArray(path), Inertia.$Modules);
             return result;
-        } catch (e) { throw "Cannot find module " + path; }
+        } catch (e) { throw "Cannot find module(s) " + Inertia.$Required; }
     };
 })();

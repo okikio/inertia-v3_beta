@@ -11,7 +11,6 @@ module.exports = [
     "Color",
     "Ease",
     "Event",
-    "Global-Event",
     "UIEvent",
     "Mouse",
     "Key",
