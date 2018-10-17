@@ -12,7 +12,7 @@ c(function() {
             [["new"], Native("ctor", "args",
                 "var F = function() { return ctor.apply(this, args); };" +
                 "F.prototype = ctor.prototype;" +
-                "return n" + "ew F")],
+                "return new F")],
             
             // Empty / Noop / Dummy function
             [["empty", "noop", "dummy"], Native()],

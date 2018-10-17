@@ -1,7 +1,5 @@
 /** -- Development Workspace -- [www.khanacademy.org/cs/_/4760822004088832] **/
 var Inertia = {}, $in, Define, require; // Inertia Entry Point
-// Changes: [Event, UIEvent, Node]
-
 // Module System V2 [www.khanacademy.org/cs/_/5049435683323904]
 (function() {
     $in = Inertia; // Inertia Shortform
@@ -192,30 +190,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     this.names = _.keys(this._events);
                     return this;
                 },
-            
-                // Remove a Listener / Function For a Given Event
-                off: function(evt, callback, scope) {
-                    if (!evt) { return; } // If There is No Event Break
-                    if (!_.isArray(evt) && !_.isObject(evt)) { evt = [evt]; } // Set Evt to an Array
-                    
-                    var _off = function ($evt, callback, scope) {
-                        var _Evt = this.preEvent($evt);
-                        if (callback) {
-                            var i, app = this.eventApp(callback, scope, $evt);
-                            _.each(_Evt, function (val, _i) {
-                                if (_.isEqual(val, app)) { i = _i; }
-                            }, this);
-                            if (i > - 1) { _Evt.splice(i, 1); }
-                        } else { delete this._events[$evt]; }
-                    }.bind(this);
-                    
-                    _.each(evt, function($evt, key) {
-                        if (_.isObject(evt) && !_.isArray(evt)) {
-                            _off(key, $evt, scope);
-                        } else { _off($evt, callback, scope); }
-                    }, this);
-                    return this;
-                },
                 
                 // Call All Function(s) Within An Event
                 emit: function(evt) {
@@ -233,11 +207,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                         }, this);
                     }, this);
                     return this;
-                },
-                
-                // Clear
-                clear: function () { 
-                    this._eventCount = 0; this._events = {};
                 }
             }; 
         return EventEmitter;
@@ -525,7 +494,7 @@ c(function() {
             [["new"], Native("ctor", "args",
                 "var F = function() { return ctor.apply(this, args); };" +
                 "F.prototype = ctor.prototype;" +
-                "return n" + "ew F")],
+                "return new F")],
             
             // Empty / Noop / Dummy function
             [["empty", "noop", "dummy"], Native()],
@@ -632,7 +601,7 @@ c(function() {
             [["new"], Native("ctor", "args",
                 "var F = function() { return ctor.apply(this, args); };" +
                 "F.prototype = ctor.prototype;" +
-                "return n" + "ew F")],
+                "return new F")],
 
             // Prev Value in Object
             [["prev"], function(obj) {
@@ -1494,6 +1463,30 @@ c(function() {
                 this.on(evt, $Fn, scope);
                 return this;
             },
+            
+            // Remove a Listener / Function For a Given Event
+            off: function(evt, callback, scope) {
+                if (!evt) { return; } // If There is No Event Break
+                if (!_.isArray(evt) && !_.isObject(evt)) { evt = [evt]; } // Set Evt to an Array
+                
+                var _off = function ($evt, callback, scope) {
+                    var _Evt = this.preEvent($evt);
+                    if (callback) {
+                        var i, app = this.eventApp(callback, scope, $evt);
+                        _.each(_Evt, function (val, _i) {
+                            if (_.isEqual(val, app)) { i = _i; }
+                        }, this);
+                        if (i > - 1) { _Evt.splice(i, 1); }
+                    } else { delete this._events[$evt]; }
+                }.bind(this);
+                
+                _.each(evt, function($evt, key) {
+                    if (_.isObject(evt) && !_.isArray(evt)) {
+                        _off(key, $evt, scope);
+                    } else { _off($evt, callback, scope); }
+                }, this);
+                return this;
+            },
         
             // Alias for the `off` method
             remove: Class.get("off"),
@@ -1523,7 +1516,12 @@ c(function() {
         
             // Alias for the `emit` method
             fire: Class.get("emit"),
-            trigger: Class.get("emit")
+            trigger: Class.get("emit"),
+                
+            // Clear
+            clear: function () { 
+                this._eventCount = 0; this._events = {};
+            }
         });
     });
 })(); // Event
