@@ -3,10 +3,19 @@
   "version": "1.0.0",
   "description": "The Inertia processing js workspace",
   "main": "inertia.js",
+  "bin": {
+    "build": "./bin/build.js",
+    "packet": "./bin/packet.js",
+    "git-run": "./bin/git-run.js",
+    "compile": "./bin/compile.js",
+    "update": "./bin/update.js"
+  },
   "dependencies": {},
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.1",
+    "mkdirp": "^0.5.1",
+    "nodemon": "^1.18.4",
     "underscore": "^1.9.1"
   },
   "scripts": {
