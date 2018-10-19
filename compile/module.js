@@ -480,7 +480,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         return Util;
     });
 })(); // Util
-c(function() {
+(function() {
     // Inertia's Function Module V2 [www.khanacademy.org/cs/_/5415663367127040]
     // Function Module adds to the Native Function Object
     Define(["Func", "Function", "Fn"], function() {

@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 var fs = require('fs');
+var path = require('path');
 var mkdirp = require('mkdirp');
+var root = path.normalize(__dirname + '/../');
 
 // Create little packet folders based on a list of js from another folder
 let packeteer = function(from, to, fn) {
@@ -43,28 +45,31 @@ let packeteerApi = function(from, to) {
         filenames.forEach(function(filename) {
             var dir = filename.replace(".md", ""); // Remove '.md'
             // Make new packet directory
-            mkdirp(to + dir, function(err, content) {
+            mkdirp(root + to + dir, function(err, content) {
                 if (err) { throw err; }
 
                 // Read each md file
-                fs.readFile(from + filename, 'utf-8', function(err, content) {
-                    let val;
+                fs.readFile(root + from + filename, 'utf-8', function(err, content) {
                     if (err) { throw err; }
                     
                     // Write the contents to the api.md of packet folders
-                    fs.writeFile(to + dir + '/api.md', content, function(err) {
+                    fs.writeFile(root + to + dir + '/api.md', content, function(err) {
                         if (err) { throw err; }
                         else { console.log(to + dir + '/api.md - Write operation complete.'); }
                     });
                 });
     
                 // Read main required js, create a copy in packet folder
-                fs.readFile("required.js", 'utf-8', function(err, content) {
-                    if (err) { throw err; return; }
-                
+                fs.readFile(root + "required.js", 'utf-8', function(err, content) {
+                    var required, file = root + to + dir + '/required.js';
+                    if (err) { throw err; }
+                    if (fs.existsSync(file)) {
+                       required = fs.readFileSync(file, 'utf-8');
+                    } 
+                    
                     // Write the contents to the required js of packet folders
-                    fs.writeFile(to + dir + '/required.js', content, function(err) {
-                        if (err) { throw err; return; }
+                    fs.writeFile(file, Array.isArray(required) ? "" : content, function(err) {
+                        if (err) { throw err; }
                         else { console.log(to + dir + '/required.js - Write operation complete.'); }
                     });
                 });
@@ -78,7 +83,7 @@ packeteer('src/', 'modules/');
 
 // Create little packets for api folder, but instead of index.js the `filename` and md
 packeteer('src/', 'api/', function(filename) {
-    fs.appendFile('api/' + filename + '.md', "", function(err) {
+    fs.appendFile(root + 'api/' + filename + '.md', "", function(err) {
         if (err) { throw err; }
         else { console.log('api/' + filename + '.md - Write operation complete.'); }
     });
