@@ -63,7 +63,7 @@ let packeteerApi = function(from, to) {
                     if (err) { throw err; return; }
                 
                     // Write the contents to the required js of packet folders
-                    fs.appendFile(to + dir + '/required.js', content, function(err) {
+                    fs.writeFile(to + dir + '/required.js', content, function(err) {
                         if (err) { throw err; return; }
                         else { console.log(to + dir + '/required.js - Write operation complete.'); }
                     });
