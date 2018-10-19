@@ -3,21 +3,9 @@ module.exports = [
     "Core",
     "Util",
     "Function",
-    "Object",
     "Math",
     "Class",
-    "Vector",
-    "Size",
     "Color",
     "Ease",
-    "Event",
-    "UIEvent",
-    "Mouse",
-    "Key",
-    "Touch",
-    "Async",
-    "Accum",
-    "Range",
-    "Debug"
-    // "Animate",
+    "Event"
 ];

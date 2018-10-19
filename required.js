@@ -5,6 +5,7 @@ module.exports = [
     "Function",
     "Object",
     "Math",
+    "String",
     "Class",
     "Vector",
     "Size",

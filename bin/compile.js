@@ -13,7 +13,12 @@ let compile = function(from, to, ref) {
 
         // Iterate per file
         filenames.forEach(function(dir) {
-            required = require(root + from + dir + "/required.js");
+            var __dir;
+            if (fs.existsSync(root + from + dir + "/required.js")) {
+                __dir = root + from + dir + "/required.js";
+            } else { __dir = root + "required.js"; }
+            
+            required = require(__dir);
             content = required.reduce(function(acc, val) {
                 // Read & Write
                 file = (root + ref + val.toLowerCase() + ".js");
