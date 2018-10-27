@@ -19,6 +19,6 @@ module.exports = [
     "Async",
     "Accum",
     "Range",
-    "Debug"
+    "Error"
     // "Animate",
 ];
