@@ -1,7 +1,7 @@
 (function() {
     // Inertia's Util Modules V2 [www.khanacademy.org/cs/_/4952324744708096]
     Define("Util", function() {
-        var Util, Core = Inertia.require("Core");
+        var Util, Core = require("Core");
         
         // Util Object
         Util = {
@@ -18,8 +18,23 @@
                 return [].slice.apply($this, restArg);
             },
 
-            // All Keys in Object
-            allKeys: function(obj) {
+            // All Keys in an Object
+            allKeys: function (obj) {
+                var result = Object.getOwnPropertyNames(obj), addProperty;
+                addProperty = function(property) {
+                    if (result.indexOf(property) === -1) { result.push(property); }
+                };
+            
+                var proto = Object.getPrototypeOf(obj);
+                while (proto !== null) {
+                    Object.getOwnPropertyNames(proto).forEach(addProperty);
+                    proto = Object.getPrototypeOf(proto);
+                }
+                return result;
+            },
+            
+            // All Enumerable Keys in Object
+            enumKeys: function(obj) {
                 var _keys = [];
                 if (!Util._.isObject(obj)) { return []; }
                 for (var key in obj) { _keys.push(key); }
@@ -98,34 +113,49 @@
         };
         
         Util._.allKeys = Util.allKeys;
-        Util._.isDefined = function (val) {
-            return !Util._.isUndefined(val);
-        };
+        Util._.enumKeys = Util.enumKeys;
+        Util._.isDefined = $in.isDef;
         Util._.isColor = function (val) {
             return !Util._.isUndefined(val) && (/^\#|^rgb|^hsl|^hsb/g.test(val) ||
                     (Util._.isArray(val) && Util._.isNumber(val[0])) ||
                         Util._.isNumber(val) || val.value);
         };
-        
-        // Underscore specific functionality
-        Define("_", function() { return Util._; });
-        // Iterates Over Object's mulitiple times
-        Define("each", function() { return Util.each; });
-
-        // Type Testing Functions
-        Define(["is", "Util.is"], function() {
-            // Type Check Functions
-            return Util._.reduce(['Object', 'Array', 'Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error', 'Undefined', 'Null', 'Equal', 'Empty', 'Match'], function(obj, name) {
-                obj[name.toLowerCase()] = obj[name] = Util._[["is" + name]];
-                return obj;
-            }, {
-                // Test if an Object is simmilar to an Array
-                ArrayLike: function(obj) {
-                    var len = Util._.isNumber(obj.length) && obj.length;
-                    return len === 0 || len > 0 && (len - 1) in obj;
-                }
-            });
-        }, true);
         return Util;
     });
+        
+    // Underscore specific functionality
+    Define("_", function() { return require("Util._"); }); 
+    Define("each", function() { return require("Util.each"); }); // Iterates Over Object's mulitiple times
+
+    // Type Testing Functions
+    Define(["is", "Util.is"], function() {
+        var _ = require("_");
+        // Type Check Functions
+        return ['Error', 'Symbol', 'Map', 'WeakMap', 'Set', 'WeakSet', 'Object', 'Array', 'Arguments', 'Function', 'String', 'Number', 'Boolean', 'Date', 'RegExp', 'Undefined', 'Null', 'Equal', 'Empty', 'Finite', 'NaN'].reduce(function(obj, name) {
+            obj[name.toLowerCase()] = obj[name] = _[["is" + name]] ? 
+                _[["is" + name]] : function(obj) {
+                return Object.prototype.toString.call(obj) === '[object ' + name + ']';
+            };
+            return obj;
+        }, {
+            // Check whether an object has a given set of key:value pairs
+            isMatch: function (obj, attrs) {
+                var keys = _.keys(attrs), length = keys.length;
+                if (obj === null) { return !length; }
+                obj = Object(obj);
+                for (var i = 0; i < length; i++) {
+                    var key = keys[i];
+                    if (attrs[key] !== obj[key] || !(key in obj)) 
+                        { return false; }
+                }
+                return true;
+            },
+            
+            // Test if an Object is simmilar to an Array
+            ArrayLike: function(obj) {
+                var len = _.isNumber(obj.length) && obj.length;
+                return len === 0 || len > 0 && (len - 1) in obj;
+            }
+        });
+    }, true);
 })(); // Util

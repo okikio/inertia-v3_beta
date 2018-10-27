@@ -61,7 +61,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             
             // Set Rate
             setRate: function (rate) {
-                this.rate = !isDef(rate) ? rate : 500;
+                this.rate = isDef(rate) ? rate : 500;
                 return this;
             },
             

@@ -30,7 +30,8 @@ let packeteer = function(from, to, fn) {
                         });
                     });
                 });
-            } else { fn(dir); }
+            }
+            else { fn(dir); }
         });
     });
 };
@@ -51,27 +52,25 @@ let packeteerApi = function(from, to) {
                 // Read each md file
                 fs.readFile(root + from + filename, 'utf-8', function(err, content) {
                     if (err) { throw err; }
-                    
+
                     // Write the contents to the api.md of packet folders
                     fs.writeFile(root + to + dir + '/api.md', content, function(err) {
                         if (err) { throw err; }
                         else { console.log(to + dir + '/api.md - Write operation complete.'); }
                     });
                 });
-    
+
                 // Read main required js, create a copy in packet folder
                 fs.readFile(root + "required.js", 'utf-8', function(err, content) {
-                    var required, file = root + to + dir + '/required.js';
+                    var file = root + to + dir + '/required.js';
                     if (err) { throw err; }
-                    if (fs.existsSync(file)) {
-                       required = fs.readFileSync(file, 'utf-8');
-                    } 
-                    
-                    // Write the contents to the required js of packet folders
-                    fs.writeFile(file, Array.isArray(required) ? "" : content, function(err) {
-                        if (err) { throw err; }
-                        else { console.log(to + dir + '/required.js - Write operation complete.'); }
-                    });
+                    if (!fs.existsSync(file)) { 
+                        // Write the contents to the required js of packet folders
+                        fs.writeFile(file, content, function(err) {
+                            if (err) { throw err; }
+                            else { console.log(to + dir + '/required.js - Write operation complete.'); }
+                        }); 
+                    }
                 });
             });
         });

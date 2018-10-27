@@ -93,4 +93,4 @@
         _.extend(Native.prototype, MapFunc($Map, true));
         return Native;
     });
-})();
+})(); // String

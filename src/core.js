@@ -13,15 +13,30 @@
             setup = function() { return this; };
             return setup();
         })();
-
+        
+        Core.EVAL = Core[["eval"]] = Core.window("eval"); // Eval Function
         Core.FUNCTION = Core.Func = Core.window("Function"); // Function Object
         Core.JSON = Core.Json = Core.window("JSON"); // Json Object
         Core.STRING = Core.String = Core.window("String"); // String Object
+        Core.REGEXP = Core.RegExp = Core.window("RegExp"); // RegExp Object
         Core.OBJECT = Core.Object = Core.window("Object"); // Object Object [Confusing Eh]
         Core.NUMBER = Core.Number = Core.window("Number"); // Number Object
         Core.ARRAY = Core.Array = Core.window("Number"); // Array Object
         Core.BOOLEAN = Core.Boolean = Core.window("Boolean"); // Boolean Object
         Core.MATH = Core.Math = Core.window("Math"); // Math Object
+        Core.ERROR = Core.Error = Core.window("Error"); // Error Object
+        Core.DATE = Core.Date = Core.window("Date"); // Date Object
+        Core.PROMISE = Core.Promise = Core.window("Promise"); // Promise Object
+        Core.SYMBOL = Core.Symbol = Core.window("Symbol"); // Symbol Object
+        Core.MAP = Core.Map = Core.window("Map"); // Map Object
+        Core.WEAKMAP = Core.WeakMap = Core.window("WeakMap"); // WeakMap Object
+        Core.SET = Core.Set = Core.window("Set"); // Set Object
+        Core.WEAKSET = Core.WeakSet = Core.window("WeakSet"); // WeakSet Object
+        Core.WEBASSEMBLY = Core.WebAssembly = Core.window("WebAssembly"); // WebAssembly Object
+        Core.GENERATOR = Core.Generator = Core.window("Generator"); // Generator Object
+        Core.GENERATORFUNCTION = Core.GeneratorFunction = Core.window("GeneratorFunction"); // GeneratorFunction Object
+        Core.PROXY = Core.Proxy = Core.window("Proxy"); // Proxy Object
+        Core.REFLECT = Core.Reflect = Core.window("Reflect"); // Reflect Object
         // Logger / Print to Console
         Core.log = Core.LOG = function() {
             var _args = Array.from(arguments);

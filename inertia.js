@@ -61,7 +61,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             
             // Set Rate
             setRate: function (rate) {
-                this.rate = !isDef(rate) ? rate : 500;
+                this.rate = isDef(rate) ? rate : 500;
                 return this;
             },
             
@@ -322,15 +322,30 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             setup = function() { return this; };
             return setup();
         })();
-
+        
+        Core.EVAL = Core[["eval"]] = Core.window("eval"); // Eval Function
         Core.FUNCTION = Core.Func = Core.window("Function"); // Function Object
         Core.JSON = Core.Json = Core.window("JSON"); // Json Object
         Core.STRING = Core.String = Core.window("String"); // String Object
+        Core.REGEXP = Core.RegExp = Core.window("RegExp"); // RegExp Object
         Core.OBJECT = Core.Object = Core.window("Object"); // Object Object [Confusing Eh]
         Core.NUMBER = Core.Number = Core.window("Number"); // Number Object
         Core.ARRAY = Core.Array = Core.window("Number"); // Array Object
         Core.BOOLEAN = Core.Boolean = Core.window("Boolean"); // Boolean Object
         Core.MATH = Core.Math = Core.window("Math"); // Math Object
+        Core.ERROR = Core.Error = Core.window("Error"); // Error Object
+        Core.DATE = Core.Date = Core.window("Date"); // Date Object
+        Core.PROMISE = Core.Promise = Core.window("Promise"); // Promise Object
+        Core.SYMBOL = Core.Symbol = Core.window("Symbol"); // Symbol Object
+        Core.MAP = Core.Map = Core.window("Map"); // Map Object
+        Core.WEAKMAP = Core.WeakMap = Core.window("WeakMap"); // WeakMap Object
+        Core.SET = Core.Set = Core.window("Set"); // Set Object
+        Core.WEAKSET = Core.WeakSet = Core.window("WeakSet"); // WeakSet Object
+        Core.WEBASSEMBLY = Core.WebAssembly = Core.window("WebAssembly"); // WebAssembly Object
+        Core.GENERATOR = Core.Generator = Core.window("Generator"); // Generator Object
+        Core.GENERATORFUNCTION = Core.GeneratorFunction = Core.window("GeneratorFunction"); // GeneratorFunction Object
+        Core.PROXY = Core.Proxy = Core.window("Proxy"); // Proxy Object
+        Core.REFLECT = Core.Reflect = Core.window("Reflect"); // Reflect Object
         // Logger / Print to Console
         Core.log = Core.LOG = function() {
             var _args = Array.from(arguments);
@@ -352,7 +367,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
 (function() {
     // Inertia's Util Modules V2 [www.khanacademy.org/cs/_/4952324744708096]
     Define("Util", function() {
-        var Util, Core = Inertia.require("Core");
+        var Util, Core = require("Core");
         
         // Util Object
         Util = {
@@ -369,8 +384,23 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return [].slice.apply($this, restArg);
             },
 
-            // All Keys in Object
-            allKeys: function(obj) {
+            // All Keys in an Object
+            allKeys: function (obj) {
+                var result = Object.getOwnPropertyNames(obj), addProperty;
+                addProperty = function(property) {
+                    if (result.indexOf(property) === -1) { result.push(property); }
+                };
+            
+                var proto = Object.getPrototypeOf(obj);
+                while (proto !== null) {
+                    Object.getOwnPropertyNames(proto).forEach(addProperty);
+                    proto = Object.getPrototypeOf(proto);
+                }
+                return result;
+            },
+            
+            // All Enumerable Keys in Object
+            enumKeys: function(obj) {
                 var _keys = [];
                 if (!Util._.isObject(obj)) { return []; }
                 for (var key in obj) { _keys.push(key); }
@@ -449,36 +479,51 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         };
         
         Util._.allKeys = Util.allKeys;
-        Util._.isDefined = function (val) {
-            return !Util._.isUndefined(val);
-        };
+        Util._.enumKeys = Util.enumKeys;
+        Util._.isDefined = $in.isDef;
         Util._.isColor = function (val) {
             return !Util._.isUndefined(val) && (/^\#|^rgb|^hsl|^hsb/g.test(val) ||
                     (Util._.isArray(val) && Util._.isNumber(val[0])) ||
                         Util._.isNumber(val) || val.value);
         };
-        
-        // Underscore specific functionality
-        Define("_", function() { return Util._; });
-        // Iterates Over Object's mulitiple times
-        Define("each", function() { return Util.each; });
-
-        // Type Testing Functions
-        Define(["is", "Util.is"], function() {
-            // Type Check Functions
-            return Util._.reduce(['Object', 'Array', 'Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error', 'Undefined', 'Null', 'Equal', 'Empty', 'Match'], function(obj, name) {
-                obj[name.toLowerCase()] = obj[name] = Util._[["is" + name]];
-                return obj;
-            }, {
-                // Test if an Object is simmilar to an Array
-                ArrayLike: function(obj) {
-                    var len = Util._.isNumber(obj.length) && obj.length;
-                    return len === 0 || len > 0 && (len - 1) in obj;
-                }
-            });
-        }, true);
         return Util;
     });
+        
+    // Underscore specific functionality
+    Define("_", function() { return require("Util._"); }); 
+    Define("each", function() { return require("Util.each"); }); // Iterates Over Object's mulitiple times
+
+    // Type Testing Functions
+    Define(["is", "Util.is"], function() {
+        var _ = require("_");
+        // Type Check Functions
+        return ['Error', 'Symbol', 'Map', 'WeakMap', 'Set', 'WeakSet', 'Object', 'Array', 'Arguments', 'Function', 'String', 'Number', 'Boolean', 'Date', 'RegExp', 'Undefined', 'Null', 'Equal', 'Empty', 'Finite', 'NaN'].reduce(function(obj, name) {
+            obj[name.toLowerCase()] = obj[name] = _[["is" + name]] ? 
+                _[["is" + name]] : function(obj) {
+                return Object.prototype.toString.call(obj) === '[object ' + name + ']';
+            };
+            return obj;
+        }, {
+            // Check whether an object has a given set of key:value pairs
+            isMatch: function (obj, attrs) {
+                var keys = _.keys(attrs), length = keys.length;
+                if (obj === null) { return !length; }
+                obj = Object(obj);
+                for (var i = 0; i < length; i++) {
+                    var key = keys[i];
+                    if (attrs[key] !== obj[key] || !(key in obj)) 
+                        { return false; }
+                }
+                return true;
+            },
+            
+            // Test if an Object is simmilar to an Array
+            ArrayLike: function(obj) {
+                var len = _.isNumber(obj.length) && obj.length;
+                return len === 0 || len > 0 && (len - 1) in obj;
+            }
+        });
+    }, true);
 })(); // Util
 (function() {
     // Inertia's Function Module V2 [www.khanacademy.org/cs/_/5415663367127040]
@@ -807,7 +852,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         _.extend(Native.prototype, MapFunc($Map, true));
         return Native;
     });
-})();
+})(); // String
 (function() {
     // Inertia's Class Module V2 [www.khanacademy.org/cs/_/5398825551822848]
     // Class Module acts like the ES6 `class` keyword replacement
@@ -2053,8 +2098,3 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         };
     });
 })(); // Range
-(function() {
-    Define("Debug", function () {
-        
-    });
-})(); // Debug
