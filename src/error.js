@@ -1,4 +1,5 @@
 (function() {
+    // Heavily based on Chaijs [chaijs.com]
     Define("Error", function () {
         var Core = require("Core"), Util = require("Util"), Fn = require("Fn"), 
             Class = require("Class"), $JSON = Core.JSON, Proxy = Core.Proxy, 
