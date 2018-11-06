@@ -7,6 +7,15 @@
                 this.CallSuper("constructor", $in.isDef(rate) ? rate : 100);
                 this.loopThru = true; 
             },
+            errFn: function (e) {
+                e = e || { message: "Unidentified Error" };
+                background(235);
+                fill(50);
+                textAlign(CENTER, CENTER);
+                textFont(createFont("Century Gothic Bold"), 22);
+                text("Loading Error! Module: " + this.indx + ". \n Message: " + e.message, 25, 0, 350, 400);
+            
+            },
         
             // Add New Tasks
             then: function(fn) {
@@ -35,9 +44,11 @@
             // Creates a Loop for Loading
             loop: function () {
                 $in.Event.on("draw", function () {
-                    this.run();
-                    if (this.complete) { this.readyFn(); } 
-                    else { this.loadFn(); }
+                    try {
+                        this.run();
+                        if (this.complete) { this.readyFn(); } 
+                        else { this.loadFn(); }
+                    } catch (e) { this.errFn(e); }
                 }, this);
                 return this;
             },

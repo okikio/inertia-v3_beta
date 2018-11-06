@@ -15,7 +15,7 @@
         })();
         
         Core.EVAL = Core[["eval"]] = Core.window("eval"); // Eval Function
-        Core.FUNCTION = Core.Func = Core.window("Function"); // Function Object
+        Core.FUNCTION = Core.Function = Core.Func = Core.Fn = Core.window("Function"); // Function Object
         Core.JSON = Core.Json = Core.window("JSON"); // Json Object
         Core.STRING = Core.String = Core.window("String"); // String Object
         Core.REGEXP = Core.RegExp = Core.window("RegExp"); // RegExp Object
@@ -35,7 +35,7 @@
         Core.WEBASSEMBLY = Core.WebAssembly = Core.window("WebAssembly"); // WebAssembly Object
         Core.GENERATOR = Core.Generator = Core.window("Generator"); // Generator Object
         Core.GENERATORFUNCTION = Core.GeneratorFunction = Core.window("GeneratorFunction"); // GeneratorFunction Object
-        Core.PROXY = Core.Proxy = Core.window("Proxy"); // Proxy Object
+        Core.PROXY = Core.Proxy = Core.Fn("o", "h", "return new Proxy(o, h)"); // Proxy Object
         Core.REFLECT = Core.Reflect = Core.window("Reflect"); // Reflect Object
         // Logger / Print to Console
         Core.log = Core.LOG = function() {

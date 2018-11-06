@@ -44,19 +44,29 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         Async.prototype = {
             readyFn: function () {},
             loadFn: function () {
-                background(255);
-                fill(230);
+                background(55);
+                fill(220);
                 noStroke();
-                rect(100, 200, 200, 3, 5);
+                rect(100, 200, 200, 4, 8);
                     
-                fill(150);
-                rect(100, 200, this.progress / 100 * 200, 3, 5);
+                fill(120);
+                rect(100, 200, this.progress / 100 * 200, 4, 8);
                     
-                fill(50);
+                fill(250);
                 textAlign(CENTER, CENTER);
-                textFont(createFont("Century Gothic Bold"), 25);
-                text("Loading! \"" + this.tasks[this.indx][1] + "\" \n " +
-                    this.indx + " / " + (this.tasks.length - 1), 50, - 56, 300, 400);
+                textFont(createFont("Trebuchet Bold"), 35);
+                text("Inertia.", 200, 200 - 50);
+            },
+            errFn: function (e) {
+                e = e || { message: "Unidentified Error" };
+                background(255, 0, 0);
+                fill(255);
+                textAlign(CENTER, CENTER);
+                textFont(createFont("Century Gothic Bold"), 22);
+                if (this.indx !== this.tasks.length) {
+                    text("Loading Error! Module: " + this.tasks[this.indx][1] + 
+                        ". \n Message: " + e.message, 25, 0, 350, 400);
+                } else { text("Error!\n Message: " + e.message, 25, 0, 350, 400); }
             },
             
             // Set Rate
@@ -74,6 +84,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             // On Load
             load: function (fn) {
                 this.loadFn = fn || function () {};
+                return this;
+            },
+            
+            // Error
+            error: function (fn) {
+                this.errFn = fn || function () {};
                 return this;
             },
                 
@@ -111,10 +127,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             loop: function () {
                 var window = (0, eval)("this");
                 var _draw = function() {
-                    this.run();
-                    if (this.complete) { this.readyFn(); return; } 
-                    else { this.loadFn(); }
-                    window.requestAnimationFrame(_draw);
+                    try {
+                        this.run();
+                        if (this.complete) { this.readyFn(); return; } 
+                        else { this.loadFn(); }
+                        window.requestAnimationFrame(_draw);
+                    } catch (e) { this.errFn(e); }
                 }.bind(this);
                 window.requestAnimationFrame(_draw);
                 return this;

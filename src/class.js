@@ -30,7 +30,7 @@
                         
                         this.prototype[i] = val; // Redefinition Error Fix
                         Object.defineProperty(this.prototype, i,
-                            typeof val === "object" && val.get ? val : { value: val });
+                            typeof val === "object" && (val.get || val.set) ? val : { value: val });
                     }, this);
                 }, this);
                 return this;
@@ -49,7 +49,7 @@
                         
                         this[i] = val; // Redefinition Error Fix
                         Object.defineProperty(this, i,
-                            typeof val === "object" && val.get ? val : { value: val });
+                            typeof val === "object" && (val.get || val.set) ? val : { value: val });
                     }, this);
                 }, this);
                 return this;
@@ -177,6 +177,11 @@
                 var _val = Object.constructor("with (this) return " + val);
                 _val.toString = val.toString;
                 return { get: _val };
+            },
+            set: function (val) {
+                var _val = Object.constructor("with (this) return " + val);
+                _val.toString = val.toString;
+                return { set: _val };
             }
         };
         

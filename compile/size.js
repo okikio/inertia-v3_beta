@@ -44,19 +44,29 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         Async.prototype = {
             readyFn: function () {},
             loadFn: function () {
-                background(255);
-                fill(230);
+                background(55);
+                fill(220);
                 noStroke();
-                rect(100, 200, 200, 3, 5);
+                rect(100, 200, 200, 4, 8);
                     
-                fill(150);
-                rect(100, 200, this.progress / 100 * 200, 3, 5);
+                fill(120);
+                rect(100, 200, this.progress / 100 * 200, 4, 8);
                     
-                fill(50);
+                fill(250);
                 textAlign(CENTER, CENTER);
-                textFont(createFont("Century Gothic Bold"), 25);
-                text("Loading! \"" + this.tasks[this.indx][1] + "\" \n " +
-                    this.indx + " / " + (this.tasks.length - 1), 50, - 56, 300, 400);
+                textFont(createFont("Trebuchet Bold"), 35);
+                text("Inertia.", 200, 200 - 50);
+            },
+            errFn: function (e) {
+                e = e || { message: "Unidentified Error" };
+                background(255, 0, 0);
+                fill(255);
+                textAlign(CENTER, CENTER);
+                textFont(createFont("Century Gothic Bold"), 22);
+                if (this.indx !== this.tasks.length) {
+                    text("Loading Error! Module: " + this.tasks[this.indx][1] + 
+                        ". \n Message: " + e.message, 25, 0, 350, 400);
+                } else { text("Error!\n Message: " + e.message, 25, 0, 350, 400); }
             },
             
             // Set Rate
@@ -74,6 +84,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             // On Load
             load: function (fn) {
                 this.loadFn = fn || function () {};
+                return this;
+            },
+            
+            // Error
+            error: function (fn) {
+                this.errFn = fn || function () {};
                 return this;
             },
                 
@@ -111,10 +127,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             loop: function () {
                 var window = (0, eval)("this");
                 var _draw = function() {
-                    this.run();
-                    if (this.complete) { this.readyFn(); return; } 
-                    else { this.loadFn(); }
-                    window.requestAnimationFrame(_draw);
+                    try {
+                        this.run();
+                        if (this.complete) { this.readyFn(); return; } 
+                        else { this.loadFn(); }
+                        window.requestAnimationFrame(_draw);
+                    } catch (e) { this.errFn(e); }
                 }.bind(this);
                 window.requestAnimationFrame(_draw);
                 return this;
@@ -324,7 +342,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         })();
         
         Core.EVAL = Core[["eval"]] = Core.window("eval"); // Eval Function
-        Core.FUNCTION = Core.Func = Core.window("Function"); // Function Object
+        Core.FUNCTION = Core.Function = Core.Func = Core.Fn = Core.window("Function"); // Function Object
         Core.JSON = Core.Json = Core.window("JSON"); // Json Object
         Core.STRING = Core.String = Core.window("String"); // String Object
         Core.REGEXP = Core.RegExp = Core.window("RegExp"); // RegExp Object
@@ -344,7 +362,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         Core.WEBASSEMBLY = Core.WebAssembly = Core.window("WebAssembly"); // WebAssembly Object
         Core.GENERATOR = Core.Generator = Core.window("Generator"); // Generator Object
         Core.GENERATORFUNCTION = Core.GeneratorFunction = Core.window("GeneratorFunction"); // GeneratorFunction Object
-        Core.PROXY = Core.Proxy = Core.window("Proxy"); // Proxy Object
+        Core.PROXY = Core.Proxy = Core.Fn("o", "h", "return new Proxy(o, h)"); // Proxy Object
         Core.REFLECT = Core.Reflect = Core.window("Reflect"); // Reflect Object
         // Logger / Print to Console
         Core.log = Core.LOG = function() {
@@ -402,35 +420,32 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             // All Enumerable Keys in Object
             enumKeys: function(obj) {
                 var _keys = [];
-                if (!Util._.isObject(obj)) { return []; }
-                for (var key in obj) { _keys.push(key); }
+                for (var _key in obj) { _keys.push(_key); }
                 return _keys;
             },
 
             // Map An Array to an Object
             MapArr: function(obj, type) {
-                var result = {},
-                    _ = Core.window("_");
+                var result = {}, _ = Core.window("_");
                 // Iterate Map
                 _.each(obj, function(arr) {
                     // Iterate In Each Element Of the Array
                     _.each(arr, function(ele) {
                         // Iteration of each Array
-                        _.each((_.isArray(ele) ? ele : [ele]), function(name) {
+                        _.each((_.isArray(arr[0]) ? arr[0] : [ele]), function(name) {
                             // Set [name] of the [obj] Object to the Array Function
-                            result[name] = type && arr[1] ? function() {
+                            result[name] = type && _.isFunction(arr[1]) ? function() {
                                 return arr[1].apply(this, [this]
                                         .concat(Array.from(arguments)));
                             } : arr[1];
 
-                            if (type && arr[1]) {
+                            if (type && _.isFunction(arr[1])) {
                                 result[name].toString = arr[1].toString.bind(arr[1]);
                                 result[name].valueOf = arr[1].valueOf.bind(arr[1]);
                             }
                         }, this);
                     }, this);
                 }, this);
-
                 return result;
             },
 
@@ -497,7 +512,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     Define(["is", "Util.is"], function() {
         var _ = require("_");
         // Type Check Functions
-        return ['Error', 'Symbol', 'Map', 'WeakMap', 'Set', 'WeakSet', 'Object', 'Array', 'Arguments', 'Function', 'String', 'Number', 'Boolean', 'Date', 'RegExp', 'Undefined', 'Null', 'Equal', 'Empty', 'Finite', 'NaN'].reduce(function(obj, name) {
+        return ['Symbol', 'Map', 'WeakMap', 'Set', 'WeakSet', 'Object', 'Array', 'Arguments', 'Function', 'String', 'Number', 'Boolean', 'Date', 'RegExp', 'Undefined', 'Null', 'Equal', 'Empty', 'Finite', 'NaN'].reduce(function(obj, name) {
             obj[name.toLowerCase()] = obj[name] = _[["is" + name]] ? 
                 _[["is" + name]] : function(obj) {
                 return Object.prototype.toString.call(obj) === '[object ' + name + ']';
@@ -555,12 +570,18 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
 
             // Remove extra code in a Stringifed Function
             [["toStr"], function(fn) {
-                var $fn = fn.toString()
-                    .replace(/__env__\./g, "")
-                    .replace(/\s*KAInfiniteLoopC\ount/g, "")
-                    .replace(/\+\+;/g, " ")
-                    .replace(/if[^;]+[^}]+\}\s+/g, "");
-                return $fn.replace(/\s/g, "").length <= 20 ? $fn.replace(/\s+}/, " }") : $fn;
+                var $fn = fn.toString().trim()
+                    .replace(/(__)env__\.\$(\w+) = /g, "const $$$2 = ")
+                    .replace(/(__)env__\.\$(\w+)/g, "$$$2")
+                    .replace(/var\s+\$(\w+)/g, "const $$$1")
+                    .replace(/(__)env__\.KAInfiniteLoopProtect\(.*\);/g, "")
+                    .replace(/(__)env__\.KAInfiniteLoopCount = 0;/g, "")
+                    .replace(/(__)env__\.KAInfiniteLoopCount > 1000/g, "")
+                    .replace(/(__)env__\.KAInfiniteLoopCount\+\+;\s+if \(\) {\s+}\n/g, "")
+                    .replace(/(__)env__\.KAInfiniteLoopSetTimeout\(\d+\);\n/g, "")
+                    .replace(/__env__\./g, ""), copy;
+                copy = $fn.replace(/{\s+/g, '{ ').replace(/\s+}/, " }");
+                return $fn.match(/[\n]/g).length <= 2 ? copy : $fn;
             }]
         ];
 
@@ -674,7 +695,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                         
                         this.prototype[i] = val; // Redefinition Error Fix
                         Object.defineProperty(this.prototype, i,
-                            typeof val === "object" && val.get ? val : { value: val });
+                            typeof val === "object" && (val.get || val.set) ? val : { value: val });
                     }, this);
                 }, this);
                 return this;
@@ -693,7 +714,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                         
                         this[i] = val; // Redefinition Error Fix
                         Object.defineProperty(this, i,
-                            typeof val === "object" && val.get ? val : { value: val });
+                            typeof val === "object" && (val.get || val.set) ? val : { value: val });
                     }, this);
                 }, this);
                 return this;
@@ -821,6 +842,11 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 var _val = Object.constructor("with (this) return " + val);
                 _val.toString = val.toString;
                 return { get: _val };
+            },
+            set: function (val) {
+                var _val = Object.constructor("with (this) return " + val);
+                _val.toString = val.toString;
+                return { set: _val };
             }
         };
         

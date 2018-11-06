@@ -28,12 +28,18 @@
 
             // Remove extra code in a Stringifed Function
             [["toStr"], function(fn) {
-                var $fn = fn.toString()
-                    .replace(/__env__\./g, "")
-                    .replace(/\s*KAInfiniteLoopC\ount/g, "")
-                    .replace(/\+\+;/g, " ")
-                    .replace(/if[^;]+[^}]+\}\s+/g, "");
-                return $fn.replace(/\s/g, "").length <= 20 ? $fn.replace(/\s+}/, " }") : $fn;
+                var $fn = fn.toString().trim()
+                    .replace(/(__)env__\.\$(\w+) = /g, "const $$$2 = ")
+                    .replace(/(__)env__\.\$(\w+)/g, "$$$2")
+                    .replace(/var\s+\$(\w+)/g, "const $$$1")
+                    .replace(/(__)env__\.KAInfiniteLoopProtect\(.*\);/g, "")
+                    .replace(/(__)env__\.KAInfiniteLoopCount = 0;/g, "")
+                    .replace(/(__)env__\.KAInfiniteLoopCount > 1000/g, "")
+                    .replace(/(__)env__\.KAInfiniteLoopCount\+\+;\s+if \(\) {\s+}\n/g, "")
+                    .replace(/(__)env__\.KAInfiniteLoopSetTimeout\(\d+\);\n/g, "")
+                    .replace(/__env__\./g, ""), copy;
+                copy = $fn.replace(/{\s+/g, '{ ').replace(/\s+}/, " }");
+                return $fn.match(/[\n]/g).length <= 2 ? copy : $fn;
             }]
         ];
 

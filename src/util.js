@@ -36,35 +36,32 @@
             // All Enumerable Keys in Object
             enumKeys: function(obj) {
                 var _keys = [];
-                if (!Util._.isObject(obj)) { return []; }
-                for (var key in obj) { _keys.push(key); }
+                for (var _key in obj) { _keys.push(_key); }
                 return _keys;
             },
 
             // Map An Array to an Object
             MapArr: function(obj, type) {
-                var result = {},
-                    _ = Core.window("_");
+                var result = {}, _ = Core.window("_");
                 // Iterate Map
                 _.each(obj, function(arr) {
                     // Iterate In Each Element Of the Array
                     _.each(arr, function(ele) {
                         // Iteration of each Array
-                        _.each((_.isArray(ele) ? ele : [ele]), function(name) {
+                        _.each((_.isArray(arr[0]) ? arr[0] : [ele]), function(name) {
                             // Set [name] of the [obj] Object to the Array Function
-                            result[name] = type && arr[1] ? function() {
+                            result[name] = type && _.isFunction(arr[1]) ? function() {
                                 return arr[1].apply(this, [this]
                                         .concat(Array.from(arguments)));
                             } : arr[1];
 
-                            if (type && arr[1]) {
+                            if (type && _.isFunction(arr[1])) {
                                 result[name].toString = arr[1].toString.bind(arr[1]);
                                 result[name].valueOf = arr[1].valueOf.bind(arr[1]);
                             }
                         }, this);
                     }, this);
                 }, this);
-
                 return result;
             },
 
@@ -131,7 +128,7 @@
     Define(["is", "Util.is"], function() {
         var _ = require("_");
         // Type Check Functions
-        return ['Error', 'Symbol', 'Map', 'WeakMap', 'Set', 'WeakSet', 'Object', 'Array', 'Arguments', 'Function', 'String', 'Number', 'Boolean', 'Date', 'RegExp', 'Undefined', 'Null', 'Equal', 'Empty', 'Finite', 'NaN'].reduce(function(obj, name) {
+        return ['Symbol', 'Map', 'WeakMap', 'Set', 'WeakSet', 'Object', 'Array', 'Arguments', 'Function', 'String', 'Number', 'Boolean', 'Date', 'RegExp', 'Undefined', 'Null', 'Equal', 'Empty', 'Finite', 'NaN'].reduce(function(obj, name) {
             obj[name.toLowerCase()] = obj[name] = _[["is" + name]] ? 
                 _[["is" + name]] : function(obj) {
                 return Object.prototype.toString.call(obj) === '[object ' + name + ']';
