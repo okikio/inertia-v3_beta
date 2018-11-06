@@ -1032,17 +1032,19 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return fn;
             },
         
-            // Adds a property to the prototype of an object.[github.com/chaijs/chai/blob/058ddadb8422238b418d0c3e8f92e4f757289abd/lib/chai/utils/addProperty.js]
+            // Adds a property to the prototype of an object. [github.com/chaijs/chai/blob/058ddadb8422238b418d0c3e8f92e4f757289abd/lib/chai/utils/addProperty.js]
             addProperty: function(name, fn) {
                 fn = _.isUndefined(fn) ? function() {} : fn;
-                Object.defineProperty(this.prototype, name, {
-                    get: function () {
-                        var result = fn.call(this);
-                        if (result !== undefined) { return result; }
-                        return this;
-                    },
-                    configurable: true
-                });
+                (_.isArray(name) ? name : [name]).forEach(function (val) {
+                    Object.defineProperty(this.prototype, val, {
+                        get: function () {
+                            var result = fn.call(this);
+                            if (result !== undefined) { return result; }
+                            return this;
+                        },
+                        configurable: true
+                    });
+                }, this);
             },
             
             // Adds a method to the prototype of an object. [github.com/chaijs/chai/blob/058ddadb8422238b418d0c3e8f92e4f757289abd/lib/chai/utils/addMethod.js]
@@ -1058,8 +1060,10 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     if (result !== undefined) { return result; }
                     return this;
                 };
-                Static.lengthGuard(methodWrapper, name, false);
-                this.prototype[name] = Static.proxify(methodWrapper, name);
+                (_.isArray(name) ? name : [name]).forEach(function (val) {
+                    Static.lengthGuard(methodWrapper, val, false);
+                    this.prototype[name] = Static.proxify(methodWrapper, val);
+                }, this);
             },
             
             // Adds a method to an object, such that the method can also be chained. [github.com/chaijs/chai/blob/058ddadb8422238b418d0c3e8f92e4f757289abd/lib/chai/utils/addChainableMethod.js]
@@ -1074,29 +1078,31 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             
                 // Save the methods so we can overwrite them later, if we need to.
                 if (!ctx.__methods) { ctx.__methods = {}; }
-                ctx.__methods[name] = behave;
-                Object.defineProperty(ctx, name, {
-                    get: function () {
-                        behave.role.call(this);
-                        var MethodWrapper = function() {
-                            if (!Static.flag(this, 'lockSsfi')) {
-                                Static.flag(this, 'ssfi', MethodWrapper);
-                            }
-                            var result = behave.method.apply(this, arguments);
-                            if (result !== undefined) { return result; }
-                            return this;
-                        };
-                        Static.lengthGuard(MethodWrapper, name, true);
-                        // Inherit all properties from the object by replacing the `Function` prototype
-                        var prototype = Object.create(this);
-                        // Restore the `call` and `apply` methods from `Function`
-                        prototype.call = call; prototype.apply = apply;
-                        Object.setPrototypeOf(MethodWrapper, prototype);
-                        Static.transferFlags(this, MethodWrapper);
-                        return Static.proxify(MethodWrapper);
-                    },
-                    configurable: true
-                });
+                (_.isArray(name) ? name : [name]).forEach(function (val) {
+                    ctx.__methods[val] = behave;
+                    Object.defineProperty(ctx, val, {
+                        get: function () {
+                            behave.role.call(this);
+                            var MethodWrapper = function() {
+                                if (!Static.flag(this, 'lockSsfi')) {
+                                    Static.flag(this, 'ssfi', MethodWrapper);
+                                }
+                                var result = behave.method.apply(this, arguments);
+                                if (result !== undefined) { return result; }
+                                return this;
+                            };
+                            Static.lengthGuard(MethodWrapper, val, true);
+                            // Inherit all properties from the object by replacing the `Function` prototype
+                            var prototype = Object.create(this);
+                            // Restore the `call` and `apply` methods from `Function`
+                            prototype.call = call; prototype.apply = apply;
+                            Object.setPrototypeOf(MethodWrapper, prototype);
+                            Static.transferFlags(this, MethodWrapper);
+                            return Static.proxify(MethodWrapper);
+                        },
+                        configurable: true
+                    });
+                }, this);
             },
             
             /*** - Interfaces - ***/
@@ -1171,64 +1177,54 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         
         // Language chains [github.com/chaijs/chai/blob/058ddadb8422238b418d0c3e8f92e4f757289abd/lib/chai/core/assertions.js]
         (function () {
-            var an, SameValueZero, includeChainingBehavior, compatibleConstructor, include, checkArguments, assertEqual, assertEql, assertAbove, assertLeast, assertBelow, assertMost, assertInstanceOf, assertProperty, assertOwnProperty, assertOwnPropertyDescriptor, assertLengthChain, assertLength, assertMatch, assertKeys, respondTo, satisfy, closeTo, isSubsetOf, assertChanges, assertIncreases, assertDecreases, substr;
+            var SameValueZero, compatibleConstructor, isSubsetOf;
             // The following are provided as chainable getters to improve the readability of your assertions. These don't affect anything.
             ['to', 'be', 'been', 'is', 'and', 'has', 'have', 'with', 'that', 'which', 'at', 'of', 'same', 'but', 'does'].forEach(function(chain) {
                 $Err.addProperty(chain);
             });
-            
             // Negates all assertions that follow in the chain.
             $Err.addProperty('not', function() {
                 Static.flag(this, 'negate', true);
             });
-        
             // Causes all `.equal`, `.include`, `.members`, `.keys`, and `.property` assertions that follow in the chain to use deep equality instead of strict (`===`) equality.
             $Err.addProperty('deep', function() {
                 Static.flag(this, 'deep', true);
             });
-        
             // Enables dot- and bracket-notation in all `.property` and `.include` assertions that follow in the chain.
             $Err.addProperty('nested', function() {
                 Static.flag(this, 'nested', true);
             });
-        
             // Causes all `.property` and `.include` assertions that follow in the chain to ignore inherited properties.
             $Err.addProperty('own', function() {
                 Static.flag(this, 'own', true);
             });
-        
             // Causes all `.members` assertions that follow in the chain to require that members be in the same order.
             $Err.addProperty('ordered', function() {
                 Static.flag(this, 'ordered', true);
             });
-        
             // Causes all `.keys` assertions that follow in the chain to only require that the target have at least one of the given keys. This is the opposite of `.all`, which requires that the target have all of the given keys.
             $Err.addProperty('any', function() {
                 Static.flag(this, 'any', true);
                 Static.flag(this, 'all', false);
             });
-        
             // Causes all `.keys` assertions that follow in the chain to require that the target have all of the given keys. This is the opposite of `.any`, which only requires that the target have at least one of the given keys.
             $Err.addProperty('all', function() {
                 Static.flag(this, 'all', true);
                 Static.flag(this, 'any', false);
             });
-        
             // Asserts that the target's type is equal to the given string `type`. Types are case insensitive. `.a` accepts an optional `msg` argument which is a custom error message to show when the assertion fails. The message can also be given as the second argument to `expect`.
-            $Err.addChainableMethod('an', an = function (type, msg) {
+            $Err.addChainableMethod(['an', 'a'], function (type, msg) {
                 type = type.toLowerCase();
                 if (msg) { Static.flag(this, 'message', msg); }
                 var obj = Static.flag(this, 'object'),
                     article = ~['a', 'e', 'i', 'o', 'u'].indexOf(type.charAt(0)) ? 'an ' : 'a ';
                 this.assert(type === typeof obj, 'expected #{this} to be ' + article + type, 'expected #{this} not to be ' + article + type);
             });
-            $Err.addChainableMethod('a', an);
             
             // When the target is a string, `.include` asserts that the given string `val` is a substring of the target.
             SameValueZero = function (a, b) {
                 return (_.isNaN(a) && _.isNaN(b)) || a === b;
             };
-            
             // Checks if two constructors are compatible. This function can receive either an error constructor or an error instance as the `errorLike` argument. Constructors are compatible if they're the same or if one is an instance of another. [github.com/chaijs/check-error/blob/master/index.js]
             compatibleConstructor = function (thrown, errorLike) {
                 if (errorLike instanceof Error) {
@@ -1241,8 +1237,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }
                 return false;
             };
-        
-            $Err.addChainableMethod('include', include = function (val, msg) {
+            $Err.addChainableMethod(['include', 'contain', 'contains', 'includes', ], function (val, msg) {
                     if (msg) { Static.flag(this, 'message', msg); }
                     var obj = Static.flag(this, 'object'), objType = typeof obj,
                         flagMsg = Static.flag(this, 'message'),
@@ -1309,74 +1304,58 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     // Assert inclusion in collection or substring in a string.
                     this.assert(included, 'expected #{this} to ' + descriptor + 'include ' + Static.inspect(val), 'expected #{this} to not ' + descriptor + 'include ' + Static.inspect(val));
                 }, 
-                includeChainingBehavior = function () {
+                function () {
                     Static.flag(this, 'contains', true);
                 });
-            $Err.addChainableMethod('contain', include, includeChainingBehavior);
-            $Err.addChainableMethod('contains', include, includeChainingBehavior);
-            $Err.addChainableMethod('includes', include, includeChainingBehavior);
-        
             // Asserts that the target is a truthy value (considered `true` in boolean context). However, it's often best to assert that the target is strictly (`===`) or deeply equal to its expected value.
             $Err.addProperty('ok', function() {
                 this.assert(Static.flag(this, 'object'), 'expected #{this} to be truthy', 'expected #{this} to be falsy');
             });
-        
             // Asserts that the target is strictly (`===`) equal to `true`.
             $Err.addProperty('true', function() {
                 this.assert(Static.flag(this, 'object') === true, 'expected #{this} to be true', 'expected #{this} to be false', Static.flag(this, 'negate') ? false : true);
             });
-        
             // Asserts that the target is strictly (`===`) equal to `false`.
             $Err.addProperty('false', function() {
                 this.assert(Static.flag(this, 'object') === false, 'expected #{this} to be false', 'expected #{this} to be true', Static.flag(this, 'negate') ? true : false);
             });
-        
             // Asserts that the target is strictly (`===`) an `object`.
             $Err.addProperty('object', function() {
                 this.assert(typeof Static.flag(this, 'object') === 'object', 'expected #{this} to be an object', 'expected #{this} to not be an object');
             });
-        
             // Asserts that the target is strictly (`===`) an `array`.
             $Err.addProperty('array', function() {
                 this.assert(_.isArray(Static.flag(this, 'object')), 'expected #{this} to be an array', 'expected #{this} to not be an array');
             });
-        
             // Asserts that the target is strictly (`===`) a `function`.
             $Err.addProperty('function', function() {
                 this.assert(_.isFunction(Static.flag(this, 'object')), 'expected #{this} to be a function', 'expected #{this} to not be a function');
             });
-        
             // Asserts that the target is strictly (`===`) a `string`.
             $Err.addProperty('string', function() {
                 this.assert(_.isString(Static.flag(this, 'object')), 'expected #{this} to be a string', 'expected #{this} to not be a string');
             });
-        
             // Asserts that the target is strictly (`===`) a `number`.
             $Err.addProperty('number', function() {
                 this.assert(_.isNumber(Static.flag(this, 'object')), 'expected #{this} to be a number', 'expected #{this} to not be a number');
             });
-        
             // Asserts that the target is strictly (`===`) equal to `null`.
             $Err.addProperty('null', function() {
                 this.assert(Static.flag(this, 'object') === null, 'expected #{this} to be null', 'expected #{this} not to be null');
             });
-        
             // Asserts that the target is strictly (`===`) equal to `undefined`.
             $Err.addProperty('undefined', function() {
                 this.assert(Static.flag(this, 'object') === undefined, 'expected #{this} to be undefined', 'expected #{this} not to be undefined');
             });
-        
             // Asserts that the target is exactly `NaN`.
             $Err.addProperty('NaN', function() {
                 this.assert(_.isNaN(Static.flag(this, 'object')), 'expected #{this} to be NaN', 'expected #{this} not to be NaN');
             });
-        
             // Asserts that the target is not strictly (`===`) equal to either `null` or `undefined`. However, it's often best to assert that the target is equal to its expected value.
             $Err.addProperty('exist', function() {
                 var val = Static.Static.flag(this, 'object');
                 this.assert(val !== null && val !== undefined, 'expected #{this} to exist', 'expected #{this} to not exist');
             });
-        
             // When the target is a string or array, `.empty` asserts that the target's `length` property is strictly (`===`) equal to `0`.
             $Err.addProperty('empty', function() {
                 var val = Static.flag(this, 'object'),
@@ -1400,26 +1379,21 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }
                 this.assert(itemsCount === 0, 'expected #{this} to be empty', 'expected #{this} not to be empty');
             });
-            
             // Asserts that the target is an `arguments` object.
-            $Err.addProperty('arguments', checkArguments = function () {
+            $Err.addProperty(['arguments', 'Arguments'], function () {
                 var obj = Static.flag(this, 'object'), type = typeof(obj);
                 this.assert('Arguments' === type, 'expected #{this} to be arguments but got ' + type, 'expected #{this} to not be arguments'
                 );
             });
-            $Err.addProperty('Arguments', checkArguments);
-            
             // Asserts that the target is deeply equal to the given `obj`. 
-            $Err.addMethod('eql', assertEql = function (obj, msg) {
+            $Err.addMethod(['eql', 'eqls'], function (obj, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 this.assert(
                     _.isEqual(obj, Static.flag(this, 'object')), 'expected #{this} to deeply equal #{exp}', 'expected #{this} to not deeply equal #{exp}', obj, this._obj, true
                 );
             });
-            $Err.addMethod('eqls', assertEql);
-        
             // Asserts that the target is strictly (`===`) equal to the given `val`.
-            $Err.addMethod('equal', assertEqual = function (val, msg) {
+            $Err.addMethod(['equal', 'equals', 'eq'], function (val, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var obj = Static.flag(this, 'object');
                 if (Static.flag(this, 'deep')) {
@@ -1431,11 +1405,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     this.assert(val === obj, 'expected #{this} to equal #{exp}', 'expected #{this} to not equal #{exp}', val, this._obj, true);
                 }
             });
-            $Err.addMethod('equals', assertEqual);
-            $Err.addMethod('eq', assertEqual);
-            
             // Asserts that the target is a number or a date greater than the given number or date `n` respectively. However, it's often best to assert that the target is equal to its expected value.
-            $Err.addMethod('above', assertAbove = function (n, msg) {
+            $Err.addMethod(['above', 'gt', 'greaterThan'], function (n, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var obj = Static.flag(this, 'object'),
                     doLength = Static.flag(this, 'doLength'),
@@ -1473,11 +1444,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     this.assert(obj > n, 'expected #{this} to be above #{exp}', 'expected #{this} to be at most #{exp}', n);
                 }
             });
-            $Err.addMethod('gt', assertAbove);
-            $Err.addMethod('greaterThan', assertAbove);
-        
             // Asserts that the target is a number or a date greater than or equal to the given number or date `n` respectively. However, it's often best to assert that the target is equal to its expected value.
-            $Err.addMethod('least', assertLeast = function (n, msg) {
+            $Err.addMethod(['least', 'gte'], function (n, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var obj = Static.flag(this, 'object'),
                     doLength = Static.flag(this, 'doLength'),
@@ -1514,10 +1482,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     );
                 }
             });
-            $Err.addMethod('gte', assertLeast);
-        
             // Asserts that the target is a number or a date less than the given number or date `n` respectively. However, it's often best to assert that the target is equal to its expected value.
-            $Err.addMethod('below', assertBelow = function (n, msg) {
+            $Err.addMethod(['below', 'lt', 'lessThan'], function (n, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var obj = Static.flag(this, 'object'),
                     doLength = Static.flag(this, 'doLength'),
@@ -1552,11 +1518,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     this.assert(obj < n, 'expected #{this} to be below #{exp}', 'expected #{this} to be at least #{exp}', n);
                 }
             });
-            $Err.addMethod('lt', assertBelow);
-            $Err.addMethod('lessThan', assertBelow);
-        
             // Asserts that the target is a number or a date less than or equal to the given number or date `n` respectively. However, it's often best to assert that the target is equal to its expected value.
-            $Err.addMethod('most', assertMost = function (n, msg) {
+            $Err.addMethod(['most', 'lte'], function (n, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var obj = Static.flag(this, 'object'),
                     doLength = Static.flag(this, 'doLength'),
@@ -1591,8 +1554,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     this.assert(obj <= n, 'expected #{this} to be at most #{exp}', 'expected #{this} to be above #{exp}', n);
                 }
             });
-            $Err.addMethod('lte', assertMost);
-        
             // Asserts that the target is a number or a date greater than or equal to the given number or date `start`, and less than or equal to the given number or date `finish` respectively. However, it's often best to assert that the target is equal to its expected value.
             $Err.addMethod('within', function(start, finish, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
@@ -1633,9 +1594,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     this.assert(obj >= start && obj <= finish, 'expected #{this} to be within ' + range, 'expected #{this} to not be within ' + range);
                 }
             });
-        
             // Asserts that the target is an instance of the given `constructor`.
-            $Err.addMethod('instanceof', assertInstanceOf = function (constructor, msg) {
+            $Err.addMethod(['instanceof', 'instanceOf'], function (constructor, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var target = Static.flag(this, 'object');
                 var ssfi = Static.flag(this, 'ssfi');
@@ -1655,10 +1615,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     isInstanceOf, 'expected #{this} to be an instance of an unnamed constructor, expected #{this} to not be an instance of an unnamed constructor'
                 );
             });
-            $Err.addMethod('instanceOf', assertInstanceOf);
-        
             // Asserts that the target has a property with the given key `name`.
-            $Err.addMethod('property', assertProperty = function (name, val, msg) {
+            $Err.addMethod('property', function (name, val, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var isNested = Static.flag(this, 'nested'),
                     isOwn = Static.flag(this, 'own'),
@@ -1680,11 +1638,9 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 if (isNested && isOwn) {
                     throw Core.Error(flagMsg + 'The "nested" and "own" flags cannot be combined.');
                 }
-        
                 if (obj === null || obj === undefined) {
                     throw Core.Error(flagMsg + 'Target cannot be null or undefined.');
                 }
-        
                 var isDeep = Static.flag(this, 'deep'),
                     negate = Static.flag(this, 'negate'),
                     pathInfo = isNested ? Util.path(obj, name) : null,
@@ -1714,15 +1670,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }
                 Static.flag(this, 'object', value);
             });
-        
-            $Err.addMethod('ownProperty', assertOwnProperty = function (name, value, msg) {
+            $Err.addMethod(['ownProperty', 'haveOwnProperty'], function (name, value, msg) {
                 Static.flag(this, 'own', true);
                 assertProperty.apply(this, arguments);
             });
-            $Err.addMethod('haveOwnProperty', assertOwnProperty);
-        
             // Asserts that the target has its own property descriptor with the given key `name`. Enumerable and non-enumerable properties are included in the search.
-            $Err.addMethod('ownPropertyDescriptor', assertOwnPropertyDescriptor = function (name, descriptor, msg) {
+            $Err.addMethod(['ownPropertyDescriptor', 'haveOwnPropertyDescriptor'], function (name, descriptor, msg) {
                 if (typeof descriptor === 'string') {
                     msg = descriptor;
                     descriptor = null;
@@ -1741,10 +1694,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }
                 Static.flag(this, 'object', actualDescriptor);
             });
-            $Err.addMethod('haveOwnPropertyDescriptor', assertOwnPropertyDescriptor);
-        
             // Asserts that the target's `length` or `size` is equal to the given number `n`.
-            $Err.addChainableMethod('length', assertLength = function (n, msg) {
+            $Err.addChainableMethod(['length', 'lengthOf'], function (n, msg) {
                     n = Number(n);
                     if (msg) { Static.flag(this, 'message', msg); }
                     var obj = Static.flag(this, 'object'),
@@ -1766,23 +1717,19 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     this.assert(itemsCount === n, 'expected #{this} to have a ' + descriptor + ' of #{exp} but got #{act}', 'expected #{this} to not have a ' + descriptor + ' of #{act}', n, itemsCount
                     );
                 }, 
-                assertLengthChain = function () {
+                function () {
                     Static.flag(this, 'doLength', true);
                 });
-            $Err.addChainableMethod('lengthOf', assertLength, assertLengthChain);
-        
             // Asserts that the target matches the given regular expression `re`.
-            $Err.addMethod('match', assertMatch = function (re, msg) {
+            $Err.addMethod(['match', 'matches'], function (re, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var obj = Static.flag(this, 'object');
                 this.assert(
                     re.exec(obj), 'expected #{this} to match ' + re, 'expected #{this} not to match ' + re
                 );
             });
-            $Err.addMethod('matches', assertMatch);
-            
             // Asserts that the target string contains the given substring `str`.
-            $Err.addMethod('substr', substr = function(str, msg) {
+            $Err.addMethod(['substr', 'substring'], function(str, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var obj = Static.flag(this, 'object'),
                     flagMsg = Static.flag(this, 'message'),
@@ -1790,10 +1737,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 new $Err(obj, flagMsg, ssfi, true).is.a('string');
                 this.assert(~obj.indexOf(str), 'expected #{this} to contain ' + Static.inspect(str), 'expected #{this} to not contain ' + Static.inspect(str));
             });
-            $Err.addMethod('substring', substr);
-        
             // Asserts that the target object, array, map, or set has the given keys. Only the target's own inherited properties are included in the search. When the target is an object or array, keys can be provided as one or more string arguments, a single array argument, or a single object argument. In the latter case, only the keys in the given object matter; the values are ignored.
-            $Err.addMethod('keys', assertKeys = function (keys) {
+            $Err.addMethod(['keys', 'key'], function (keys) {
                 var obj = Static.flag(this, 'object'),
                     objType = typeof(obj),
                     keysType = typeof(keys),
@@ -1880,10 +1825,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 // Assertion
                 this.assert(ok, 'expected #{this} to ' + deepStr + str, 'expected #{this} to not ' + deepStr + str, expected.slice(0).sort(_.compareByInspect), actual.sort(_.compareByInspect), true);
             });
-            $Err.addMethod('key', assertKeys);
-        
             // When the target is a non-function object, `.respondTo` asserts that the target has a method with the given name `method`. The method can be own or inherited, and it can be enumerable or non-enumerable.
-            $Err.addMethod('respondTo', respondTo = function (method, msg) {
+            $Err.addMethod(['respondTo', 'respondsTo'], function (method, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var obj = Static.flag(this, 'object'),
                     itself = Static.flag(this, 'itself'),
@@ -1893,15 +1836,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     'function' === typeof context, 'expected #{this} to respond to ' + Static.inspect(method), 'expected #{this} to not respond to ' + Static.inspect(method)
                 );
             });
-            $Err.addMethod('respondsTo', respondTo);
-        
             // Forces all `.respondTo` assertions that follow in the chain to behave as if the target is a non-function object, even if it's a function. Thus, it causes `.respondTo` to assert that the target has a method with the given name, rather than asserting that the target's `prototype` property has a method with the given name.
             $Err.addProperty('itself', function() {
                 Static.flag(this, 'itself', true);
             });
-        
             // Invokes the given `matcher` function with the target being passed as the first argument, and asserts that the value returned is truthy.
-            $Err.addMethod('satisfy', satisfy = function (matcher, msg) {
+            $Err.addMethod(['satisfy', 'satisfies'], function (matcher, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var obj = Static.flag(this, 'object');
                 var result = matcher(obj);
@@ -1909,10 +1849,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     result, 'expected #{this} to satisfy ' + _.objDisplay(matcher), 'expected #{this} to not satisfy' + _.objDisplay(matcher), Static.flag(this, 'negate') ? false : true, result
                 );
             });
-            $Err.addMethod('satisfies', satisfy);
-        
             // Asserts that the target is a number that's within a given +/- `delta` range of the given number `expected`. However, it's often best to assert that the target is equal to its expected value.
-            $Err.addMethod('closeTo', closeTo = function (expected, delta, msg) {
+            $Err.addMethod(['closeTo', 'approximately'], function (expected, delta, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var obj = Static.flag(this, 'object'),
                     flagMsg = Static.flag(this, 'message'),
@@ -1924,8 +1862,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }
                 this.assert(abs(obj - expected) <= delta, 'expected #{this} to be close to ' + expected + ' +/- ' + delta, 'expected #{this} not to be close to ' + expected + ' +/- ' + delta);
             });
-            $Err.addMethod('approximately', closeTo);
-        
+            
             // Note: Duplicates are ignored if testing for inclusion instead of sameness.
             isSubsetOf = function (subset, superset, cmp, contains, ordered) {
                 if (!contains) {
@@ -1949,7 +1886,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     });
                 });
             };
-        
             // Asserts that the target array has the same members as the given array `set`.
             $Err.addMethod('members', function(subset, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
@@ -1973,7 +1909,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 var cmp = Static.flag(this, 'deep') ? _.isEqual : undefined;
                 this.assert(isSubsetOf(subset, obj, cmp, contains, ordered), failMsg, failNegateMsg, subset, obj, true);
             });
-        
             // Asserts that the target is a member of the given array `list`. However, it's often best to assert that the target is equal to its expected value.
             $Err.addMethod('oneOf', function (list, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
@@ -1983,9 +1918,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 new $Err(list, flagMsg, ssfi, true).to.be.an('array');
                 this.assert(list.indexOf(expected) > -1, 'expected #{this} to be one of #{exp}', 'expected #{this} to not be one of #{exp}', list, expected);
             });
-        
             // When one argument is provided, `.change` asserts that the given function `subject` returns a different value when it's invoked before the target function compared to when it's invoked afterward. However, it's often best to assert that `subject` is equal to its expected value.
-            $Err.addMethod('change', assertChanges = function (subject, prop, msg) {
+            $Err.addMethod(['change', 'changes'], function (subject, prop, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var fn = Static.flag(this, 'object'),
                     flagMsg = Static.flag(this, 'message'),
@@ -2010,10 +1944,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 Static.flag(this, 'realDelta', final !== initial);
                 this.assert(initial !== final, 'expected ' + msgObj + ' to change', 'expected ' + msgObj + ' to not change');
             });
-            $Err.addMethod('changes', assertChanges);
-        
             // When one argument is provided, `.increase` asserts that the given function `subject` returns a greater number when it's invoked after invoking the target function compared to when it's invoked beforehand. `.increase` also causes all `.by` assertions that follow in the chain to assert how much greater of a number is returned. It's often best to assert that the return value increased by the expected amount, rather than asserting it increased by any amount.
-            $Err.addMethod('increase', assertIncreases = function (subject, prop, msg) {
+            $Err.addMethod(['increase', 'increases'], function (subject, prop, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var fn = Static.flag(this, 'object'),
                     flagMsg = Static.flag(this, 'message'),
@@ -2038,10 +1970,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 Static.flag(this, 'realDelta', final - initial);
                 this.assert(final - initial > 0, 'expected ' + msgObj + ' to increase', 'expected ' + msgObj + ' to not increase');
             });
-            $Err.addMethod('increases', assertIncreases);
-        
             // When one argument is provided, `.decrease` asserts that the given function `subject` returns a lesser number when it's invoked after invoking the target function compared to when it's invoked beforehand. `.decrease` also causes all `.by` assertions that follow in the chain to assert how much lesser of a number is returned. It's often best to assert that the return value decreased by the expected amount, rather than asserting it decreased by any amount.
-            $Err.addMethod('decrease', assertDecreases = function (subject, prop, msg) {
+            $Err.addMethod(['decrease', 'decreases'], function (subject, prop, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var fn = Static.flag(this, 'object'),
                     flagMsg = Static.flag(this, 'message'),
@@ -2066,8 +1996,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 Static.flag(this, 'realDelta', initial - final);
                 this.assert(final - initial < 0, 'expected ' + msgObj + ' to decrease', 'expected ' + msgObj + ' to not decrease');
             });
-            $Err.addMethod('decreases', assertDecreases);
-        
             // When following an `.increase` assertion in the chain, `.by` asserts that the subject of the `.increase` assertion increased by the given `delta`.
             $Err.addMethod('by', function (delta, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
@@ -2084,7 +2012,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     expression, 'expected ' + msgObj + ' to ' + behavior + ' by ' + delta, 'expected ' + msgObj + ' to not ' + behavior + ' by ' + delta
                 );
             });
-        
             // Asserts that the target is extensible, which means that new properties can be added to it. Primitives are never extensible.
             $Err.addProperty('extensible', function() {
                 var obj = Static.flag(this, 'object');
@@ -2092,7 +2019,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 var isExtensible = obj === Object(obj) && Object.isExtensible(obj);
                 this.assert(isExtensible, 'expected #{this} to be extensible', 'expected #{this} to not be extensible');
             });
-        
             // Asserts that the target is sealed, which means that new properties can't be added to it, and its existing properties can't be reconfigured or deleted. However, it's possible that its existing properties can still be reassigned to different values. Primitives are always sealed.
             $Err.addProperty('sealed', function() {
                 var obj = Static.flag(this, 'object');
@@ -2100,7 +2026,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 var isSealed = obj === Object(obj) ? Object.isSealed(obj) : true;
                 this.assert(isSealed, 'expected #{this} to be sealed', 'expected #{this} to not be sealed');
             });
-        
             // Asserts that the target is frozen, which means that new properties can't be added to it, and its existing properties can't be reassigned to different values, reconfigured, or deleted. Primitives are always frozen.
             $Err.addProperty('frozen', function() {
                 var obj = Static.flag(this, 'object');
@@ -2108,7 +2033,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 var isFrozen = obj === Object(obj) ? Object.isFrozen(obj) : true;
                 this.assert(isFrozen, 'expected #{this} to be frozen', 'expected #{this} to not be frozen');
             });
-        
             // Asserts that the target is a number, and isn't `NaN` or positive/negative `Infinity`.
             $Err.addProperty('finite', function(msg) {
                 var obj = Static.flag(this, 'object');
