@@ -1177,7 +1177,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         
         // Language chains [github.com/chaijs/chai/blob/058ddadb8422238b418d0c3e8f92e4f757289abd/lib/chai/core/assertions.js]
         (function () {
-            var SameValueZero, compatibleConstructor, isSubsetOf;
+            var SameValueZero, compatibleConstructor, isSubsetOf, assertProperty;
             // The following are provided as chainable getters to improve the readability of your assertions. These don't affect anything.
             ['to', 'be', 'been', 'is', 'and', 'has', 'have', 'with', 'that', 'which', 'at', 'of', 'same', 'but', 'does'].forEach(function(chain) {
                 $Err.addProperty(chain);
@@ -1616,7 +1616,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 );
             });
             // Asserts that the target has a property with the given key `name`.
-            $Err.addMethod('property', function (name, val, msg) {
+            $Err.addMethod('property', assertProperty = function (name, val, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var isNested = Static.flag(this, 'nested'),
                     isOwn = Static.flag(this, 'own'),
