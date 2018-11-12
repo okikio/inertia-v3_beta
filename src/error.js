@@ -4,7 +4,7 @@
         var Core = require("Core"), Util = require("Util"), Fn = require("Fn"), 
             Class = require("Class"), $JSON = Core.JSON, Proxy = Core.Proxy, 
             Reflect = Core.Reflect, _ = Util._, $Err, Static, fnLenDesc;
-        // Length Descriptor
+        // Length descriptor
         fnLenDesc = Object.getOwnPropertyDescriptor(function () {}, 'length');
         Static = { // Static methods
             // Get or set a flag value on an object [github.com/chaijs/chai/blob/058ddadb8422238b418d0c3e8f92e4f757289abd/lib/chai/utils/flag.js]
@@ -21,8 +21,7 @@
             
                 for (var _flag in flags) {
                     if (all ||
-                        (_flag !== 'object' &&  _flag !== 'ssfi' &&  
-                         _flag !== 'lockSsfi' && _flag !== 'message')) {
+                        (_flag !== 'object' && _flag !== 'message')) {
                         obj.__flags[_flag] = flags[_flag];
                     }
                 }
@@ -51,11 +50,6 @@
                             if (suggestion !== null) {
                                 throw 'Invalid property: ' + prop + '. Did you mean "' + suggestion + '"?';
                             } else { throw 'Invalid property: ' + prop; }
-                        }
-                        
-                        // Use this proxy getter as the starting point for removing implementation frames from the stack trace of a failed assertion. 
-                        if (builtIn.indexOf(prop) === -1 && !Static.flag(target, 'lockSsfi')) {
-                            Static.flag(target, 'ssfi', proxyGetter);
                         }
                         return Reflect.get(target, prop);
                     })
@@ -249,12 +243,6 @@
             // Adds a method to the prototype of an object. [github.com/chaijs/chai/blob/058ddadb8422238b418d0c3e8f92e4f757289abd/lib/chai/utils/addMethod.js]
             addMethod: function(name, fn) {
                 var methodWrapper = function() {
-                    // Setting the `ssfi` flag to `methodWrapper` causes this function to be the starting point for removing implementation frames from the stack trace of
-                    // a failed assertion.
-                    if (!Static.flag(this, 'lockSsfi')) {
-                        Static.flag(this, 'ssfi', methodWrapper);
-                    }
-            
                     var result = fn.apply(this, arguments);
                     if (result !== undefined) { return result; }
                     return this;
@@ -283,9 +271,6 @@
                         get: function () {
                             behave.role.call(this);
                             var MethodWrapper = function() {
-                                if (!Static.flag(this, 'lockSsfi')) {
-                                    Static.flag(this, 'ssfi', MethodWrapper);
-                                }
                                 var result = behave.method.apply(this, arguments);
                                 if (result !== undefined) { return result; }
                                 return this;
@@ -318,7 +303,6 @@
                         // See https://github.com/chaijs/chai/issues/86: this makes
                         // `whatever.should = someValue` actually set `someValue`, which is
                         // especially useful for `global.should = require('chai').should()`.
-                        //
                         // Note that we have to use [[DefineProperty]] instead of [[Put]]
                         // since otherwise we would trigger this very setter!
                         Object.defineProperty(this, 'should', {
@@ -345,9 +329,7 @@
         
         // Error Class
         $Err = Class({ 
-            init: function (obj, msg, ssfi, lockSsfi) {
-                Static.flag(this, 'ssfi', ssfi || $Err);
-                Static.flag(this, 'lockSsfi', lockSsfi);
+            init: function (obj, msg) {
                 Static.flag(this, 'object', obj);
                 Static.flag(this, 'message', msg);
                 return Static.proxify(this);
@@ -441,7 +423,6 @@
                     var obj = Static.flag(this, 'object'), objType = typeof obj,
                         flagMsg = Static.flag(this, 'message'),
                         negate = Static.flag(this, 'negate'),
-                        ssfi = Static.flag(this, 'ssfi'),
                         isDeep = Static.flag(this, 'deep'),
                         descriptor = isDeep ? 'deep ' : '';
                     flagMsg = flagMsg ? flagMsg + ': ' : '';
@@ -481,7 +462,6 @@
                             props.forEach(function(prop) {
                                 var propAssertion = new $Err(obj);
                                 Static.transferFlags(this, propAssertion, true);
-                                Static.flag(propAssertion, 'lockSsfi', true);
                                 if (!negate || props.length === 1) {
                                     propAssertion.property(prop, val[prop]);
                                     return;
@@ -558,11 +538,10 @@
             // When the target is a string or array, `.empty` asserts that the target's `length` property is strictly (`===`) equal to `0`.
             $Err.addProperty('empty', function() {
                 var val = Static.flag(this, 'object'),
-                    ssfi = Static.flag(this, 'ssfi'),
                     flagMsg = Static.flag(this, 'message'),
                     itemsCount;
                 flagMsg = flagMsg ? flagMsg + ': ' : '';
-                switch (typeof(val).toLowerCase()) {
+                switch ((typeof val).toLowerCase()) {
                     case 'array': case 'string': itemsCount = val.length; break;
                     case 'map': case 'set': itemsCount = val.size; break;
                     case 'weakmap': case 'weakset':
@@ -596,10 +575,7 @@
                 if (msg) { Static.flag(this, 'message', msg); }
                 var obj = Static.flag(this, 'object');
                 if (Static.flag(this, 'deep')) {
-                    var prevLockSsfi = Static.flag(this, 'lockSsfi');
-                    Static.flag(this, 'lockSsfi', true);
                     this.eql(val);
-                    Static.flag(this, 'lockSsfi', prevLockSsfi);
                 } else {
                     this.assert(val === obj, 'expected #{this} to equal #{exp}', 'expected #{this} to not equal #{exp}', val, this._obj, true);
                 }
@@ -611,13 +587,12 @@
                     doLength = Static.flag(this, 'doLength'),
                     flagMsg = Static.flag(this, 'message'),
                     msgPrefix = ((flagMsg) ? flagMsg + ': ' : ''),
-                    ssfi = Static.flag(this, 'ssfi'),
                     objType = typeof(obj).toLowerCase(),
                     nType = typeof(n).toLowerCase(),
                     errorMessage, shouldThrow = true;
         
                 if (doLength && objType !== 'map' && objType !== 'set') {
-                    new $Err(obj, flagMsg, ssfi, true).to.have.property('length');
+                    new $Err(obj, flagMsg).to.have.property('length');
                 }
         
                 if (!doLength && (objType === 'date' && nType !== 'date')) {
@@ -650,13 +625,12 @@
                     doLength = Static.flag(this, 'doLength'),
                     flagMsg = Static.flag(this, 'message'),
                     msgPrefix = ((flagMsg) ? flagMsg + ': ' : ''),
-                    ssfi = Static.flag(this, 'ssfi'),
                     objType = typeof(obj).toLowerCase(),
                     nType = typeof(n).toLowerCase(),
                     errorMessage, shouldThrow = true;
         
                 if (doLength && objType !== 'map' && objType !== 'set') {
-                    new $Err(obj, flagMsg, ssfi, true).to.have.property('length');
+                    new $Err(obj, flagMsg).to.have.property('length');
                 }
         
                 if (!doLength && (objType === 'date' && nType !== 'date')) {
@@ -688,13 +662,12 @@
                     doLength = Static.flag(this, 'doLength'),
                     flagMsg = Static.flag(this, 'message'),
                     msgPrefix = ((flagMsg) ? flagMsg + ': ' : ''),
-                    ssfi = Static.flag(this, 'ssfi'),
                     objType = typeof(obj).toLowerCase(),
                     nType = typeof(n).toLowerCase(),
                     errorMessage, shouldThrow = true;
         
                 if (doLength && objType !== 'map' && objType !== 'set') {
-                    new $Err(obj, flagMsg, ssfi, true).to.have.property('length');
+                    new $Err(obj, flagMsg).to.have.property('length');
                 }
         
                 if (!doLength && (objType === 'date' && nType !== 'date')) {
@@ -724,13 +697,12 @@
                     doLength = Static.flag(this, 'doLength'),
                     flagMsg = Static.flag(this, 'message'),
                     msgPrefix = ((flagMsg) ? flagMsg + ': ' : ''),
-                    ssfi = Static.flag(this, 'ssfi'),
                     objType = typeof(obj).toLowerCase(),
                     nType = typeof(n).toLowerCase(),
                     errorMessage, shouldThrow = true;
         
                 if (doLength && objType !== 'map' && objType !== 'set') {
-                    new $Err(obj, flagMsg, ssfi, true).to.have.property('length');
+                    new $Err(obj, flagMsg).to.have.property('length');
                 }
         
                 if (!doLength && (objType === 'date' && nType !== 'date')) {
@@ -760,7 +732,6 @@
                     doLength = Static.flag(this, 'doLength'),
                     flagMsg = Static.flag(this, 'message'),
                     msgPrefix = ((flagMsg) ? flagMsg + ': ' : ''),
-                    ssfi = Static.flag(this, 'ssfi'),
                     objType = typeof(obj).toLowerCase(),
                     startType = typeof(start).toLowerCase(),
                     finishType = typeof(finish).toLowerCase(),
@@ -770,7 +741,7 @@
                     start + '..' + finish;
         
                 if (doLength && objType !== 'map' && objType !== 'set') {
-                    new $Err(obj, flagMsg, ssfi, true).to.have.property('length');
+                    new $Err(obj, flagMsg).to.have.property('length');
                 }
         
                 if (!doLength && (objType === 'date' && (startType !== 'date' || finishType !== 'date'))) {
@@ -797,7 +768,6 @@
             $Err.addMethod(['instanceof', 'instanceOf'], function (constructor, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var target = Static.flag(this, 'object');
-                var ssfi = Static.flag(this, 'ssfi');
                 var flagMsg = Static.flag(this, 'message');
                 var isInstanceOf;
         
@@ -820,8 +790,7 @@
                 var isNested = Static.flag(this, 'nested'),
                     isOwn = Static.flag(this, 'own'),
                     flagMsg = Static.flag(this, 'message'),
-                    obj = Static.flag(this, 'object'),
-                    ssfi = Static.flag(this, 'ssfi'),
+                    obj = Static.flag(this, 'object'), 
                     nameType = typeof name;
                 flagMsg = flagMsg ? flagMsg + ': ' : '';
                 if (isNested) {
@@ -900,9 +869,7 @@
                     var obj = Static.flag(this, 'object'),
                         objType = typeof(obj).toLowerCase(),
                         flagMsg = Static.flag(this, 'message'),
-                        ssfi = Static.flag(this, 'ssfi'),
-                        descriptor = 'length',
-                        itemsCount;
+                        descriptor = 'length', itemsCount;
                     switch (objType) {
                         case 'map':
                         case 'set':
@@ -910,7 +877,7 @@
                             itemsCount = obj.size;
                         break;
                         default:
-                            new $Err(obj, flagMsg, ssfi, true).to.have.property('length');
+                            new $Err(obj, flagMsg).to.have.property('length');
                             itemsCount = obj.length;
                     }
                     this.assert(itemsCount === n, 'expected #{this} to have a ' + descriptor + ' of #{exp} but got #{act}', 'expected #{this} to not have a ' + descriptor + ' of #{act}', n, itemsCount
@@ -931,17 +898,14 @@
             $Err.addMethod(['substr', 'substring'], function(str, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var obj = Static.flag(this, 'object'),
-                    flagMsg = Static.flag(this, 'message'),
-                    ssfi = Static.flag(this, 'ssfi');
-                new $Err(obj, flagMsg, ssfi, true).is.a('string');
+                    flagMsg = Static.flag(this, 'message');
+                new $Err(obj, flagMsg).is.a('string');
                 this.assert(~obj.indexOf(str), 'expected #{this} to contain ' + Static.inspect(str), 'expected #{this} to not contain ' + Static.inspect(str));
             });
             // Asserts that the target object, array, map, or set has the given keys. Only the target's own inherited properties are included in the search. When the target is an object or array, keys can be provided as one or more string arguments, a single array argument, or a single object argument. In the latter case, only the keys in the given object matter; the values are ignored.
             $Err.addMethod(['keys', 'key'], function (keys) {
                 var obj = Static.flag(this, 'object'),
-                    objType = typeof(obj),
-                    keysType = typeof(keys),
-                    ssfi = Static.flag(this, 'ssfi'),
+                    objType = typeof(obj), keysType = typeof(keys),
                     isDeep = Static.flag(this, 'deep'),
                     str, deepStr = '', actual, ok = true,
                     flagMsg = Static.flag(this, 'message');
@@ -1052,9 +1016,8 @@
             $Err.addMethod(['closeTo', 'approximately'], function (expected, delta, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var obj = Static.flag(this, 'object'),
-                    flagMsg = Static.flag(this, 'message'),
-                    ssfi = Static.flag(this, 'ssfi');
-                new $Err(obj, flagMsg, ssfi, true).is.a('number');
+                    flagMsg = Static.flag(this, 'message');
+                new $Err(obj, flagMsg).is.a('number');
                 if (typeof expected !== 'number' || typeof delta !== 'number') {
                     flagMsg = flagMsg ? flagMsg + ': ' : '';
                     throw Core.Error(flagMsg + 'the arguments to closeTo or approximately must be numbers');
@@ -1089,10 +1052,9 @@
             $Err.addMethod('members', function(subset, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var obj = Static.flag(this, 'object'),
-                    flagMsg = Static.flag(this, 'message'),
-                    ssfi = Static.flag(this, 'ssfi');
-                new $Err(obj, flagMsg, ssfi, true).to.be.an('array');
-                new $Err(subset, flagMsg, ssfi, true).to.be.an('array');
+                    flagMsg = Static.flag(this, 'message');
+                new $Err(obj, flagMsg).to.be.an('array');
+                new $Err(subset, flagMsg).to.be.an('array');
                 var contains = Static.flag(this, 'contains');
                 var ordered = Static.flag(this, 'ordered');
                 var subject, failMsg, failNegateMsg;
@@ -1112,24 +1074,22 @@
             $Err.addMethod('oneOf', function (list, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var expected = Static.flag(this, 'object'),
-                    flagMsg = Static.flag(this, 'message'),
-                    ssfi = Static.flag(this, 'ssfi');
-                new $Err(list, flagMsg, ssfi, true).to.be.an('array');
+                    flagMsg = Static.flag(this, 'message');
+                new $Err(list, flagMsg).to.be.an('array');
                 this.assert(list.indexOf(expected) > -1, 'expected #{this} to be one of #{exp}', 'expected #{this} to not be one of #{exp}', list, expected);
             });
             // When one argument is provided, `.change` asserts that the given function `subject` returns a different value when it's invoked before the target function compared to when it's invoked afterward. However, it's often best to assert that `subject` is equal to its expected value.
             $Err.addMethod(['change', 'changes'], function (subject, prop, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var fn = Static.flag(this, 'object'),
-                    flagMsg = Static.flag(this, 'message'),
-                    ssfi = Static.flag(this, 'ssfi');
+                    flagMsg = Static.flag(this, 'message');
                 var initial;
-                new $Err(fn, flagMsg, ssfi, true).is.a('function');
+                new $Err(fn, flagMsg).is.a('function');
                 if (!prop) {
-                    new $Err(subject, flagMsg, ssfi, true).is.a('function');
+                    new $Err(subject, flagMsg).is.a('function');
                     initial = subject();
                 } else {
-                    new $Err(subject, flagMsg, ssfi, true).to.have.property(prop);
+                    new $Err(subject, flagMsg).to.have.property(prop);
                     initial = subject[prop];
                 }
                 fn();
@@ -1147,19 +1107,18 @@
             $Err.addMethod(['increase', 'increases'], function (subject, prop, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var fn = Static.flag(this, 'object'),
-                    flagMsg = Static.flag(this, 'message'),
-                    ssfi = Static.flag(this, 'ssfi');
+                    flagMsg = Static.flag(this, 'message');
                 var initial;
-                new $Err(fn, flagMsg, ssfi, true).is.a('function');
+                new $Err(fn, flagMsg).is.a('function');
                 if (!prop) {
-                    new $Err(subject, flagMsg, ssfi, true).is.a('function');
+                    new $Err(subject, flagMsg).is.a('function');
                     initial = subject();
                 } else {
-                    new $Err(subject, flagMsg, ssfi, true).to.have.property(prop);
+                    new $Err(subject, flagMsg).to.have.property(prop);
                     initial = subject[prop];
                 }
                 // Make sure that the target is a number
-                new $Err(initial, flagMsg, ssfi, true).is.a('number'); fn();
+                new $Err(initial, flagMsg).is.a('number'); fn();
                 var final = prop === undefined || prop === null ? subject() : subject[prop];
                 var msgObj = prop === undefined || prop === null ? initial : '.' + prop;
                 Static.flag(this, 'deltaMsgObj', msgObj);
@@ -1173,19 +1132,18 @@
             $Err.addMethod(['decrease', 'decreases'], function (subject, prop, msg) {
                 if (msg) { Static.flag(this, 'message', msg); }
                 var fn = Static.flag(this, 'object'),
-                    flagMsg = Static.flag(this, 'message'),
-                    ssfi = Static.flag(this, 'ssfi');
+                    flagMsg = Static.flag(this, 'message');
                 var initial;
-                new $Err(fn, flagMsg, ssfi, true).is.a('function');
+                new $Err(fn, flagMsg).is.a('function');
                 if (!prop) {
-                    new $Err(subject, flagMsg, ssfi, true).is.a('function');
+                    new $Err(subject, flagMsg).is.a('function');
                     initial = subject();
                 } else {
-                    new $Err(subject, flagMsg, ssfi, true).to.have.property(prop);
+                    new $Err(subject, flagMsg).to.have.property(prop);
                     initial = subject[prop];
                 }
                 // Make sure that the target is a number
-                new $Err(initial, flagMsg, ssfi, true).is.a('number'); fn();
+                new $Err(initial, flagMsg).is.a('number'); fn();
                 var final = prop === undefined || prop === null ? subject() : subject[prop];
                 var msgObj = prop === undefined || prop === null ? initial : '.' + prop;
                 Static.flag(this, 'deltaMsgObj', msgObj);
