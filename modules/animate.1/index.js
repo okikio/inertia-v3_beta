@@ -19,7 +19,6 @@
             _time = Date.now();
             _delta = _time - _prevTime;
         
-            // println(AnimArr[0].completed);
             for (var i = 0; i < AnimArr.length; i++) {
                 if (!AnimArr[i].completed) {
                     AnimArr[i](_delta, Date.now() - AnimArr[i].start_time);
