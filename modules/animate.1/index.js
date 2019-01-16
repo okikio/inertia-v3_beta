@@ -10,7 +10,7 @@
         
         // Default Loops
         Default = {
-            complete: Fn("cb", "return cb()"),
+            complete: Fn("cb", "return cb.call(this)"),
             progress: Fn("x", "return x")
         };
         
@@ -19,18 +19,18 @@
             _time = Date.now();
             _delta = _time - _prevTime;
         
+            // println(AnimArr[0].completed);
             for (var i = 0; i < AnimArr.length; i++) {
                 if (!AnimArr[i].completed) {
                     AnimArr[i](_delta, Date.now() - AnimArr[i].start_time);
-                }
+                } 
             }
-        
             _prevTime = _time;
         });
 
         // Animate Object [Based on Between.js - https://github.com/sasha240100/between.js]
         return Class(Event, {
-            end: 0, start: 0,
+            end: 0, start: 0, progress: 0,
             localTime: 0, duration: 1000,
             paused: false,
             loopFn: Default,
@@ -76,6 +76,9 @@
                 this.paused = false;
                 return this;
             },
+            reset: Fn("this.completed = false; this.localTime = 0; return this;"),
+            restart: Fn("this.reset().play(); return this;"),
+            toggle: Fn("this.paused = !this.paused; return this;"),
             loop: function (mode, args) {
                 mode = mode || 'once'; args = Util.args(args || [], 1);
                 var loopFnName = "__loop_" + mode;
@@ -85,27 +88,39 @@
                     Default;
                 return this;
             },
+            set: function (val) {
+                this.localTime = (val || 0) * this.duration; 
+                this._updateValue(this.ease( // Progress
+                    this.progress = this.loopFn.progress(
+                        Math.min(1, this.localTime / this.duration)
+                    )
+                ));
+                this.completed = false; 
+                return this;
+            },
             update: function () {
                 return function (delta, time) {
-                    if (this.completed || this.paused) { return; }
-                    if (this.localTime === 0) {
-                        this.emit('start', this.value, this);
+                    var prog;
+                    if (!this.completed && !this.paused) { 
+                        if (this.localTime === 0) {
+                            this.emit('start', this.value, this);
+                        }
+                        
+                        this._updateValue(this.ease( // Progress
+                            this.progress = this.loopFn.progress(
+                                Math.min(1, (time || this.localTime) / this.duration)
+                            )
+                        ));
+                        
+                        this.emit('update', this.value, this, delta);
+                        if (this.localTime >= this.duration) {
+                            this.loopFn.complete.call(this, function () {
+                                this.completed = true;
+                                this.emit('complete', this.value, this);
+                            });
+                        }
+                        this.localTime += delta;
                     }
-        
-                    this._updateValue(this.ease( // Progress
-                        this.loopFn.progress(
-                            Math.min(1, (time || this.localTime) / this.duration)
-                        )
-                    ));
-                    
-                    this.emit('update', this.value, this, delta);
-                    if (this.localTime >= this.duration) {
-                        this.loopFn.complete(function () {
-                            this.completed = true;
-                            this.emit('complete', this.value, this);
-                        });
-                    }
-                    this.localTime += delta;
                 }.bind(this);
             },
         
@@ -146,4 +161,3 @@
         });
     });
 })(); // Animate
-

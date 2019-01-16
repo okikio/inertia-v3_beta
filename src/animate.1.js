@@ -1,4 +1,3 @@
-
 (function() {
     // Inertia's Animate Module V2 [www.khanacademy.org/cs/_/--]
     Define("Animate", function() {
