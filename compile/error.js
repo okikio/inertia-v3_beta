@@ -4,7 +4,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
 (function() {
     $in = Inertia; // Inertia Shortform
     Inertia.$Modules = {}; // Cache / List of all Modules
-    Inertia.$Required = []; // All Modules Required
+    Inertia.$req = Inertia.$Required = []; // All Modules Required
     Inertia.$Root = null; // Cache / List of all Modules
     
     /* Turn Strings into Arrays of little paths
