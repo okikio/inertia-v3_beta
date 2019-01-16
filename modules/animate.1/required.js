@@ -6,5 +6,6 @@ module.exports = [
     "Math",
     "Class",
     "Ease",
-    "Event"
+    "Event",
+    "Animate.1"
 ];
