@@ -2,18 +2,11 @@
     // Inertia's Core Objects V2 [www.khanacademy.org/cs/_/6109672016216064]
     Define("Core", function() {
         var Core = {}; // Export
-
         // Window Object
-        Core.window = function(prop) {
-            return function() { return this[prop] || this; }();
-        };
-
-        // Cnavas Object
-        Core.canvas = Core.PJS = Core.pjs = (function(prop) {
-            setup = function() { return this; };
-            return setup();
-        })();
-        
+        Core.global = Core.window = function(path) {
+            return function() { return this[path] || this; }();
+        }; 
+        Core.canvas = Core.PJS = Core.pjs = $in.pjs; // Canvas Object
         Core.EVAL = Core[["eval"]] = Core.window("eval"); // Eval Function
         Core.FUNCTION = Core.Function = Core.Func = Core.Fn = Core.window("Function"); // Function Object
         Core.JSON = Core.Json = Core.window("JSON"); // Json Object

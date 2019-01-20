@@ -7,16 +7,11 @@
             Native = Inertia.require("Core.Object"), $indx = 0;
 
         // Map Of Names And Functions
-        $Map = [
-            [["map"], _.map], // Re-Map Element in an Object
-            [["extend"], _.extend], // Extend Objects
-            [["size"], _.size], // Total Number of Element in an Object
-            [["keys"], _.keys], // List of keys in an Object
-            [["allKeys"], Util.allKeys], // All Keys
-            [["values"], _.values], // List of values in an Object
-            [["filter"], _.filter], // Filter a List of values in an Object
-            [["each", "forEach"], _.each], // Iterates Object mulitiple times
-
+        $Map = _.reduce(_.keys(_), function (acc, val, i) {
+            return !["toArray"].includes(val) ?
+                    acc.concat([ [val, _[val]] ]) : acc;
+        }, [])
+        .concat([
             // Nth Element in an Object
             [["nth", "indx"], function(obj, id) {
                 return _.isNumber(id) ? _.values(obj)[id] :
@@ -104,12 +99,38 @@
                     value: Object.nth(obj, $indx),
                     done: false
                 } : { done: true };
-            }]
-        ];
-
+            }],
+            
+            // Sum of all values in an Object
+            [["sum"], function (obj, id, deep) {
+                return Object.reduce(obj, function (acc, val, i) {
+                    var _val;
+                    if ($in.isDef(id)) {
+                        _val = Object.path(obj, $in.toArray(i + "." + id));
+                    } else if (_.isObject(val) || _.isArray(val)) {
+                        _val = deep ? Object.sum(val, id, deep) : 0;
+                    } else if (_.isFunction(id)) {
+                        _val = id(val);
+                    } else { _val = val; }
+                    acc += _val;
+                    return acc;
+                }, 0);
+            }],
+            
+            // Average
+            [["average", "avg"], function (obj, id) {
+                if ($in.isDef(id)) {
+                    return Object.pluck(obj, id).sum(null, true) / Object.size(obj);
+                }
+                return Object.sum(
+                    $in.isDef(id) ? Object.pluck(obj, id) : obj,
+                null, true) / Object.size(obj);
+            }],
+        ]);
+        
         // Extend Methods
-        _.extend(Native, MapFunc($Map));
-        _.extend(Native.prototype, MapFunc($Map, true));
+        MapFunc(Native, $Map);
+        MapFunc(Native.prototype, $Map, true);
         return Native;
     });
 })(); // Object

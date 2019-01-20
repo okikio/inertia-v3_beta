@@ -80,12 +80,12 @@ let packeteerApi = function(from, to) {
 packeteer('src/', 'modules/');
 
 // Create little packets for api folder, but instead of index.js the `filename` and md
-packeteer('src/', 'api/', function(filename) {
-    fs.appendFile(root + 'api/' + filename + '.md', "", function(err) {
+packeteer('src/', 'docs/', function(filename) {
+    fs.appendFile(root + 'docs/' + filename + '.md', "", function(err) {
         if (err) { throw err; }
-        else { console.log('api/' + filename + '.md - Write operation complete.'); }
+        else { console.log('docs/' + filename + '.md - Write operation complete.'); }
     });
 });
 
 // Create a copy of api docs from api folders and place the little packets into modules folder
-packeteerApi('api/', 'modules/');
+packeteerApi('docs/', 'modules/');

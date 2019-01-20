@@ -40,9 +40,10 @@
                 return _keys;
             },
 
-            // Map An Array to an Object
-            MapArr: function(obj, type) {
+            // Maps An Array to an Object
+            MapArr: function(host, obj, type, override) {
                 var result = {}, _ = Core.window("_");
+                override = override || [];
                 // Iterate Map
                 _.each(obj, function(arr) {
                     // Iterate In Each Element Of the Array
@@ -62,7 +63,10 @@
                         }, this);
                     }, this);
                 }, this);
-                return result;
+                
+                for (var i in result) {
+                    host[i] = (!_.has(host, i) || !override.includes(i) ? result : host)[i]; 
+                }
             },
 
             // Find a value in an Object based on it's path
