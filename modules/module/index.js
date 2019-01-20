@@ -262,22 +262,14 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         var Emit;
         $in.evt = $in.Event = new $in.EventEmitter(); // Inertia Event
         // Emit An Event
-        Emit = function(evt, fn, _arg) {
-            fn = fn || function() {};
-            _arg = _arg || true;
+        Emit = function(evt, fn) {
             $in.Event._emit.push(evt);
             return function() {
-                fn();
+                (fn || function() {}) ();
                 try {
-                    if (_arg) {
-                        // jshint noarg: false
-                        var arg = arguments.callee.caller.arguments;
-                        $in.Event.emit
-                            .apply(Inertia.Event, [evt, arg[0]]);
-                    } else {
-                        $in.Event.emit
-                            .apply(Inertia.Event, [evt]);
-                    }
+                    // jshint noarg: false
+                    var arg = arguments.callee.caller.arguments;
+                    $in.evt.emit.apply($in.evt, [evt, arg[0]]);
                 } catch (e) { println(evt + " - " + e); }
             };
         };
@@ -300,6 +292,11 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             List: [],
             ListStr: [],
         };
+        
+        Object.defineProperties(Inertia.Key, {
+            list: { get: function () { return this.List; } },
+            listStr: { get: function () { return this.ListStr; } },
+        });
     
         $in.pjs.keyTyped = Emit("onKeyType");
         $in.pjs.keyReleased = Emit("onKeyRelease", function() {
