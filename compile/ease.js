@@ -540,15 +540,13 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         
     // Underscore specific functionality
     Define("_", function() { return require("Util._"); }); 
-    Define("each", function() { return require("Util.each"); }); // Iterates Over Object's mulitiple times
-
     // Type Testing Functions
     Define(["is", "Util.is"], function() {
         var _ = require("_");
         // Type Check Functions
         return ['Symbol', 'Map', 'WeakMap', 'Set', 'WeakSet', 'Object', 'Array', 'Arguments', 'Function', 'String', 'Number', 'Boolean', 'Date', 'RegExp', 'Undefined', 'Null', 'Equal', 'Empty', 'Finite', 'NaN'].reduce(function(obj, name) {
             obj[name.toLowerCase()] = obj[name] = _[["is" + name]] ? 
-                _[["is" + name]] : function(obj) {
+                _[["is" + name]] : _[["is" + name]] = function(obj) {
                 return Object.prototype.toString.call(obj) === '[object ' + name + ']';
             };
             return obj;

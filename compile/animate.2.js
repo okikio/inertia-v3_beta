@@ -540,15 +540,13 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         
     // Underscore specific functionality
     Define("_", function() { return require("Util._"); }); 
-    Define("each", function() { return require("Util.each"); }); // Iterates Over Object's mulitiple times
-
     // Type Testing Functions
     Define(["is", "Util.is"], function() {
         var _ = require("_");
         // Type Check Functions
         return ['Symbol', 'Map', 'WeakMap', 'Set', 'WeakSet', 'Object', 'Array', 'Arguments', 'Function', 'String', 'Number', 'Boolean', 'Date', 'RegExp', 'Undefined', 'Null', 'Equal', 'Empty', 'Finite', 'NaN'].reduce(function(obj, name) {
             obj[name.toLowerCase()] = obj[name] = _[["is" + name]] ? 
-                _[["is" + name]] : function(obj) {
+                _[["is" + name]] : _[["is" + name]] = function(obj) {
                 return Object.prototype.toString.call(obj) === '[object ' + name + ']';
             };
             return obj;
@@ -629,9 +627,9 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     // Object Module [all] the Native Object's with some additions
     // Inertia's Object Modules V2 [www.khanacademy.org/computer-programming/_/5993936052584448]
     Define("Object", function() {
-        var Util = Inertia.require("Util"), args = Util.args, _ = Util._, $Map,
-            MapFunc = Util.MapArr, $JSON = Inertia.require("Core.JSON"),
-            Native = Inertia.require("Core.Object"), $indx = 0;
+        var Core = require("Core"), Util = require("Util"), args = Util.args, 
+            _ = Util._, $Map, MapFunc = Util.MapArr, $JSON = Core.JSON,
+            Native = Core.Object, $indx = -1;
 
         // Map Of Names And Functions
         $Map = _.reduce(_.keys(_), function (acc, val, i) {
@@ -732,8 +730,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             [["sum"], function (obj, id, deep) {
                 return Object.reduce(obj, function (acc, val, i) {
                     var _val;
-                    if ($in.isDef(id)) {
-                        _val = Object.path(obj, $in.toArray(i + "." + id));
+                    if (Inertia.isDef(id)) {
+                        _val = Object.path(obj, Inertia.toArray(i + "." + id));
                     } else if (_.isObject(val) || _.isArray(val)) {
                         _val = deep ? Object.sum(val, id, deep) : 0;
                     } else if (_.isFunction(id)) {
@@ -746,13 +744,80 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             
             // Average
             [["average", "avg"], function (obj, id) {
-                if ($in.isDef(id)) {
+                if (Inertia.isDef(id)) {
                     return Object.pluck(obj, id).sum(null, true) / Object.size(obj);
                 }
                 return Object.sum(
-                    $in.isDef(id) ? Object.pluck(obj, id) : obj,
+                    Inertia.isDef(id) ? Object.pluck(obj, id) : obj,
                 null, true) / Object.size(obj);
             }],
+            
+            // Median
+            [["median", "med"], function (obj, id) {
+                var _obj = Object.values(obj);
+                var len = Object.size(_obj);
+                if (id === undefined) {
+                    if (len % 2 === 0) 
+                        { return (_obj[(len / 2) - 1] + 
+                                  _obj[len / 2]) / 2; }
+                    return _obj[floor(len / 2)];
+                }
+            
+                if (len % 2 === 0) 
+                    { return (_obj[(len / 2) - 1][id] + 
+                              _obj[len / 2][id]) / 2; }
+            
+                return _obj[floor(len / 2)][id];
+            }],
+            
+            // Find the Mode of an Object
+            [["mode"], function (obj, id) {
+                return Object.countBy(
+                    $in.isDef(id) ? Object.pluck(obj, id) : obj
+                ).pairs().max(Object.last).head();
+            }],
+            
+            // Split an Object into smaller pieces 
+            [["chunk"], function(obj, size, split) {
+                var chunks = [], index = 0;
+                if (typeof obj === "string") {
+                    chunks = Object.chunk(obj.split(split || ""), size);
+                } else if (Array.isArray(obj) || typeof obj === 'object') {
+                    var _keys = Object.keys(obj), _obj, Chunkkeys;
+                    
+                    // Used a function outside, can't define a function in a loop :(
+                    var fn = function () {
+                        Chunkkeys = _keys.slice(index, index + size);
+                        _obj = {};
+                        Object.forEach(Chunkkeys, function(_key) { 
+                            _obj[_key] = obj[_key]; 
+                        }, obj);
+                    };
+                    
+                    do { 
+                        if (!Array.isArray(obj)) { fn(); } 
+                        else { _obj = obj.slice(index, index + size); }
+                        chunks.push(_obj); index += size; 
+                    } while (index < _keys.length);
+                } else { chunks.push([obj]); }
+                return chunks;
+            }], 
+            
+            // Dump all values at a certain point in the Object
+            [["dump", "log"], function (obj) { Core.log.apply(obj, arguments); return obj; }],
+            
+            // Set prototype methods quickly
+            [["macro"], function (obj, name, fn) { 
+                obj.prototype[name] = fn || Core.Fn("return this;"); 
+                return obj; 
+            }],
+            
+            // Instantiates the given class with Object values as a constructor
+            [["mapInto"], function (obj, _class) { 
+                return Object.map(obj, function (val, i) { 
+                    return new _class(val, i);
+                });
+            }]
         ]);
         
         // Extend Methods
