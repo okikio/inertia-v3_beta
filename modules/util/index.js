@@ -1,14 +1,11 @@
 (function() {
     // Inertia's Util Modules V2 [www.khanacademy.org/cs/_/4952324744708096]
     Define("Util", function() {
-        var Util, Core = require("Core");
+        var Util, Core = $in.require("Core"), _ = Core.window("_");
         
         // Util Object
         Util = {
-            _: Core.window("_"),
-            each: Core.window("_").each,
-            map: Core.window("_").map,
-
+            _: _, each: _.each, map: _.map,
             // Pick between two value the defined Value
             pick: Core.Func('a', 'b', 'return a !== undefined ? a : b'),
 
@@ -65,22 +62,87 @@
                 }, this);
                 
                 for (var i in result) {
-                    host[i] = (!_.has(host, i) || !override.includes(i) ? result : host)[i]; 
+                    host[i] = (!_.has(host, i) || !override.includes(i) ? result : host)[i];
                 }
             },
 
             // Find a value in an Object based on it's path
             path: function(obj, path, val) {
-                path = Inertia.toArray(path);
-                if (Inertia.isDef(val)) {
-                    if (path.length > 1) {
-                        Util.path(obj[path.shift()], path, val);
-                    } else { obj[path[0]] = val; }
-                    return val;
-                } else {
-                    path.forEach(function($val) { obj = obj[$val]; });
-                }
-                return obj;
+                var path_ = function(obj, path, val, lvl, $path) {
+                    path = Inertia.toArray(path); 
+                    lvl = Math.max(lvl, 0) || 0; 
+                    $path = $path || [].concat(path);
+                    var err = function ($val) {  
+                        return " - Path `['" + $path.join("', '")  + "']` is stuck on level: `" + lvl + "`, Current Position: `" + $val + "`";
+                    };
+                    
+                    // Check if value is given
+                    if ($in.isDef(val)) {
+                        ++ lvl;
+                        if (/\*/g.test(path[0])) {
+                            try {
+                                // This is for multiple wildcards
+                                _.each(obj, function (_obj, $_path) {
+                                    // Test to see if '*' is given as a path
+                                    var isAll = path[0].replace(/\*/g, "").length === 0;
+                                    if (isAll) {
+                                        path_(obj, [$_path].concat(_.rest(path)), 
+                                              val, lvl, $path);
+                                    } else {
+                                        var v_ = path[0].replace(/\*/g, "(.*?)");
+                                        if (new RegExp(v_, "g").test($_path)) {
+                                            path_(obj, [$_path].concat(_.rest(path)), 
+                                                  val, lvl, $path);
+                                        }
+                                    }
+                                });
+                            } catch (e) { 
+                                Core.log("WildCard Error!" + err(path[0])); 
+                            }
+                        } else if (path.length > 1) {
+                            path_(obj[path[0]], _.rest(path), val, lvl, $path);
+                        } else { obj[path[0]] = val; }
+                        return val;
+                    } else {
+                        path.forEach(function($val, lvl_) { 
+                            try {
+                                lvl = lvl_ + 1;
+                                
+                                // Wild Card "*"
+                                if (/\*/g.test($val)) { 
+                                    try {
+                                        var v_ = $val.replace(/\*/g, "(.*?)"); 
+                                        obj = _.isArray(obj) ? obj : [].concat(obj); 
+                                        // This is for multiple wildcards
+                                        _.each(obj, function (_obj, indx) {
+                                            // Test to see if '*' alone is given as a path
+                                            var isAll = $val.replace(/\*/g, "").length === 0;
+                                            obj[indx] = isAll ? _obj : 
+                                                _.filter(_obj, function (_v, _i) {
+                                                    return new RegExp(v_, "g")
+                                                        .test(_.isArray(_obj) ? _v : _i);
+                                                });
+                                        });
+                                    } catch (e) { 
+                                        Core.log("WildCard Error!" + err($val)); 
+                                    }
+                                } else { 
+                                    if (Array.isArray(obj)) { 
+                                        obj.forEach(function (val, i) {
+                                            obj[i] = obj[i][$val];
+                                        });
+                                    } else { obj = obj[$val]; }
+                                    
+                                }
+                            } catch (e) { Core.log("Error!" + err($val)); }
+                        });
+                    }
+                    
+                    return path.length === lvl ? obj.map(function (val) {
+                        return _.isArray(val) && val.length > 1 ? _.flatten(val) : val;
+                    }) : obj;
+                };
+                return path_(obj, path, val);
             },
 
             // Create an Alias/Copy of a Static Method that can function as a Prototype Method
@@ -112,11 +174,11 @@
                 return val.apply(ctxt, arg);
             }
         };
-        
-        Util._.allKeys = Util.allKeys;
-        Util._.enumKeys = Util.enumKeys;
-        Util._.isDefined = $in.isDef;
-        Util._.isColor = function (val) {
+    
+        _.allKeys = Util._.allKeys = Util.allKeys;
+        _.enumKeys = Util._.enumKeys = Util.enumKeys;
+        _.isDefined = Util._.isDefined = Inertia.isDef;
+        _.isColor = Util._.isColor = function (val) {
             return !Util._.isUndefined(val) && (/^\#|^rgb|^hsl|^hsb/g.test(val) ||
                     (Util._.isArray(val) && Util._.isNumber(val[0])) ||
                         Util._.isNumber(val) || val.value);
