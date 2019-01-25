@@ -492,7 +492,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     
                     // Check if value is given
                     if ($in.isDef(val)) {
-                        ++ lvl;
+                        ++ lvl; // For error checking
                         if (/\*/g.test(path[0])) {
                             try {
                                 // This is for multiple wildcards
@@ -520,7 +520,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     } else {
                         path.forEach(function($val, lvl_) { 
                             try {
-                                lvl = lvl_ + 1;
+                                lvl = lvl_ + 1; // For error checking
                                 
                                 // Wild Card "*"
                                 if (/\*/g.test($val)) { 
