@@ -844,7 +844,11 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     if (props.indexOf(i) !== -1) { acc[i] = obj[i]; }
                     return acc;
                 }, {});
-            }]
+            }],
+            
+            // Passes the Object to the given callback and returns the result
+            [["pipe"], function (obj, fn) 
+                { return (fn || Core.Fn("v", "return v;")) (obj); }]
         ]);
         
         // Extend Methods
