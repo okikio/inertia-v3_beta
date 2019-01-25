@@ -719,8 +719,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return _obj[floor(len / 2)][id];
             }],
             
-            // Find the Mode of an Object
-            [["mode"], function (obj, id) {
+            // Find the Mode (the most repeated element) of an Object
+            [["mode", "repeated"], function (obj, id) {
                 return Object.countBy(
                     $in.isDef(id) ? Object.pluck(obj, id) : obj
                 ).pairs().max(Object.last).head();
@@ -766,6 +766,22 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return Object.map(obj, function (val, i) { 
                     return new _class(val, i);
                 });
+            }],
+            
+            // Returns the items in an Object with specified keys
+            [["only"], function (obj) {
+                var _args = args(arguments, 1);
+                var props = Array.isArray(_args) ? _args[0] : _args;
+                if (Array.isArray(obj)) {
+                    return Object.filter(obj, function (item) { 
+                        return props.indexOf(item) !== -1; 
+                    });
+                }
+                
+                return Object.reduce(obj, function(acc, val, i) {
+                    if (props.indexOf(i) !== -1) { acc[i] = obj[i]; }
+                    return acc;
+                }, {});
             }]
         ]);
         
