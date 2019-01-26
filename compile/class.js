@@ -482,104 +482,71 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
 
             // Find a value in an Object based on it's path
             path: function(obj, path, val) {
-                var path_ = function(obj, path, val, lvl, $path) {
-                    path = Inertia.toArray(path); 
+                var Path = function(obj, path, val, lvl, init) {
+                    var curr, path = Inertia.toArray(path); 
+                    init = init || [].concat(path);
                     lvl = Math.max(lvl, 0) || 0; 
-                    $path = $path || [].concat(path);
-                    var err = function ($val) {  
-                        return " - Path `['" + $path.join("', '")  + "']` is stuck on level: `" + lvl + "`, Current Position: `" + $val + "`";
-                    };
                     
-                    // Check if value is given
-                    if ($in.isDef(val)) {
-                        ++ lvl; // For error checking
-                        if (/\*/g.test(path[0])) {
-                            try {
+                    try {
+                        // Check if value is given
+                        if ($in.isDef(val)) {
+                            var pathLeft = _.rest(path); // Returns the path left to travel 
+                            curr = path[0]; ++ lvl; // For error checking
+                            
+                            if (/\*/g.test(curr)) {
                                 // This is for multiple wildcards
-                                _.each(obj, function (_obj, $_path) {
+                                _.each(obj, function ($, idx) {
                                     // Test to see if '*' is given as a path
-                                    var isAll = path[0].replace(/\*/g, "").length === 0;
-                                    if (isAll) {
-                                        path_(obj, [$_path].concat(_.rest(path)), 
-                                              val, lvl, $path);
-                                    } else {
-                                        var v_ = path[0].replace(/\*/g, "(.*?)");
-                                        if (new RegExp(v_, "g").test($_path)) {
-                                            path_(obj, [$_path].concat(_.rest(path)), 
-                                                  val, lvl, $path);
-                                        }
+                                    var isAll = curr.replace(/\*/g, "").length === 0;
+                                    var toReg = curr.replace(/\*/g, "(.*?)");
+                                    var regex = new RegExp(toReg, "g"); 
+                                    var subPath = [idx].concat(pathLeft); // Finds all the subpaths for the wildcard
+                                    if (isAll || regex) {
+                                        Path(obj, subPath, val, lvl, init);
                                     }
                                 });
-                            } catch (e) { 
-                                Core.log("WildCard Error!" + err(path[0])); 
-                            }
-                        } else if (path.length > 1) {
-                            path_(obj[path[0]], _.rest(path), val, lvl, $path);
-                        } else { obj[path[0]] = val; }
-                        return val;
-                    } else {
-                        path.forEach(function($val, lvl_) { 
-                            try {
-                                lvl = lvl_ + 1; // For error checking
+                            } else if (path.length > 1) {
+                                Path(obj[curr], pathLeft, val, lvl, init);
+                            } else { obj[curr] = val; }
+                            return obj;
+                        } else {
+                            path.forEach(function(v, i) { 
+                                curr = v; lvl = i + 1; // For error checking
                                 
                                 // Wild Card "*"
-                                if (/\*/g.test($val)) { 
-                                    try {
-                                        var v_ = $val.replace(/\*/g, "(.*?)"); 
-                                        obj = _.isArray(obj) ? obj : [].concat(obj); 
-                                        // This is for multiple wildcards
-                                        _.each(obj, function (_obj, indx) {
-                                            // Test to see if '*' alone is given as a path
-                                            var isAll = $val.replace(/\*/g, "").length === 0;
-                                            obj[indx] = isAll ? _obj : 
-                                                _.filter(_obj, function (_v, _i) {
-                                                    return new RegExp(v_, "g")
-                                                        .test(_.isArray(_obj) ? _v : _i);
-                                                });
-                                        });
-                                    } catch (e) { 
-                                        Core.log("WildCard Error!" + err($val)); 
-                                    }
+                                if (/\*/g.test(curr)) { 
+                                    var toReg = curr.replace(/\*/g, "(.*?)");
+                                    var regex = new RegExp(toReg, "g"); 
+                                    var objArr = _.isArray(obj) ? obj : [].concat(obj); 
+                                    
+                                    // This is for multiple wildcards
+                                    obj = _.map(objArr, function (vals, indx) {
+                                        // Test to see if '*' alone is given as a path
+                                        var isAll = curr.replace(/\*/g, "").length === 0;
+                                        return isAll ? vals : 
+                                            _.filter(vals, function (val, idx) {
+                                                return regex.test(
+                                                    _.isArray(vals) ? val : idx
+                                                );
+                                            });
+                                    });
                                 } else { 
                                     if (Array.isArray(obj)) { 
-                                        obj.forEach(function (val, i) {
-                                            obj[i] = obj[i][$val];
-                                        });
-                                    } else { obj = obj[$val]; }
+                                        obj = _.map(obj, function ($, i) 
+                                            { return obj[i][v]; });
+                                    } else { obj = obj[v]; }
                                     
                                 }
-                            } catch (e) { Core.log("Error!" + err($val)); }
-                        });
+                            });
+                        }
+                    } catch (e) { 
+                        Core.log("Error! - Path `['" + init.join("', '")  + "']` is stuck on level: `" + lvl + "`, Current Position: `" + curr + "`"); 
                     }
-                    
                     return path.length === lvl ? obj.map(function (val) {
                         return _.isArray(val) && val.length > 1 ? _.flatten(val) : val;
                     }) : obj;
                 };
-                return path_(obj, path, val);
-            },
-
-            // Create an Alias/Copy of a Static Method that can function as a Prototype Method
-            alias: function(obj, chainable, notStatic) {
-                var result = {}, _ = Core.window("_");
-                chainable = chainable || [];
-                _.each(obj, function(val, i) {
-                    result[i] = function() {
-                        var _args = notStatic ? Array.from(arguments) : [this]
-                            .concat(Array.from(arguments));
-                        if (chainable.includes(i)) {
-                            val.apply(this, _args);
-                            return this;
-                        }
-                        return val.apply(this, _args);
-                    };
-
-                    var toStr = val.toString.bind(val);
-                    result[i].toString = chainable.includes(i) ?
-                        Core.Func('return ' + toStr() + '+"return this;";') : toStr;
-                    result[i].valueOf = val.valueOf.bind(val);
-                });
-                return result;
+                return Path(obj, path, val);
             },
 
             // Take a Function as a Value
@@ -742,8 +709,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return this;
             },
 
-            // Set Alias's, Defaults or Backups for Objects
-            Alias: function(obj) {
+            // Set Defaults or Backups for Objects
+            Default: function(obj) {
                 return function() {
                     var result;
                     _.each(args(arguments).reverse(), function(val) {
@@ -752,6 +719,29 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     }, this);
                     return result;
                 }.bind(this);
+            },
+            
+            // Create an Alias/Copy of a Static Method that can function as a Prototype Method
+            Alias: function(obj, chainable, notStatic) {
+                var result = {}, _ = Core.window("_");
+                chainable = chainable || [];
+                _.each(obj, function(val, i) {
+                    result[i] = function() {
+                        var _args = notStatic ? Array.from(arguments) : [this]
+                            .concat(Array.from(arguments));
+                        if (chainable.includes(i)) {
+                            val.apply(this, _args);
+                            return this;
+                        }
+                        return val.apply(this, _args);
+                    };
+
+                    var toStr = val.toString.bind(val);
+                    result[i].toString = chainable.includes(i) ?
+                        Core.Func('return ' + toStr() + '+"return this;";') : toStr;
+                    result[i].valueOf = val.valueOf.bind(val);
+                });
+                return result;
             },
 
             // Access Attributes and Properties of a Class (It has many Uses)

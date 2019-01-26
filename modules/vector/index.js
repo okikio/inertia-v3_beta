@@ -36,7 +36,7 @@
         // Create A Quick Alias
         QAlias = function(path, method) {
             return function() {
-                var Prop = Class.alias(Vector).apply(null, [path]);
+                var Prop = Class.default(Vector).apply(null, [path]);
                 return !method ? Prop.apply(this, arguments) : Prop;
             };
         };
@@ -51,11 +51,8 @@
         // Static Methods of the Vector Object
         .static(PVector, Static = {
             // Basic Vector Math
-            add: VSolve(),
-            sub: VSolve("-"),
-            div: VSolve("/"),
-            mod: VSolve("%"),
-            mult: VSolve("*"),
+            add: VSolve(), sub: VSolve("-"), div: VSolve("/"),
+            mod: VSolve("%"), mult: VSolve("*"),
             
             // Invert
             invert: function ($this) { return VSolve("*") ($this, -1); },
@@ -165,8 +162,8 @@
         })
 
         // Prototype Methods of the Vector Object
-        .method(Util.alias(PVector.prototype, Chain, true),
-                Util.alias(Static));
+        .method(Class.alias(PVector.prototype, Chain, true),
+                Class.alias(Static));
         return Vector;
     }, true);
 })(); // Vector

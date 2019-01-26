@@ -55,8 +55,8 @@
                 return this;
             },
 
-            // Set Alias's, Defaults or Backups for Objects
-            Alias: function(obj) {
+            // Set Defaults or Backups for Objects
+            Default: function(obj) {
                 return function() {
                     var result;
                     _.each(args(arguments).reverse(), function(val) {
@@ -65,6 +65,29 @@
                     }, this);
                     return result;
                 }.bind(this);
+            },
+            
+            // Create an Alias/Copy of a Static Method that can function as a Prototype Method
+            Alias: function(obj, chainable, notStatic) {
+                var result = {}, _ = Core.window("_");
+                chainable = chainable || [];
+                _.each(obj, function(val, i) {
+                    result[i] = function() {
+                        var _args = notStatic ? Array.from(arguments) : [this]
+                            .concat(Array.from(arguments));
+                        if (chainable.includes(i)) {
+                            val.apply(this, _args);
+                            return this;
+                        }
+                        return val.apply(this, _args);
+                    };
+
+                    var toStr = val.toString.bind(val);
+                    result[i].toString = chainable.includes(i) ?
+                        Core.Func('return ' + toStr() + '+"return this;";') : toStr;
+                    result[i].valueOf = val.valueOf.bind(val);
+                });
+                return result;
             },
 
             // Access Attributes and Properties of a Class (It has many Uses)
