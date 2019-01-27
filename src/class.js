@@ -168,7 +168,6 @@
                             _Parent = _super.prototype[method];
                             break;
                         }
-    
                         $ = _super.prototype;
                         _const = $.constructor;
                         _super = _const.SuperClass;

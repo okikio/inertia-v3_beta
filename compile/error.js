@@ -775,7 +775,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                             _Parent = _super.prototype[method];
                             break;
                         }
-    
                         $ = _super.prototype;
                         _const = $.constructor;
                         _super = _const.SuperClass;
