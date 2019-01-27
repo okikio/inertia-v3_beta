@@ -11,7 +11,6 @@
                 return _.reduce(obj.slice(0, n), func,
                     typeof start === "undefined" ? 0 : start);
             }),
-
             // Defaults
             Add: function(obj, n) { return To(obj, n, Eq(), 0); },
             Sub: function(obj, n) { return To(obj, n, Eq("-"), 0); },

@@ -11,20 +11,18 @@
             Disabled: { value: false },
             x: { get: Env("return this.mouseX;") }, // TouchX
             y: { get: Env("return this.mouseY;") }, // TouchY
-    
             // Mouse x & y Axises as Vector Points
             Pos: {
                 get: function() {
                     return new PVector(this.x, this.y);
                 }
             },
-    
             // Distance From the Touch's Position to Another Postion
             setDist: { get: Env("return this.Pos.dist", Touch), },
         });
     
         // List of all Touch Names
-        Touch.EventList = [];
+        Touch.evtlst = Touch.EventList = [];
         // Emit Set
         Emit = function(evt) {
             // Add Event Names to List
@@ -34,7 +32,6 @@
                     { Touch.emit.apply(Touch, [evt, e]); }
             };
         };
-        
         Prefix = "onTouch"; // Set Prefix
         // Emit Touch Events
         Event.on(Prefix + "Cancel", Emit("Cancel"), Touch);

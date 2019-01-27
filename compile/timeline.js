@@ -873,7 +873,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             [["cap", "Capital"], function(str) {
                 return str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase();
             }],
-            
             // Iterates on a String based on a given RegExp
             [["stringEach", "forEach", "each"], function (str, search, fn) {
                 var chunks, chunk, reg, result = [];
@@ -898,71 +897,59 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }
                 return result;
             }],
-            
             // Each Word
             [["eachWord", "word"], function (str, fn) {
                 return String.stringEach(str.trim(), /\S+/g, fn);
             }],
-
             // Cuts off a String that is a certain length long
             [["trunc", "Truncate"], function(str, len, end) {
                 end = _.isUndefined(end) ? '...' : end; len = len || 30;
                 return str.length > len ? str.substring(0, len) + end :
                         String(str);
             }],
-
             // Escape RegExp Meta Characters
             [["escape"], function(str) {
                 if (!_.isString(str)) { return str; }
                 return str.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
             }],
-
             // Swap Parts of a String that passes a truth test very Similar to Array.filter
             [["swap"], function(str, find, substi) {
                 var result = ""; if (!find) { return str; }
                 return str.replace(new RegExp(String.escape(find), "g"), substi);
             }],
-
             // Map a Sring
             [["map"], function(str, fn, contxt) {
                 return str.split("").map(fn, contxt).join("");
             }],
-
             // Camelizes a String
             [["camel", "Camelize"], function(str) {
                 return str.split(/\W+/g).map(String.cap).join(" ");
             }],
-
             // Create's an Array of Index for the First Letter of all Occurances of a Certain String in a Larger String
             [["occur"], function(str, find) {
                 try {
                     var _find = _.isRegExp(find) ? find : RegExp(find, "g"), 
                         result, indx = [];
                     if (str && find) {
-                        while ((result = _find.exec(str)))
-                            { indx.push(result.index); }
+                        while ((result = _find.exec(str))) { indx.push(result.index); }
                     }
                     return indx;
                 } catch (e) {
                     return "There is a problem with `occur`, check the [\"" + str + "\" & " + find + "] params.";
                 }
             }],
-
             // Creates a Template String
             [["temp", "Template"], _.template],
-
             // Previous Value
             [["prev"], function(str) {
                 return str.slice(0, str.length - 1) +
                     String.fromCharCode(str.charCodeAt(str.length - 1) - 1);
             }],
-
             // Next Value
             [["grow"], function(str) {
                 return str.slice(0, str.length - 1) +
                     String.fromCharCode(str.charCodeAt(str.length - 1) + 1);
             }],
-            
             // Remove unesscessary space
             [["compact"], function(str) {
                 return String.trim(str).replace(/([\r\n\s　])+/g, 
@@ -970,13 +957,11 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                         return whitespace === '　' ? whitespace : ' ';
                     });
             }],
-            
             // Template Settings
             [["TemplateSet", "tempSet"], function(sets) {
                 _.extend(_.templateSettings, sets || {});
             }]
         ];
-
         // Set Default Template Settings
         _.templateSettings = {
             interpolate: /{=([\s\S]+?)=}/g, /* {= 2 + 2 =} // 4 */
@@ -985,7 +970,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                                                 loop {{ i }},
                                             {- }) -}".temp({}) // loop 0, loop 1, */
         };
-
         // Extend Methods
         MapFunc(Native, $Map);
         MapFunc(Native.prototype, $Map, true);
@@ -1342,48 +1326,44 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
 })(); // Vector
 (function() {
     // Inertia's Size Module V2  [www.khanacademy.org/cs/_/5898167898112000]
-    // Size Module Basically a Vector that Supports [width & height] as [x & y]
+    // Size Module Basically a Vector that Supports [width & height] as well as [x & y]
     Define("Size", function() {
         var Class = require("Class"), Vector = require("Vector"),
             _ = require("Util")._;
         // Vector Object
         return Class(Vector, _.reduce({
-                    _class: "Size", // Set Class Name & Attribute ID
-                    init: function($super, x, y) {
-                        $super.apply(this, [x || 0, y || 0]);
-                        this.Width = this.width = this.wid = this.w = this.x;
-                        this.Height = this.height = this.hei = this.h = this.y;
-                    },
-                    
-                    // Set values of the Object
-                    set: function (x, y) {
-                        this.setWidth(x); this.setHeight(y || x);
-                        return this;
-                    },
-                    
-                    // Sets the width property
-                    setWidth: function (val) {
-                        this.Width = this.width = this.wid = this.w = val;
-                        this.x = val;
-                        return this;
-                    },
-                    
-                    // Sets the height property
-                    setHeight: function (val) {
-                        this.Height = this.height = this.hei = this.h = val;
-                        this.y = val;
-                        return this;
-                    }
+                _class: "Size", // Set Class Name
+                init: function($super, x, y) {
+                    $super.apply(this, [x || 0, y || 0]);
+                    this.Width = this.width = this.wid = this.w = this.x;
+                    this.Height = this.height = this.hei = this.h = this.y;
                 },
-                function (obj, val, i) {
-                    // Create Capital Copies of the Main Methods
-                    obj[i] = obj[i.toLowerCase()] = val;
-                    return obj;
-                }, {})
-            )
-                
-            // Static Methods
-            .static(Vector);
+                // Set values of the Object
+                set: function (x, y) {
+                    this.setWidth(x); this.setHeight(y || x);
+                    return this;
+                },
+                // Sets the width property
+                setWidth: function (val) {
+                    this.Width = this.width = this.wid = this.w = val;
+                    this.x = val;
+                    return this;
+                },
+                // Sets the height property
+                setHeight: function (val) {
+                    this.Height = this.height = this.hei = this.h = val;
+                    this.y = val;
+                    return this;
+                }
+            },
+            function (obj, val, i) {
+                // Create Capital Copies of the Main Methods
+                obj[i] = obj[i.toLowerCase()] = val;
+                return obj;
+            }, {})
+        )
+        // Static Methods
+        .static(Vector);
     });
 })(); // Size
 (function() {
@@ -1764,38 +1744,31 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
 (function() {
     // Inertia's UI Event Module V2 [www.khanacademy.org/cs/_/6433526873882624]
     Define(["Event.UIEvent", "UIEvent"], function() {
-        var Class = require("Class"), Event = require("Event"), 
-            Core = require("Core"), Emit;
+        var Class = require("Class"), Event = require("Event"), Emit;
         // Creates Events with a Prefix before the Event is Called
         return function(_class) {
             // A Modified Extension of The Event Emitter `Inertia.Event`
             return Class(Event, {
                 _class: _class || "UIEvent", // Class Name
-    
                 // Add a Listener / Function For a Given Event
-                on: Inertia.Event[["on"]],
-                add: Inertia.Event[["on"]],
-                bind: Inertia.Event[["on"]],
-    
+                on: $in.Event[["on"]],
+                add: $in.Event[["on"]],
+                bind: $in.Event[["on"]],
                 // Add a One - Time Listener / Function For a Given Event
-                once: Inertia.Event[["once"]],
-    
+                once: $in.Event[["once"]],
                 // Remove a Listener / Function For a Given Event
-                off: Inertia.Event[["off"]],
-                remove: Inertia.Event[["off"]],
-                unbind: Inertia.Event[["off"]],
-    
+                off: $in.Event[["off"]],
+                remove: $in.Event[["off"]],
+                unbind: $in.Event[["off"]],
                 // List's All Listeners / Function's For a Given Event
-                listeners: Inertia.Event[["listeners"]],
-                callback: Inertia.Event[["listeners"]],
-    
+                listeners: $in.Event[["listeners"]],
+                callback: $in.Event[["listeners"]],
                 // Call All Function(s) Within An Event
-                emit: Inertia.Event[["emit"]],
-                fire: Inertia.Event[["emit"]],
-                trigger: Inertia.Event[["emit"]],
-                
+                emit: $in.Event[["emit"]],
+                fire: $in.Event[["emit"]],
+                trigger: $in.Event[["emit"]],
                 // Clear all Events
-                clear: Inertia.Event[["clear"]]
+                clear: $in.Event[["clear"]]
             }) (); // A New Instance
         };
     }, true);
@@ -2025,20 +1998,18 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             Disabled: { value: false },
             x: { get: Env("return this.mouseX;") }, // TouchX
             y: { get: Env("return this.mouseY;") }, // TouchY
-    
             // Mouse x & y Axises as Vector Points
             Pos: {
                 get: function() {
                     return new PVector(this.x, this.y);
                 }
             },
-    
             // Distance From the Touch's Position to Another Postion
             setDist: { get: Env("return this.Pos.dist", Touch), },
         });
     
         // List of all Touch Names
-        Touch.EventList = [];
+        Touch.evtlst = Touch.EventList = [];
         // Emit Set
         Emit = function(evt) {
             // Add Event Names to List
@@ -2048,7 +2019,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     { Touch.emit.apply(Touch, [evt, e]); }
             };
         };
-        
         Prefix = "onTouch"; // Set Prefix
         // Emit Touch Events
         Event.on(Prefix + "Cancel", Emit("Cancel"), Touch);
@@ -2128,7 +2098,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return _.reduce(obj.slice(0, n), func,
                     typeof start === "undefined" ? 0 : start);
             }),
-
             // Defaults
             Add: function(obj, n) { return To(obj, n, Eq(), 0); },
             Sub: function(obj, n) { return To(obj, n, Eq("-"), 0); },
@@ -2155,14 +2124,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 end = arguments.length === 1 ? strt : end;
                 return _.range.apply({}, [strt, exclude ? end : end + 1, inc]);
             }
-
             // Check if the last Value of the Range is Included
             _include = function(val) {
                 if (inc) { return val < this.End; }
                 if (val < strt) { return false; }
                 return val <= end;
             };
-
             // Iterate through the Range
             while (_include(value)) {
                 arr.push(value);
@@ -3353,24 +3320,19 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
 (function() {
     // Inertia's Animate Module V2 [www.khanacademy.org/cs/_/--]
     Define("Animate", function() {
-        var Util = require("Util"), _ = Util._, Class = require("Class"),
-            Default, Event = require("Event"), Fn = require("Func"), AnimArr,
-            $Math = require("Math"), Ease = require("Ease");
-            
+        var Util = require("Util"), Class = require("Class"), $Math = require("Math"),
+            Event = require("Event"), Fn = require("Func"), Ease = require("Ease"), 
+            _ = Util._, AnimArr, Default;
         // List of Animate Objects
         AnimArr = [];
-        
         // Default Loops
         Default = {
             complete: Fn("cb", "return cb.call(this)"),
             progress: Fn("x", "return x")
         };
-        
         var _prevTime = Date.now(), _time, _delta; // Temp. variables
-        Inertia.Event.on("draw", function () {
-            _time = Date.now();
-            _delta = _time - _prevTime;
-        
+        $in.Event.on("draw", function () {
+            _time = Date.now(); _delta = _time - _prevTime;
             for (var i = 0; i < AnimArr.length; i++) {
                 if (!AnimArr[i].completed) {
                     AnimArr[i](_delta, Date.now() - AnimArr[i].start_time);
@@ -3378,15 +3340,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             }
             _prevTime = _time;
         });
-
         // Animate Object [Based on Between.js - https://github.com/sasha240100/between.js]
         return Class(Event, {
+            loopMode: 'once', completed: false,
+            paused: false, loopFn: Default,
             end: 0, start: 0, progress: 0,
             localTime: 0, duration: 1000,
-            paused: false,
-            loopFn: Default,
-            loopMode: 'once',
-            completed: false,
             ease: Fn("x", "return x"),
             init: function (strt, end) {
                 this.value = _.isArray(strt) ? [].concat(strt) :
@@ -3406,10 +3365,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                         this._updateValue = Fn("return null");
                         println('Animate: Start Value type was unrecognized.');
                 }
-            
                 AnimArr.push(this.update.call(this));
             },
-            
             isPaused: Class.get("paused"),
             easing: function (eas) {
                 this.ease = _.isString(eas) || _.isArray(eas) ?
@@ -3433,7 +3390,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             loop: function (mode, args) {
                 mode = mode || 'once'; args = Util.args(args || [], 1);
                 var loopFnName = "__loop_" + mode;
-        
                 this.loopFn = loopFnName in this ?
                     _.extend({}, Default, this[loopFnName].apply(this, args)) :
                     Default;
@@ -3451,18 +3407,15 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             },
             update: function () {
                 return function (delta, time) {
-                    var prog;
                     if (!this.completed && !this.paused) { 
                         if (this.localTime === 0) {
                             this.emit('start', this.value, this);
                         }
-                        
                         this._updateValue(this.ease( // Progress
                             this.progress = this.loopFn.progress(
                                 Math.min(1, (time || this.localTime) / this.duration)
                             )
                         ));
-                        
                         this.emit('update', this.value, this, delta);
                         if (this.localTime >= this.duration) {
                             this.loopFn.complete.call(this, function () {
@@ -3474,7 +3427,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     }
                 }.bind(this);
             },
-        
             __loop_repeat: function (times) {
                 var maxTimes = times; this.times = 0;
                 return {
@@ -3487,7 +3439,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     }.bind(this)
                 };
             },
-            
             __loop_bounce: function (times) {
                 var maxTimes = times, bounceDir = 1;
                 this.times = 0;
@@ -3504,7 +3455,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 };
             },
         })
-        
+        // Static Methods
         .static({
             new: function ()
                 { return Fn.new(this, arguments); },

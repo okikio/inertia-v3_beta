@@ -895,38 +895,31 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
 (function() {
     // Inertia's UI Event Module V2 [www.khanacademy.org/cs/_/6433526873882624]
     Define(["Event.UIEvent", "UIEvent"], function() {
-        var Class = require("Class"), Event = require("Event"), 
-            Core = require("Core"), Emit;
+        var Class = require("Class"), Event = require("Event"), Emit;
         // Creates Events with a Prefix before the Event is Called
         return function(_class) {
             // A Modified Extension of The Event Emitter `Inertia.Event`
             return Class(Event, {
                 _class: _class || "UIEvent", // Class Name
-    
                 // Add a Listener / Function For a Given Event
-                on: Inertia.Event[["on"]],
-                add: Inertia.Event[["on"]],
-                bind: Inertia.Event[["on"]],
-    
+                on: $in.Event[["on"]],
+                add: $in.Event[["on"]],
+                bind: $in.Event[["on"]],
                 // Add a One - Time Listener / Function For a Given Event
-                once: Inertia.Event[["once"]],
-    
+                once: $in.Event[["once"]],
                 // Remove a Listener / Function For a Given Event
-                off: Inertia.Event[["off"]],
-                remove: Inertia.Event[["off"]],
-                unbind: Inertia.Event[["off"]],
-    
+                off: $in.Event[["off"]],
+                remove: $in.Event[["off"]],
+                unbind: $in.Event[["off"]],
                 // List's All Listeners / Function's For a Given Event
-                listeners: Inertia.Event[["listeners"]],
-                callback: Inertia.Event[["listeners"]],
-    
+                listeners: $in.Event[["listeners"]],
+                callback: $in.Event[["listeners"]],
                 // Call All Function(s) Within An Event
-                emit: Inertia.Event[["emit"]],
-                fire: Inertia.Event[["emit"]],
-                trigger: Inertia.Event[["emit"]],
-                
+                emit: $in.Event[["emit"]],
+                fire: $in.Event[["emit"]],
+                trigger: $in.Event[["emit"]],
                 // Clear all Events
-                clear: Inertia.Event[["clear"]]
+                clear: $in.Event[["clear"]]
             }) (); // A New Instance
         };
     }, true);
@@ -944,20 +937,18 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             Disabled: { value: false },
             x: { get: Env("return this.mouseX;") }, // TouchX
             y: { get: Env("return this.mouseY;") }, // TouchY
-    
             // Mouse x & y Axises as Vector Points
             Pos: {
                 get: function() {
                     return new PVector(this.x, this.y);
                 }
             },
-    
             // Distance From the Touch's Position to Another Postion
             setDist: { get: Env("return this.Pos.dist", Touch), },
         });
     
         // List of all Touch Names
-        Touch.EventList = [];
+        Touch.evtlst = Touch.EventList = [];
         // Emit Set
         Emit = function(evt) {
             // Add Event Names to List
@@ -967,7 +958,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     { Touch.emit.apply(Touch, [evt, e]); }
             };
         };
-        
         Prefix = "onTouch"; // Set Prefix
         // Emit Touch Events
         Event.on(Prefix + "Cancel", Emit("Cancel"), Touch);

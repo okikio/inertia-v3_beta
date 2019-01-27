@@ -1,24 +1,19 @@
 (function() {
     // Inertia's Animate Module V2 [www.khanacademy.org/cs/_/--]
     Define("Animate", function() {
-        var Util = require("Util"), _ = Util._, Class = require("Class"),
-            Default, Event = require("Event"), Fn = require("Func"), AnimArr,
-            $Math = require("Math"), Ease = require("Ease");
-            
+        var Util = require("Util"), Class = require("Class"), $Math = require("Math"),
+            Event = require("Event"), Fn = require("Func"), Ease = require("Ease"), 
+            _ = Util._, AnimArr, Default;
         // List of Animate Objects
         AnimArr = [];
-        
         // Default Loops
         Default = {
             complete: Fn("cb", "return cb.call(this)"),
             progress: Fn("x", "return x")
         };
-        
         var _prevTime = Date.now(), _time, _delta; // Temp. variables
-        Inertia.Event.on("draw", function () {
-            _time = Date.now();
-            _delta = _time - _prevTime;
-        
+        $in.Event.on("draw", function () {
+            _time = Date.now(); _delta = _time - _prevTime;
             for (var i = 0; i < AnimArr.length; i++) {
                 if (!AnimArr[i].completed) {
                     AnimArr[i](_delta, Date.now() - AnimArr[i].start_time);
@@ -26,15 +21,12 @@
             }
             _prevTime = _time;
         });
-
         // Animate Object [Based on Between.js - https://github.com/sasha240100/between.js]
         return Class(Event, {
+            loopMode: 'once', completed: false,
+            paused: false, loopFn: Default,
             end: 0, start: 0, progress: 0,
             localTime: 0, duration: 1000,
-            paused: false,
-            loopFn: Default,
-            loopMode: 'once',
-            completed: false,
             ease: Fn("x", "return x"),
             init: function (strt, end) {
                 this.value = _.isArray(strt) ? [].concat(strt) :
@@ -54,10 +46,8 @@
                         this._updateValue = Fn("return null");
                         println('Animate: Start Value type was unrecognized.');
                 }
-            
                 AnimArr.push(this.update.call(this));
             },
-            
             isPaused: Class.get("paused"),
             easing: function (eas) {
                 this.ease = _.isString(eas) || _.isArray(eas) ?
@@ -81,7 +71,6 @@
             loop: function (mode, args) {
                 mode = mode || 'once'; args = Util.args(args || [], 1);
                 var loopFnName = "__loop_" + mode;
-        
                 this.loopFn = loopFnName in this ?
                     _.extend({}, Default, this[loopFnName].apply(this, args)) :
                     Default;
@@ -99,18 +88,15 @@
             },
             update: function () {
                 return function (delta, time) {
-                    var prog;
                     if (!this.completed && !this.paused) { 
                         if (this.localTime === 0) {
                             this.emit('start', this.value, this);
                         }
-                        
                         this._updateValue(this.ease( // Progress
                             this.progress = this.loopFn.progress(
                                 Math.min(1, (time || this.localTime) / this.duration)
                             )
                         ));
-                        
                         this.emit('update', this.value, this, delta);
                         if (this.localTime >= this.duration) {
                             this.loopFn.complete.call(this, function () {
@@ -122,7 +108,6 @@
                     }
                 }.bind(this);
             },
-        
             __loop_repeat: function (times) {
                 var maxTimes = times; this.times = 0;
                 return {
@@ -135,7 +120,6 @@
                     }.bind(this)
                 };
             },
-            
             __loop_bounce: function (times) {
                 var maxTimes = times, bounceDir = 1;
                 this.times = 0;
@@ -152,7 +136,7 @@
                 };
             },
         })
-        
+        // Static Methods
         .static({
             new: function ()
                 { return Fn.new(this, arguments); },

@@ -12,14 +12,12 @@
                 end = arguments.length === 1 ? strt : end;
                 return _.range.apply({}, [strt, exclude ? end : end + 1, inc]);
             }
-
             // Check if the last Value of the Range is Included
             _include = function(val) {
                 if (inc) { return val < this.End; }
                 if (val < strt) { return false; }
                 return val <= end;
             };
-
             // Iterate through the Range
             while (_include(value)) {
                 arr.push(value);
