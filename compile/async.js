@@ -836,13 +836,11 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 text("Loading Error! Module: " + this.indx + ". \n Message: " + e.message, 25, 0, 350, 400);
             
             },
-        
             // Add New Tasks
             then: function(fn) {
                 this.tasks.push(fn || function() {});
                 return this;
-            },
-                    
+            },    
             // Run Async
             run: function () {
                 if (this.tasks.length <= 0) { return this; }
@@ -860,7 +858,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }
                 return this;
             },
-            
             // Creates a Loop for Loading
             loop: function () {
                 $in.Event.on("draw", function () {
@@ -871,7 +868,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     } catch (e) { this.errFn(e); }
                 }, this);
                 return this;
-            },
+            }
         });
     });
 })(); // Async 
