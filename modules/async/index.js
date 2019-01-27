@@ -14,7 +14,6 @@
                 textAlign(CENTER, CENTER);
                 textFont(createFont("Century Gothic Bold"), 22);
                 text("Loading Error! Module: " + this.indx + ". \n Message: " + e.message, 25, 0, 350, 400);
-            
             },
             // Add New Tasks
             then: function(fn) {
