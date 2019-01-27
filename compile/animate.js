@@ -567,8 +567,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     // Inertia's Function Module V2 [www.khanacademy.org/cs/_/5415663367127040]
     // Function Module adds to the Native Function Object
     Define(["Func", "Function", "Fn"], function() {
-        var Util = require("Util"), $Map, MapFunc = Util.MapArr,
-            _ = Util._, Native = require("Core.Func");
+        var Core = require("Core"), Util = require("Util"), _ = Util._, 
+            MapFunc = Util.MapArr, Native = Core.Func, $Map;
         // Map Of Names And Functions
         $Map = [
             [["args"], Util.args], // Turn the Arguments Object into an Array
@@ -1028,9 +1028,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     // Inertia's Class Module V2 [www.khanacademy.org/cs/_/5398825551822848]
     // Class Module acts like the ES6 `class` keyword replacement
     Define("Class", function() {
-        var $Class, Util = require("Util"), _ = Util._,
-            args = Util.args, Class, Static, Fn = require("Func");
-        
+        var Util = require("Util"), Fn = require("Func"), 
+            _ = Util._, args = Util.args, Class, Static;
         // Set Static Methods
         Static = {
             // Add Methods to a Class
@@ -1061,7 +1060,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }, this);
                 return this;
             },
-
             // Set Static Methods
             Static: function() {
                 _.each(Util.args(arguments), function(obj) {
@@ -1080,7 +1078,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }, this);
                 return this;
             },
-
             // Set Defaults or Backups for Objects
             Default: function(obj) {
                 return function() {
@@ -1092,10 +1089,9 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     return result;
                 }.bind(this);
             },
-            
             // Create an Alias/Copy of a Static Method that can function as a Prototype Method
             Alias: function(obj, chainable, notStatic) {
-                var result = {}, _ = Core.window("_");
+                var result = {};
                 chainable = chainable || [];
                 _.each(obj, function(val, i) {
                     result[i] = function() {
@@ -1110,12 +1106,11 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
 
                     var toStr = val.toString.bind(val);
                     result[i].toString = chainable.includes(i) ?
-                        Core.Func('return ' + toStr() + '+"return this;";') : toStr;
+                        Fn('return ' + toStr() + '+"return this;";') : toStr;
                     result[i].valueOf = val.valueOf.bind(val);
                 });
                 return result;
             },
-
             // Access Attributes and Properties of a Class (It has many Uses)
             Attr: function(path, val) {
                 if (_.isObject(path) && !_.isArray(path))
@@ -1134,7 +1129,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 else {  return Util.path(this, path); }
                 return this;
             },
-            
             // Create Classes
             Create: function () {
                 var Class, SubClass, Parent, arg = args(arguments);
@@ -1215,7 +1209,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 };
                 return Class;
             },
-            
             // Easy Access to Configurable attributes
             get: function (val) {
                 var _val = Object.constructor("with (this) return " + val);
@@ -1228,25 +1221,20 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return { set: _val };
             }
         };
-        
         // Alias Methods
         _.extend(Static, {
             Extends: Static.Create, // Extend from another Class
-            
             // Add Prototype Methods to Class
             Method: Static.Method,
             AddTo: Static.Method,
             Prop: Static.Method,
         });
-        
         // Create lowercase alias Methods
         _.each(Static, function (val, i) {
             Static[i.toLowerCase()] = val;
         });
-        
         // Class Object
-        Class = Static.Create;
-        _.extend(Class, Static);
+        Class = Static.Create; _.extend(Class, Static);
         return Class;
     });
 })(); // Class
@@ -1254,9 +1242,9 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     // Inertia's Vector Module V2 [www.khanacademy.org/cs/_/5402431084593152]
     // PVector with Tweaks
     Define(["Math.Vector", "Vector", "vector", "vec"], function() {
-        var Util = require("Util"), args = Util.args, Static, VFn, Obj,
-            _ = Util._, Func = require("Core.Func"), VSolve,
-            Class = require("Class"), Vector, QAlias,
+        var Util = require("Util"), Func = require("Core.Func"), _ = Util._, 
+            args = Util.args, VSolve, Static, VFn, Obj,
+            Class = require("Class"), Vector,
             Chain = ["rotate", "lerp", "normalize", "limit"]; // Chainable Methods
         // Objectify a Vector for Immidiate Use
         Obj = function($this) {
@@ -1274,7 +1262,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return $this;
             };
         };
-
         // Run a Vectors through a Function
         VFn = function($this, fn, args) {
             args = args || [];
@@ -1283,74 +1270,50 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             $this.z = fn.apply($this, [$this.z].concat(args));
             return $this;
         };
-
-        // Create A Quick Alias
-        QAlias = function(path, method) {
-            return function() {
-                var Prop = Class.default(Vector).apply(null, [path]);
-                return !method ? Prop.apply(this, arguments) : Prop;
-            };
-        };
-
         // Vector Object
         Vector = Class({
-            init: function () {
-                this.set.apply(this, arguments);
-            }
+            init: function () 
+                { this.set.apply(this, arguments); }
         })
-        
         // Static Methods of the Vector Object
         .static(PVector, Static = {
             // Basic Vector Math
             add: VSolve(), sub: VSolve("-"), div: VSolve("/"),
             mod: VSolve("%"), mult: VSolve("*"),
-            
             // Invert
             invert: function ($this) { return VSolve("*") ($this, -1); },
-            
             // Distances of Points axis'
             distX: Func("$this", "$vec", "return $this.x - $vec.x;"),
             distY: Func("$this", "$vec", "return $this.y - $vec.y;"),
             distZ: Func("$this", "$vec", "return $this.z - $vec.z;"),
-
             // Self Explanatory (The Slope / Intercept of two Points)
             slope: Func("$this", "$vec", "return ($this.distY($vec) / $this.distX($vec)) || 0;"),
             intercept: Func("$this", "$vec", "return $this.y - $this.slope($vec) * $this.x;"),
-
             // Perpendicular Slope
             perpSlope: Func("$this", "$vec", "return -1 / $this.slope($vec);"),
-            
             // Check if 2 Vectors are In a Straight Line
             inLine: function ($this, vec) {
                 var $this = $this.copy(), vec = vec.copy();
                 return abs($this.cross(vec).z) <= sqrt($this.magSq() + vec.magSq()) * 1e-8;
             },
-            
             // Perpendicular
             perp: function ($this) {
                 $this.set($this.y, $this.x, $this.z);
                 return $this;
             },
-            
             // Project this vector on to another vector
-            project: function (v) {
-                return this.scale(this.dot(v) / v.magSq());
-            },
-    
+            project: function (v) 
+                { return this.scale(this.dot(v) / v.magSq()); },
             // Project this vector onto a vector of unit length
-            projectN: function (v) {
-                return this.mult(this.dot(v));
-            },
-            
+            projectN: function (v) 
+                { return this.mult(this.dot(v)); },
             // Run a Vector through a Function
             fn: VFn,
-            
             // Mid point of to Vectors
             mid: function ($this, $vec) {
                 var $vec = Obj($vec);
                 return $this.lerp($vec, 0.5);
             },
-
             // Turn a Vector to an Array
             arr: function (x, y, z) {
                 // [x Axis, y Axis, z Axis]
@@ -1358,20 +1321,16 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                        _.isObject(x) ? [x.x || 0, x.y || 0, x.z || 0] :
                        [(x || 0), (y || 0), (z || 0)];
             },
-            array: QAlias("arr"),
-            
+            array: Class.get("arr"),
             // Get the Quadrant of Vector
             quad: function($this) {
                 return $this.x >= 0 ? $this.y >= 0 ? 1 : 4 : $this.y >= 0 ? 2 : 3;
             },
-
             // Copy a Vector
             copy: function($this) { return new Vector($this); },
-            get: QAlias("copy"),
-            
+            get: Class.get("copy"),
             // Objectify a Vector for Immidiate Use
             obj: Obj,
-
             // Are two Vector equal?
             equal: function($this, $vec) {
                 var $this = Obj($this); var $vec = Obj($vec);
@@ -1379,7 +1338,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                        ($this.x === $vec.x && $this.y === $vec.y &&
                         $this.z === $vec.z);
             },
-
             // Find the intersection of 4 points
             intersect: function(a, b, c, d) {
                 var val, abSlope, cdSlope, abIntercept, cdIntercept;
@@ -1390,19 +1348,16 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 val = (cdIntercept - abIntercept) / (abSlope - cdSlope);
                 return new Vector(val, abSlope * val + abIntercept);
             },
-            
             // Checks if a Vector is near another
             near: function($this, vec, dist) {
                 return $this.dist(vec) <= dist;
             },
-            
             // Set Value of Vector
             set: function ($this, x, y, z) {
                 var VecArr = Vector.arr(x, y, z);
                 PVector.apply($this, VecArr);
                 return $this;
             },
-            
             // Convert From Values to the either Objects or Arrays
             convert: function (x, y, z) {
                 var arr = Vector.arr(x, y, z);
@@ -1411,7 +1366,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return _.isArray(x) ? obj : arr;
             }
         })
-
         // Prototype Methods of the Vector Object
         .method(Class.alias(PVector.prototype, Chain, true),
                 Class.alias(Static));

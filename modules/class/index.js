@@ -2,9 +2,8 @@
     // Inertia's Class Module V2 [www.khanacademy.org/cs/_/5398825551822848]
     // Class Module acts like the ES6 `class` keyword replacement
     Define("Class", function() {
-        var $Class, Util = require("Util"), _ = Util._,
-            args = Util.args, Class, Static, Fn = require("Func");
-        
+        var Util = require("Util"), Fn = require("Func"), 
+            _ = Util._, args = Util.args, Class, Static;
         // Set Static Methods
         Static = {
             // Add Methods to a Class
@@ -35,7 +34,6 @@
                 }, this);
                 return this;
             },
-
             // Set Static Methods
             Static: function() {
                 _.each(Util.args(arguments), function(obj) {
@@ -54,7 +52,6 @@
                 }, this);
                 return this;
             },
-
             // Set Defaults or Backups for Objects
             Default: function(obj) {
                 return function() {
@@ -66,10 +63,9 @@
                     return result;
                 }.bind(this);
             },
-            
             // Create an Alias/Copy of a Static Method that can function as a Prototype Method
             Alias: function(obj, chainable, notStatic) {
-                var result = {}, _ = Core.window("_");
+                var result = {};
                 chainable = chainable || [];
                 _.each(obj, function(val, i) {
                     result[i] = function() {
@@ -84,12 +80,11 @@
 
                     var toStr = val.toString.bind(val);
                     result[i].toString = chainable.includes(i) ?
-                        Core.Func('return ' + toStr() + '+"return this;";') : toStr;
+                        Fn('return ' + toStr() + '+"return this;";') : toStr;
                     result[i].valueOf = val.valueOf.bind(val);
                 });
                 return result;
             },
-
             // Access Attributes and Properties of a Class (It has many Uses)
             Attr: function(path, val) {
                 if (_.isObject(path) && !_.isArray(path))
@@ -108,7 +103,6 @@
                 else {  return Util.path(this, path); }
                 return this;
             },
-            
             // Create Classes
             Create: function () {
                 var Class, SubClass, Parent, arg = args(arguments);
@@ -189,7 +183,6 @@
                 };
                 return Class;
             },
-            
             // Easy Access to Configurable attributes
             get: function (val) {
                 var _val = Object.constructor("with (this) return " + val);
@@ -202,25 +195,20 @@
                 return { set: _val };
             }
         };
-        
         // Alias Methods
         _.extend(Static, {
             Extends: Static.Create, // Extend from another Class
-            
             // Add Prototype Methods to Class
             Method: Static.Method,
             AddTo: Static.Method,
             Prop: Static.Method,
         });
-        
         // Create lowercase alias Methods
         _.each(Static, function (val, i) {
             Static[i.toLowerCase()] = val;
         });
-        
         // Class Object
-        Class = Static.Create;
-        _.extend(Class, Static);
+        Class = Static.Create; _.extend(Class, Static);
         return Class;
     });
 })(); // Class

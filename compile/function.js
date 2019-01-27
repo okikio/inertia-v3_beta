@@ -567,8 +567,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     // Inertia's Function Module V2 [www.khanacademy.org/cs/_/5415663367127040]
     // Function Module adds to the Native Function Object
     Define(["Func", "Function", "Fn"], function() {
-        var Util = require("Util"), $Map, MapFunc = Util.MapArr,
-            _ = Util._, Native = require("Core.Func");
+        var Core = require("Core"), Util = require("Util"), _ = Util._, 
+            MapFunc = Util.MapArr, Native = Core.Func, $Map;
         // Map Of Names And Functions
         $Map = [
             [["args"], Util.args], // Turn the Arguments Object into an Array
