@@ -37,11 +37,11 @@
             }],
 
             // Inline Stringify Function
-            [["str", "stringify"], function(obj) {
+            [["str", "stringify"], function(obj, short) {
                 var fns = [], json;
                 try {
                     if (typeof obj !== "undefined") {
-                        if (Object.isArrayLike(obj)) { return $JSON.stringify(obj); }
+                        if (short) { return $JSON.stringify(obj); }
                         json = $JSON.stringify(obj, function(key, val) {
                             if (_.isFunction(val))
                                 { fns.push(val.toStr ? val.toStr() : val.toString()); return "_"; }

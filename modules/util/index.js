@@ -68,71 +68,66 @@
 
             // Find a value in an Object based on it's path
             path: function(obj, path, val) {
-                var Path = function(obj, path, val, lvl, init) {
-                    var curr, path = Inertia.toArray(path); 
+                var Path = function(obj, path, lvl, init, val) {
+                    var curr, path = $in.toArray(path), _keys;
                     init = init || [].concat(path);
                     lvl = Math.max(lvl, 0) || 0; 
+                    _keys = Object.keys(obj);
                     
                     try {
+                        // Returns the path left to travel 
+                        var pathLeft = _.rest(path); 
+                        curr = path[0]; ++ lvl; // For error checking
                         // Check if value is given
                         if ($in.isDef(val)) {
-                            var pathLeft = _.rest(path); // Returns the path left to travel 
-                            curr = path[0]; ++ lvl; // For error checking
-                            
-                            if (/\*/g.test(curr)) {
+                            // Wild Cards "..|.." or "(...)" or "[...]" and "* or abc*"
+                            if (/[\(\[]([\s\S]+?)[\)\]]/g.test(curr) || 
+                                /[\|\^\$]/g.test(curr) || /\*/g.test(curr)) {
+                                    println(!/\/\//g.test(curr) + " - " + curr);
                                 // This is for multiple wildcards
                                 _.each(obj, function ($, idx) {
-                                    // Test to see if '*' is given as a path
-                                    var isAll = curr.replace(/\*/g, "").length === 0;
-                                    var toReg = curr.replace(/\*/g, "(.*?)");
-                                    var regex = new RegExp(toReg, "g"); 
-                                    var subPath = [idx].concat(pathLeft); // Finds all the subpaths for the wildcard
-                                    if (isAll || regex) {
-                                        Path(obj, subPath, val, lvl, init);
-                                    }
+                                    var toReg = (/\$$/.test(curr) ? "" : "^") + 
+                                        curr.replace(/\|/g, "$|^")
+                                            .replace(/\*/g, "(.*?)") + 
+                                    (/^\^/.test(curr) ? "" : "$");
+                                    var regex = new RegExp(toReg, "g");
+                                    // Finds all the subpaths for the wildcard
+                                    var subPath = [idx].concat(pathLeft); 
+                                    if (regex.test(idx)) 
+                                        { Path(obj, subPath, lvl, init, val); }
                                 });
                             } else if (path.length > 1) {
-                                Path(obj[curr], pathLeft, val, lvl, init);
+                                Path(obj[curr], pathLeft, lvl, init, val);
                             } else { obj[curr] = val; }
                             return obj;
                         } else {
-                            path.forEach(function(v, i) { 
-                                curr = v; lvl = i + 1; // For error checking
-                                
-                                // Wild Card "*"
-                                if (/\*/g.test(curr)) { 
-                                    var toReg = curr.replace(/\*/g, "(.*?)");
-                                    var regex = new RegExp(toReg, "g"); 
-                                    var objArr = _.isArray(obj) ? obj : [].concat(obj); 
-                                    
-                                    // This is for multiple wildcards
-                                    obj = _.map(objArr, function (vals, indx) {
-                                        // Test to see if '*' alone is given as a path
-                                        var isAll = curr.replace(/\*/g, "").length === 0;
-                                        return isAll ? vals : 
-                                            _.filter(vals, function (val, idx) {
-                                                return regex.test(
-                                                    _.isArray(vals) ? val : idx
-                                                );
-                                            });
-                                    });
-                                } else { 
-                                    if (Array.isArray(obj)) { 
-                                        obj = _.map(obj, function ($, i) 
-                                            { return obj[i][v]; });
-                                    } else { obj = obj[v]; }
-                                    
-                                }
-                            });
+                            // Wild Cards "..|.." or "(...)" or "[...]" and "* or abc*"
+                            if (/[\(\[]([\s\S]+?)[\)\]]/g.test(curr) || 
+                                /[\|\^\$]/g.test(curr) || /\*/g.test(curr)) {
+                                obj = _(obj).filter(function ($, idx) {
+                                    var toReg = (/\$$/.test(curr) ? "" : "^") + 
+                                        curr.replace(/\|/g, "$|^")
+                                            .replace(/\*/g, "(.*?)") + 
+                                    (/^\^/.test(curr) ? "" : "$");
+                                    return new RegExp(toReg, "g").test(idx);
+                                }).map(function ($, idx) {
+                                    // Find Keys of filtered Object
+                                    idx = _keys[idx]; 
+                                    // Finds all the subpaths for the wildcard
+                                    var subPath = [idx].concat(pathLeft); 
+                                    return Path(obj, subPath, lvl, init);
+                                });
+                            } else if (path.length > 1) {
+                                obj = Path(obj[curr], pathLeft, lvl, init);
+                            } else { obj = obj[curr]; }
+                            return obj;
                         }
                     } catch (e) { 
-                        Core.log("Error! - Path `['" + init.join("', '")  + "']` is stuck on level: `" + lvl + "`, Current Position: `" + curr + "`"); 
+                        Core.log("Error! - Path [" + init  + "] is stuck on level: `" + lvl + "`, Current Position: `" + curr + "`,\n----------------\nMessage: " + e.message); 
                     }
-                    return path.length === lvl ? obj.map(function (val) {
-                        return _.isArray(val) && val.length > 1 ? _.flatten(val) : val;
-                    }) : obj;
+                    return obj;
                 };
-                return Path(obj, path, val);
+                return Path(obj, path, 0, path, val);
             },
 
             // Take a Function as a Value

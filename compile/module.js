@@ -9,7 +9,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     /* Turn Strings into Arrays of little paths
         eg: toArray("obj.key.val") // ["obj", "key", "val"] */
     var toArray = Inertia.toArray = function (arr) {
-        return arr.toString().split(/[\.\/\\\[\]\,]/g);
+        return arr.toString().split(/[\.\,]/g);
     };
     
     /* Check if a value is defined
