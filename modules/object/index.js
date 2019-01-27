@@ -5,7 +5,6 @@
         var Core = require("Core"), Util = require("Util"), args = Util.args, 
             _ = Util._, $Map, MapFunc = Util.MapArr, $JSON = Core.JSON,
             Native = Core.Object, $indx = -1;
-
         // Map Of Names And Functions
         $Map = _.reduce(_.keys(_), function (acc, val, i) {
             return !["toArray"].includes(val) ?

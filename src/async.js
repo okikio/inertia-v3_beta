@@ -46,7 +46,7 @@
                 $in.Event.on("draw", function () {
                     try {
                         this.run();
-                        if (this.complete) { this.readyFn(); } 
+                        if (this.complete) { this.readyFn.call($in.pjs); } 
                         else { this.loadFn(); }
                     } catch (e) { this.errFn(e); }
                 }, this);

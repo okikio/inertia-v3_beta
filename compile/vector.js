@@ -39,20 +39,18 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     
     // Inertia Event Emit
     Inertia.evtemit = Inertia.EventEmitter = (function () {
-        var _ = (0, eval) ("_"), EventEmitter;
+        var _ = $in.global._, EventEmitter;
         (EventEmitter = function () { })
             .prototype = {
                 _class: "Event", // Set Class Name
                 _eventCount: 0, _events: {}, // Event Info.
                 _emit: [], // Store events set to be Emitted
-                
                 // Prepare the Event
                 preEvent: function(evt) {
                     if (!this._events[evt]) // List Of Event's
                         { this._events[evt] = []; }
                     return this._events[evt];
                 },
-                
                 // Event Application
                 eventApp: function(callback, scope, event) {
                     return {
@@ -61,7 +59,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                         event: event
                     };
                 },
-            
                 // Add a Listener / Function For a Given Event
                 on: function(evt, callback, scope) {
                     if (_.isUndefined(evt)) { return; } // If There is No Event Break
@@ -76,15 +73,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                             this.preEvent($evt).push($Evt); // Set Event List
                         }
                     }, this);
-            
                     // Length Of Events
                     this._eventCount = _.keys(this._events).length;
-            
                     // Name Of All Event's
                     this.names = _.keys(this._events);
                     return this;
                 },
-                
                 // Call All Function(s) Within An Event
                 emit: function(evt) {
                     var $Evt, arg = [].slice.call(arguments, 1);
@@ -92,9 +86,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     if (!_.isArray(evt)) { evt = [evt]; } // Set Evt to an Array
                     _.each(evt, function($evt) {
                         $Evt = this.preEvent($evt);
-                        if (!this._emit.includes($evt)) {
-                            this._emit.push($evt);
-                        }
+                        if (!this._emit.includes($evt)) 
+                            { this._emit.push($evt); }
                         _.each($Evt, function(_evt) {
                             var $arg = arg;
                             if (_evt.callback.argnames &&
@@ -149,49 +142,41 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                         ". \n Message: " + e.message, 25, 0, 350, 400);
                 } else { text("Error!\n Message: " + e.message, 25, 0, 350, 400); }
             },
-            
             // Set Rate
             setRate: function (rate) {
                 this.rate = isDef(rate) ? rate : 500;
                 return this;
             },
-            
             // Set External
             setExternal: function (external) {
                 this.external = isDef(external) ? external : true;
                 return this;
             },
-            
             // Add New Tasks
             then: function(module, fn) {
                 this.tasks.push([fn || function() {}, module || "Module"]);
                 return this;
             },
-            
             // On Load
             load: function (fn) {
                 this.loadFn = fn || function () {};
                 return this;
             },
-            
             // Error
             error: function (fn) {
                 this.errFn = fn || function () {};
                 return this;
             },
-                
             // Ready
             ready: function (fn) {
                 this.readyFn = fn || function () {};
                 return this;
             },
-            
             // Set Loop Thru
             thruLoop: function (thru) {
                 this.loopThru = thru || true;
                 return this;
             },
-        
             // Run Async
             run: function() {
                 if (this.tasks.length <= 0) { return this; }
@@ -209,7 +194,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }
                 return this;
             },
-            
             // Creates a Loop for Loading
             loop: function (rate, external) {
                 var window = $in.global, pjs = $in.pjs;
@@ -229,7 +213,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }
                 return this;
             },
-        
             // Clear
             clear: function() {
                 this.indx = 0; this.tasks = [];
@@ -244,7 +227,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 get: function()
                     { return this.indx >= this.tasks.length; }
             },
-        
             // Progress
             progress: {
                 get: function()
@@ -256,7 +238,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     
     // Inertia's Load Manager
     Inertia.Manager = $in.mgr = new Inertia.Async();
-
     // A Base Global Event Emmitter
     (function() {
         var Emit;
@@ -276,7 +257,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         
         // Global Draw Event
         $in.pjs.draw = Emit("draw"); 
-    
         // Emit Mouse Events
         $in.pjs.mouseReleased = Emit("onMouseRelease");
         $in.pjs.mouseScrolled = Emit("onMouseScroll");
@@ -289,15 +269,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     
         // Emit Key Events
         var Key = $in.key = Inertia.Key = {
-            List: [],
-            ListStr: [],
+            List: [], ListStr: [],
         };
-        
         Object.defineProperties(Inertia.Key, {
             list: { get: function () { return this.List; } },
             listStr: { get: function () { return this.ListStr; } },
         });
-    
         $in.pjs.keyTyped = Emit("onKeyType");
         $in.pjs.keyReleased = Emit("onKeyRelease", function() {
             var Code = (key.code === CODED ? keyCode : key.code);
@@ -307,7 +284,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 Key.List.splice(_i, 1);
             }
         });
-    
         $in.pjs.keyPressed = Emit("onKeyPress", function() {
             var Code = (key.code === CODED ? keyCode : key.code);
             if (!Key.List.includes(Code)) {
@@ -315,7 +291,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 Key.List.push(Code);
             }
         });
-    
         // Emit Touch Events
         if ('ontouchstart' in (0, eval) ("this")) {
             $in.pjs.touchCancel = Emit("onTouchCancel");
@@ -327,7 +302,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             Inertia.Event.on("onMousePress", Emit("onTouchStart"));
             Inertia.Event.on("onMouseDrag", Emit("onTouchMove"));
         }
-        
         $in.evt._emit.forEach(function(val) {
             var _val = val.replace("on", "");
             _val = _val[0].toLowerCase() + _val.slice(1); // Changes `onMouseDrag` to `mouseDrag`
@@ -347,7 +321,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 fn = fn.call(Inertia.$Modules, Temp[Module]) || Temp[Module].exports;
                 return result && Module ? (result[Module] = fn) : undefined;
             };
-            
             if (Array.isArray(paths) && multi) {
                 paths.forEach(function (path) { Define(path, fn); });
             } else { Define(paths, fn); }
@@ -415,20 +388,17 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
 (function() {
     // Inertia's Util Modules V2 [www.khanacademy.org/cs/_/4952324744708096]
     Define("Util", function() {
-        var Util, Core = $in.require("Core"), _ = Core.window("_");
-        
+        var Util, Core = require("Core"), _ = Core.window("_");
         // Util Object
         Util = {
             _: _, each: _.each, map: _.map,
             // Pick between two value the defined Value
             pick: Core.Func('a', 'b', 'return a !== undefined ? a : b'),
-
             // Collect Functions Arguments into an Array
             args: function($this) {
                 var restArg = [].slice.call(arguments, 1);
                 return [].slice.apply($this, restArg);
             },
-
             // All Keys in an Object
             allKeys: function (obj) {
                 var result = Object.getOwnPropertyNames(obj), addProperty;
@@ -443,18 +413,15 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }
                 return result;
             },
-            
             // All Enumerable Keys in Object
             enumKeys: function(obj) {
                 var _keys = [];
                 for (var _key in obj) { _keys.push(_key); }
                 return _keys;
             },
-
             // Maps An Array to an Object
-            MapArr: function(host, obj, type, override) {
+            MapArr: function(host, obj, type, extra) {
                 var result = {}, _ = Core.window("_");
-                override = override || [];
                 // Iterate Map
                 _.each(obj, function(arr) {
                     // Iterate In Each Element Of the Array
@@ -475,11 +442,11 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     }, this);
                 }, this);
                 
+                _.extend(extra || {}, result);
                 for (var i in result) {
-                    host[i] = (!_.has(host, i) || !override.includes(i) ? result : host)[i];
+                    host[i] = (!_.has(host, i) ? result : host)[i];
                 }
             },
-
             // Find a value in an Object based on it's path
             path: function(obj, path, val) {
                 var Path = function(obj, path, lvl, init, val) {
@@ -497,14 +464,13 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                             // Wild Cards "..|.." or "(...)" or "[...]" and "* or abc*"
                             if (/[\(\[]([\s\S]+?)[\)\]]/g.test(curr) || 
                                 /[\|\^\$]/g.test(curr) || /\*/g.test(curr)) {
-                                    println(!/\/\//g.test(curr) + " - " + curr);
                                 // This is for multiple wildcards
                                 _.each(obj, function ($, idx) {
                                     var toReg = (/\$$/.test(curr) ? "" : "^") + 
                                         curr.replace(/\|/g, "$|^")
                                             .replace(/\*/g, "(.*?)") + 
                                     (/^\^/.test(curr) ? "" : "$");
-                                    var regex = new RegExp(toReg, "g");
+                                    var regex = RegExp(toReg, "g");
                                     // Finds all the subpaths for the wildcard
                                     var subPath = [idx].concat(pathLeft); 
                                     if (regex.test(idx)) 
@@ -523,7 +489,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                                         curr.replace(/\|/g, "$|^")
                                             .replace(/\*/g, "(.*?)") + 
                                     (/^\^/.test(curr) ? "" : "$");
-                                    return new RegExp(toReg, "g").test(idx);
+                                    return RegExp(toReg, "g").test(idx);
                                 }).map(function ($, idx) {
                                     // Find Keys of filtered Object
                                     idx = _keys[idx]; 
@@ -543,14 +509,17 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 };
                 return Path(obj, path, 0, path, val);
             },
-
             // Take a Function as a Value
             FnVal: function(val, arg, ctxt) {
                 if (!Util._.isFunction(val)) { return val; }
                 return val.apply(ctxt, arg);
-            }
+            },
+            // A more efficient `new` keyword that allows for arrays to be passed as Arguments
+            new: Core.Func("ctor", "args",
+                "var F = function() { return ctor.apply(this, args); };" +
+                "F.prototype = ctor.prototype;" +
+                "return new F")
         };
-    
         _.allKeys = Util._.allKeys = Util.allKeys;
         _.enumKeys = Util._.enumKeys = Util.enumKeys;
         _.isDefined = Util._.isDefined = Inertia.isDef;
@@ -561,7 +530,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         };
         return Util;
     });
-        
     // Underscore specific functionality
     Define("_", function() { return require("Util._"); }); 
     // Type Testing Functions
@@ -587,7 +555,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }
                 return true;
             },
-            
             // Test if an Object is simmilar to an Array
             ArrayLike: function(obj) {
                 var len = _.isNumber(obj.length) && obj.length;
@@ -602,19 +569,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     Define(["Func", "Function", "Fn"], function() {
         var Util = require("Util"), $Map, MapFunc = Util.MapArr,
             _ = Util._, Native = require("Core.Func");
-
         // Map Of Names And Functions
         $Map = [
             [["args"], Util.args], // Turn the Arguments Object into an Array
-            // A more efficient `new` keyword that allows for arrays to be passed as Arguments
-            [["new"], Native("ctor", "args",
-                "var F = function() { return ctor.apply(this, args); };" +
-                "F.prototype = ctor.prototype;" +
-                "return new F")],
-            
+            [["new"], Util.new], // A more efficient `new`
             // Empty / Noop / Dummy function
             [["empty", "noop", "dummy"], Native()],
-
             // List all the Names of a Functions Arguments
             [["argNames"], function(fn) {
                 var args = fn.toString()
@@ -623,7 +583,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     .replace(/\s+/g, '').split(',');
                 return args.length === 1 && !args[0] ? [] : args;
             }],
-
             // Remove extra code in a Stringifed Function
             [["toStr"], function(fn) {
                 var $fn = fn.toString().trim()
@@ -640,10 +599,9 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return $fn.match(/[\n]/g).length <= 2 ? copy : $fn;
             }]
         ];
-
         // Extend Methods
-        _.extend(Native, MapFunc($Map));
-        _.extend(Native.prototype, MapFunc($Map, true));
+        MapFunc(Native, $Map);
+        MapFunc(Native.prototype, $Map, true);
         return Native;
     }, true);
 })(); // Function
@@ -761,7 +719,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             // Create Classes
             Create: function () {
                 var Class, SubClass, Parent, arg = args(arguments);
-    
                 // SubClass Constructor
                 SubClass = function() {};
     
@@ -777,10 +734,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     // Current Class
                     if (!(this instanceof Class))
                         { return Fn.new(Class, arguments); }
-
-                    // Arguements
-                    this._args = arguments;
-
+                    this._args = arguments; // Arguements
+                    
                     // Initialize Class
                     return this.init.apply(this, arguments);
                 };
@@ -795,7 +750,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 
                 Class.SuperClass = Parent; // Current Class's Parent if any
                 Class.SubClasses = []; // List of SubClasses
-                
                 _.extend(Class, Static); // Extend Static Class
                 _.extend(Class.prototype, Fn, Static, Class); // Give Chainability
     
@@ -837,7 +791,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                         println(method + ', method not found in prototype chain.');
                         return;
                     }
-    
                     return (arg.length > 0) ?
                         _Parent.apply(this, arg) : _Parent.bind(this) ();
                 };
@@ -890,7 +843,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         Obj = function($this) {
             return _.isNumber($this) ? Vector($this, $this, $this) : Vector($this);
         };
-
         // Allows for Quick Vector Math
         VSolve = function(symbol) {
             symbol = symbol || "+";

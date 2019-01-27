@@ -1,20 +1,17 @@
 (function() {
     // Inertia's Util Modules V2 [www.khanacademy.org/cs/_/4952324744708096]
     Define("Util", function() {
-        var Util, Core = $in.require("Core"), _ = Core.window("_");
-        
+        var Util, Core = require("Core"), _ = Core.window("_");
         // Util Object
         Util = {
             _: _, each: _.each, map: _.map,
             // Pick between two value the defined Value
             pick: Core.Func('a', 'b', 'return a !== undefined ? a : b'),
-
             // Collect Functions Arguments into an Array
             args: function($this) {
                 var restArg = [].slice.call(arguments, 1);
                 return [].slice.apply($this, restArg);
             },
-
             // All Keys in an Object
             allKeys: function (obj) {
                 var result = Object.getOwnPropertyNames(obj), addProperty;
@@ -29,18 +26,15 @@
                 }
                 return result;
             },
-            
             // All Enumerable Keys in Object
             enumKeys: function(obj) {
                 var _keys = [];
                 for (var _key in obj) { _keys.push(_key); }
                 return _keys;
             },
-
             // Maps An Array to an Object
-            MapArr: function(host, obj, type, override) {
+            MapArr: function(host, obj, type, extra) {
                 var result = {}, _ = Core.window("_");
-                override = override || [];
                 // Iterate Map
                 _.each(obj, function(arr) {
                     // Iterate In Each Element Of the Array
@@ -61,11 +55,11 @@
                     }, this);
                 }, this);
                 
+                _.extend(extra || {}, result);
                 for (var i in result) {
-                    host[i] = (!_.has(host, i) || !override.includes(i) ? result : host)[i];
+                    host[i] = (!_.has(host, i) ? result : host)[i];
                 }
             },
-
             // Find a value in an Object based on it's path
             path: function(obj, path, val) {
                 var Path = function(obj, path, lvl, init, val) {
@@ -83,14 +77,13 @@
                             // Wild Cards "..|.." or "(...)" or "[...]" and "* or abc*"
                             if (/[\(\[]([\s\S]+?)[\)\]]/g.test(curr) || 
                                 /[\|\^\$]/g.test(curr) || /\*/g.test(curr)) {
-                                    println(!/\/\//g.test(curr) + " - " + curr);
                                 // This is for multiple wildcards
                                 _.each(obj, function ($, idx) {
                                     var toReg = (/\$$/.test(curr) ? "" : "^") + 
                                         curr.replace(/\|/g, "$|^")
                                             .replace(/\*/g, "(.*?)") + 
                                     (/^\^/.test(curr) ? "" : "$");
-                                    var regex = new RegExp(toReg, "g");
+                                    var regex = RegExp(toReg, "g");
                                     // Finds all the subpaths for the wildcard
                                     var subPath = [idx].concat(pathLeft); 
                                     if (regex.test(idx)) 
@@ -109,7 +102,7 @@
                                         curr.replace(/\|/g, "$|^")
                                             .replace(/\*/g, "(.*?)") + 
                                     (/^\^/.test(curr) ? "" : "$");
-                                    return new RegExp(toReg, "g").test(idx);
+                                    return RegExp(toReg, "g").test(idx);
                                 }).map(function ($, idx) {
                                     // Find Keys of filtered Object
                                     idx = _keys[idx]; 
@@ -129,14 +122,17 @@
                 };
                 return Path(obj, path, 0, path, val);
             },
-
             // Take a Function as a Value
             FnVal: function(val, arg, ctxt) {
                 if (!Util._.isFunction(val)) { return val; }
                 return val.apply(ctxt, arg);
-            }
+            },
+            // A more efficient `new` keyword that allows for arrays to be passed as Arguments
+            new: Core.Func("ctor", "args",
+                "var F = function() { return ctor.apply(this, args); };" +
+                "F.prototype = ctor.prototype;" +
+                "return new F")
         };
-    
         _.allKeys = Util._.allKeys = Util.allKeys;
         _.enumKeys = Util._.enumKeys = Util.enumKeys;
         _.isDefined = Util._.isDefined = Inertia.isDef;
@@ -147,7 +143,6 @@
         };
         return Util;
     });
-        
     // Underscore specific functionality
     Define("_", function() { return require("Util._"); }); 
     // Type Testing Functions
@@ -173,7 +168,6 @@
                 }
                 return true;
             },
-            
             // Test if an Object is simmilar to an Array
             ArrayLike: function(obj) {
                 var len = _.isNumber(obj.length) && obj.length;

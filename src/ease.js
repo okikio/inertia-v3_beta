@@ -3,7 +3,6 @@
     // Ease Modules a basic set of Easing Utilities
     Define("Ease", function() {
         var _ = require("Util")._, Static, Elastic, BounceOut, BounceIn, Ease;
-        
         // Elastic easing based on animejs [github.com/juliangarnier/anime/blob/master/anime.js]
         Elastic = function (t, p) {
             p = p || 0.3;
@@ -23,9 +22,9 @@
 		        return (7.5625*(t-=2.625/2.75)*t +0.984375);
 	        }
         };
-        
         // Bouse In
-        BounceIn = function (t) { return 1 - BounceOut(1 - t); };
+        BounceIn = function (t) 
+            { return 1 - BounceOut(1 - t); };
         
         // Easing Default
         Ease = function (strt, end, vel) {
@@ -117,12 +116,12 @@
             }
         };
         
-        /*
+        /**
             @Return [Function] - A Function that takes the `time`
                 - @Param [Number] time - The Current `time` from 0 to 1
                 - @Return [Number] - Contains a value from 0 to 1
             @Api Public
-        */
+        **/
         
         _.each(Ease.equations, function (obj, type) {
             if (_.isArray(obj)) {

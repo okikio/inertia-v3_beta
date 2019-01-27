@@ -2,66 +2,53 @@
     // Inertia's Mouse Module V2 [www.khanacademy.org/cs/_/5686343358775296]
     Define("Mouse", function() {
         var UIEvent = require("UIEvent"), Event = Inertia.Event,
-            Env = require("Core.Env"), Mouse = UIEvent("Mouse"),
-            Emit, Prefix;
-    
+            Env = require("Core.Env"), Mouse, Emit, Prefix;
         // UIEvent Object
         Mouse = UIEvent("Mouse");
-    
         // Define Updating Initialized Mouse Properties
         Object.defineProperties(Mouse, {
             // Are Mouse Events Disabled
             Disabled: { value: false },
             x: { get: Env("return this.mouseX;") }, // MouseX
             y: { get: Env("return this.mouseY;") }, // MouseY
-    
             // Mouse x & y Axises as Vector Points
             Pos: {
                 get: function() {
                     return new PVector(this.x, this.y);
                 }
             },
-    
             xPrev: { get: Env("return this.pmouseX;") }, // PMouseX
             yPrev: { get: Env("return this.pmouseY;") }, // PMouseY
-    
             // Pervious Mouse x & y Axises as Vector Points
             Prev: {
                 get: function() {
                     return new PVector(this.xPrev, this.yPrev);
                 }
             },
-    
             // Calculate distance between Mouse and PMouse on the x Axis
             xDist: { get: Env("return this.x - this.xPrev", Mouse) },
-    
             // Calculate distance between Mouse and PMouse on the y Axis
             yDist: { get: Env("return this.y - this.yPrev", Mouse) },
-    
             // Mouse Is Pressed
             Press: {
                 get: function() {
                     return !this.Disabled && mouseIsPressed;
                 }
             },
-    
             // Current Mouse Button Being Pressed [Left | Right]
             Btn: {
                 get: function() {
                     return !this.Disabled && mouseButton;
                 }
             },
-    
             // Distance From the Mouse's Positon To the Mouse's Previous Position
             Dist: { get: Env("return this.Pos.dist(this.Prev)", Mouse) },
-    
             // Distance From the Mouse's Position to Another Postion
             setDist: { get: Env("return this.Pos.dist", Mouse), },
         });
     
         // List of all Event Names
-        Mouse.EventList = [];
-    
+        Mouse.evtlst = Mouse.EventList = [];
         // Emit Set
         Emit = function(evt) {
             // Add Event Names to List
@@ -73,7 +60,6 @@
     
         // Set Prefix
         Prefix = "onMouse";
-    
         // Emit Mouse Events
         Event.on(Prefix + "Release", Emit("Release"), Mouse);
         Event.on(Prefix + "Scroll", Emit("Scroll"), Mouse);

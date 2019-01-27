@@ -112,7 +112,6 @@
             // Create Classes
             Create: function () {
                 var Class, SubClass, Parent, arg = args(arguments);
-    
                 // SubClass Constructor
                 SubClass = function() {};
     
@@ -128,10 +127,8 @@
                     // Current Class
                     if (!(this instanceof Class))
                         { return Fn.new(Class, arguments); }
-
-                    // Arguements
-                    this._args = arguments;
-
+                    this._args = arguments; // Arguements
+                    
                     // Initialize Class
                     return this.init.apply(this, arguments);
                 };
@@ -146,7 +143,6 @@
                 
                 Class.SuperClass = Parent; // Current Class's Parent if any
                 Class.SubClasses = []; // List of SubClasses
-                
                 _.extend(Class, Static); // Extend Static Class
                 _.extend(Class.prototype, Fn, Static, Class); // Give Chainability
     
@@ -188,7 +184,6 @@
                         println(method + ', method not found in prototype chain.');
                         return;
                     }
-    
                     return (arg.length > 0) ?
                         _Parent.apply(this, arg) : _Parent.bind(this) ();
                 };

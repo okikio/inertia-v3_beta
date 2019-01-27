@@ -5,7 +5,6 @@
         var Util = require("Util"), MapFunc = Util.MapArr,
             _ = Util._, Core = require("Core"), $Map,
             Func = Core.Func, Native = Core.Math;
-            
         // Allows for multiple Arguments to solve an Equation
         var Solve = function (formula) {
             var formula = formula || "a + b",
@@ -27,20 +26,16 @@
             [["Mult", "mult"], Solve("a * b")], // Multplication
             [["grow", "next"], Func("a", "return a + 1;")], // Next Value
             [["prev"], Func("a", "return a - 1;")], // Prev Value
-
             // Scale a Value
             [["map", "scale"], function(num) {
                 return Core.PJS.map.apply(this, [num]
                     .concat(Util.args(arguments, 1)));
             }],
-
             // Even & Odd Value
             [["iseven", "isEven", "even"], Func("num", "return num % 2 === 0;")],
             [["isodd", "isOdd", "odd"], Func("num", "return num % 2 === 1;")],
-            
             // Allows for multiple Arguments to solve an Equation
             [["Solve", "solve"], Solve],
-            
             // Scale two values to a percentage to create a new value
             [["lerp"], function (a, b, per) {
                 var $lerp = function (a, b, per) {
@@ -63,10 +58,9 @@
                 return $lerp(a, b, per);
             }]
         ];
-
         // Extend Methods
-        _.extend(Native, Number, MapFunc($Map));
-        _.extend(Number.prototype, MapFunc($Map, true));
+        MapFunc(Native, $Map, false, Number);
+        MapFunc(Number.prototype, $Map, true);
         return Native;
     });
 })(); // Math

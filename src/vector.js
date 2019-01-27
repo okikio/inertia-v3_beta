@@ -10,7 +10,6 @@
         Obj = function($this) {
             return _.isNumber($this) ? Vector($this, $this, $this) : Vector($this);
         };
-
         // Allows for Quick Vector Math
         VSolve = function(symbol) {
             symbol = symbol || "+";

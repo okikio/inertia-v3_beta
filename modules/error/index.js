@@ -944,10 +944,8 @@
                 }
         
                 if (!keys.length) { throw Core.Error(flagMsg + 'keys to find are missing.'); }
-                var len = keys.length,
-                    any = Static.flag(this, 'any'),
-                    all = Static.flag(this, 'all'),
-                    expected = keys;
+                var len = keys.length, any = Static.flag(this, 'any'),
+                    all = Static.flag(this, 'all'), expected = keys;
                 if (!any && !all) { all = true; }
                 // Has any
                 if (any) {
@@ -1168,27 +1166,6 @@
                 this.assert(
                     expression, 'expected ' + msgObj + ' to ' + behavior + ' by ' + delta, 'expected ' + msgObj + ' to not ' + behavior + ' by ' + delta
                 );
-            });
-            // Asserts that the target is extensible, which means that new properties can be added to it. Primitives are never extensible.
-            $Err.addProperty('extensible', function() {
-                var obj = Static.flag(this, 'object');
-                // In ES5, if the argument to this method is a primitive, then it will cause a TypeError. In ES6, a non-object argument will be treated as if it was a non-extensible ordinary object, simply return false. [developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isExtensible] The following provides ES6 behavior for ES5 environments.
-                var isExtensible = obj === Object(obj) && Object.isExtensible(obj);
-                this.assert(isExtensible, 'expected #{this} to be extensible', 'expected #{this} to not be extensible');
-            });
-            // Asserts that the target is sealed, which means that new properties can't be added to it, and its existing properties can't be reconfigured or deleted. However, it's possible that its existing properties can still be reassigned to different values. Primitives are always sealed.
-            $Err.addProperty('sealed', function() {
-                var obj = Static.flag(this, 'object');
-                // In ES5, if the argument to this method is a primitive, then it will cause a TypeError. In ES6, a non-object argument will be treated as if it was a sealed ordinary object, simply return true. See [developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isSealed] The following provides ES6 behavior for ES5 environments.
-                var isSealed = obj === Object(obj) ? Object.isSealed(obj) : true;
-                this.assert(isSealed, 'expected #{this} to be sealed', 'expected #{this} to not be sealed');
-            });
-            // Asserts that the target is frozen, which means that new properties can't be added to it, and its existing properties can't be reassigned to different values, reconfigured, or deleted. Primitives are always frozen.
-            $Err.addProperty('frozen', function() {
-                var obj = Static.flag(this, 'object');
-                // In ES5, if the argument to this method is a primitive, then it will cause a TypeError. In ES6, a non-object argument will be treated as if it was a frozen ordinary object, simply return true. See [developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/isFrozen] The following provides ES6 behavior for ES5 environments.
-                var isFrozen = obj === Object(obj) ? Object.isFrozen(obj) : true;
-                this.assert(isFrozen, 'expected #{this} to be frozen', 'expected #{this} to not be frozen');
             });
             // Asserts that the target is a number, and isn't `NaN` or positive/negative `Infinity`.
             $Err.addProperty('finite', function(msg) {

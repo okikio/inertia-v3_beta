@@ -2,11 +2,9 @@
     // Inertia's Key Module V2 [www.khanacademy.org/cs/_/5009088521469952]
     Define("Key", function() {
         var UIEvent = require("UIEvent"), Event = Inertia.Event,
-            Key = UIEvent("Key"), _ = require("Util._"),
-            Emit, Prefix, Special;
-            
+            _ = require("Util._"), Key, Emit, Prefix, Special;
         // A Map of Special Keys & Characters with all Their Keys & Key Codes
-        // Based on MouseTrap [https://github.com/ccampbell/mousetrap/blob/master/mousetrap.js]
+        // Based on MouseTrap [github.com/ccampbell/mousetrap/blob/master/mousetrap.js]
         Special = {
             // Map of Special Key Codes & Keys
             Key: {
@@ -44,24 +42,20 @@
     
         // Event Object
         Key = UIEvent("Key");
-    
         // Define Updating, Initialized, Key Properties
         Object.defineProperties(Key, {
             // Are Keyboard Events Disabled
             Disabled: { value: false },
-    
             // Key Is Pressed
             Press: {
                 get: function() { return !this.Disabled && keyIsPressed; }
             },
-    
             // Key Code of the Current Key Being Pressed
             Code: {
                 get: function() {
                     return !this.Disabled && (key.code === CODED ? keyCode : key.code);
                 }
             },
-    
             // Current Key Being Pressed
             Btn: { get: function() { return !this.Disabled && key; } },
         });
@@ -70,20 +64,16 @@
         _.each(_.range(30, 125), function(num) {
             // Create Each Key
             Key[String.fromCharCode(num)] = this.Btn === num;
-            
             // Store All Keys And Their Key Codes
             Special.Key[String.fromCharCode(num)] = num;
         }, Key);
     
         // List of all Event Names
-        Key.EventList = [];
-        
+        Key.evtlst = Key.EventList = [];
         // Special Keys
-        Key.Key = Special.Key;
-    
+        Key.key = Key.Key = Special.Key;
         // List of Keys Pressed as KeyCode or as a String
-        Key.List = [].concat(Key.ListStr = []);
-    
+        Key.lst = Key.List = [].concat(Key.lststr = Key.ListStr = []);
         // Emit Set
         Emit = function(evt, fn) {
             // Add Event Names to List
@@ -115,7 +105,7 @@
         };
         
         // Check is Certain Key are being Pressed
-        Key.Equal = function (a, b, notcode) {
+        Key.Equal = function (a, b) {
             return _.isEqual(Key.toCode(a), Key.toCode(b));
         };
         
@@ -130,7 +120,6 @@
     
         // Set Prefix
         Prefix = "onKey";
-    
         // Emit Key Events
         Event.on(Prefix + "Type", Emit("Type"), Key);
         Event.on(Prefix + "Release", Emit("Release", function() {

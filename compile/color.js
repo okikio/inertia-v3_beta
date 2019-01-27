@@ -39,20 +39,18 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     
     // Inertia Event Emit
     Inertia.evtemit = Inertia.EventEmitter = (function () {
-        var _ = (0, eval) ("_"), EventEmitter;
+        var _ = $in.global._, EventEmitter;
         (EventEmitter = function () { })
             .prototype = {
                 _class: "Event", // Set Class Name
                 _eventCount: 0, _events: {}, // Event Info.
                 _emit: [], // Store events set to be Emitted
-                
                 // Prepare the Event
                 preEvent: function(evt) {
                     if (!this._events[evt]) // List Of Event's
                         { this._events[evt] = []; }
                     return this._events[evt];
                 },
-                
                 // Event Application
                 eventApp: function(callback, scope, event) {
                     return {
@@ -61,7 +59,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                         event: event
                     };
                 },
-            
                 // Add a Listener / Function For a Given Event
                 on: function(evt, callback, scope) {
                     if (_.isUndefined(evt)) { return; } // If There is No Event Break
@@ -76,15 +73,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                             this.preEvent($evt).push($Evt); // Set Event List
                         }
                     }, this);
-            
                     // Length Of Events
                     this._eventCount = _.keys(this._events).length;
-            
                     // Name Of All Event's
                     this.names = _.keys(this._events);
                     return this;
                 },
-                
                 // Call All Function(s) Within An Event
                 emit: function(evt) {
                     var $Evt, arg = [].slice.call(arguments, 1);
@@ -92,9 +86,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     if (!_.isArray(evt)) { evt = [evt]; } // Set Evt to an Array
                     _.each(evt, function($evt) {
                         $Evt = this.preEvent($evt);
-                        if (!this._emit.includes($evt)) {
-                            this._emit.push($evt);
-                        }
+                        if (!this._emit.includes($evt)) 
+                            { this._emit.push($evt); }
                         _.each($Evt, function(_evt) {
                             var $arg = arg;
                             if (_evt.callback.argnames &&
@@ -149,49 +142,41 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                         ". \n Message: " + e.message, 25, 0, 350, 400);
                 } else { text("Error!\n Message: " + e.message, 25, 0, 350, 400); }
             },
-            
             // Set Rate
             setRate: function (rate) {
                 this.rate = isDef(rate) ? rate : 500;
                 return this;
             },
-            
             // Set External
             setExternal: function (external) {
                 this.external = isDef(external) ? external : true;
                 return this;
             },
-            
             // Add New Tasks
             then: function(module, fn) {
                 this.tasks.push([fn || function() {}, module || "Module"]);
                 return this;
             },
-            
             // On Load
             load: function (fn) {
                 this.loadFn = fn || function () {};
                 return this;
             },
-            
             // Error
             error: function (fn) {
                 this.errFn = fn || function () {};
                 return this;
             },
-                
             // Ready
             ready: function (fn) {
                 this.readyFn = fn || function () {};
                 return this;
             },
-            
             // Set Loop Thru
             thruLoop: function (thru) {
                 this.loopThru = thru || true;
                 return this;
             },
-        
             // Run Async
             run: function() {
                 if (this.tasks.length <= 0) { return this; }
@@ -209,7 +194,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }
                 return this;
             },
-            
             // Creates a Loop for Loading
             loop: function (rate, external) {
                 var window = $in.global, pjs = $in.pjs;
@@ -229,7 +213,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }
                 return this;
             },
-        
             // Clear
             clear: function() {
                 this.indx = 0; this.tasks = [];
@@ -244,7 +227,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 get: function()
                     { return this.indx >= this.tasks.length; }
             },
-        
             // Progress
             progress: {
                 get: function()
@@ -256,7 +238,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     
     // Inertia's Load Manager
     Inertia.Manager = $in.mgr = new Inertia.Async();
-
     // A Base Global Event Emmitter
     (function() {
         var Emit;
@@ -276,7 +257,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         
         // Global Draw Event
         $in.pjs.draw = Emit("draw"); 
-    
         // Emit Mouse Events
         $in.pjs.mouseReleased = Emit("onMouseRelease");
         $in.pjs.mouseScrolled = Emit("onMouseScroll");
@@ -289,15 +269,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     
         // Emit Key Events
         var Key = $in.key = Inertia.Key = {
-            List: [],
-            ListStr: [],
+            List: [], ListStr: [],
         };
-        
         Object.defineProperties(Inertia.Key, {
             list: { get: function () { return this.List; } },
             listStr: { get: function () { return this.ListStr; } },
         });
-    
         $in.pjs.keyTyped = Emit("onKeyType");
         $in.pjs.keyReleased = Emit("onKeyRelease", function() {
             var Code = (key.code === CODED ? keyCode : key.code);
@@ -307,7 +284,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 Key.List.splice(_i, 1);
             }
         });
-    
         $in.pjs.keyPressed = Emit("onKeyPress", function() {
             var Code = (key.code === CODED ? keyCode : key.code);
             if (!Key.List.includes(Code)) {
@@ -315,7 +291,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 Key.List.push(Code);
             }
         });
-    
         // Emit Touch Events
         if ('ontouchstart' in (0, eval) ("this")) {
             $in.pjs.touchCancel = Emit("onTouchCancel");
@@ -327,7 +302,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             Inertia.Event.on("onMousePress", Emit("onTouchStart"));
             Inertia.Event.on("onMouseDrag", Emit("onTouchMove"));
         }
-        
         $in.evt._emit.forEach(function(val) {
             var _val = val.replace("on", "");
             _val = _val[0].toLowerCase() + _val.slice(1); // Changes `onMouseDrag` to `mouseDrag`
@@ -347,7 +321,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 fn = fn.call(Inertia.$Modules, Temp[Module]) || Temp[Module].exports;
                 return result && Module ? (result[Module] = fn) : undefined;
             };
-            
             if (Array.isArray(paths) && multi) {
                 paths.forEach(function (path) { Define(path, fn); });
             } else { Define(paths, fn); }
@@ -415,20 +388,17 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
 (function() {
     // Inertia's Util Modules V2 [www.khanacademy.org/cs/_/4952324744708096]
     Define("Util", function() {
-        var Util, Core = $in.require("Core"), _ = Core.window("_");
-        
+        var Util, Core = require("Core"), _ = Core.window("_");
         // Util Object
         Util = {
             _: _, each: _.each, map: _.map,
             // Pick between two value the defined Value
             pick: Core.Func('a', 'b', 'return a !== undefined ? a : b'),
-
             // Collect Functions Arguments into an Array
             args: function($this) {
                 var restArg = [].slice.call(arguments, 1);
                 return [].slice.apply($this, restArg);
             },
-
             // All Keys in an Object
             allKeys: function (obj) {
                 var result = Object.getOwnPropertyNames(obj), addProperty;
@@ -443,18 +413,15 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }
                 return result;
             },
-            
             // All Enumerable Keys in Object
             enumKeys: function(obj) {
                 var _keys = [];
                 for (var _key in obj) { _keys.push(_key); }
                 return _keys;
             },
-
             // Maps An Array to an Object
-            MapArr: function(host, obj, type, override) {
+            MapArr: function(host, obj, type, extra) {
                 var result = {}, _ = Core.window("_");
-                override = override || [];
                 // Iterate Map
                 _.each(obj, function(arr) {
                     // Iterate In Each Element Of the Array
@@ -475,11 +442,11 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     }, this);
                 }, this);
                 
+                _.extend(extra || {}, result);
                 for (var i in result) {
-                    host[i] = (!_.has(host, i) || !override.includes(i) ? result : host)[i];
+                    host[i] = (!_.has(host, i) ? result : host)[i];
                 }
             },
-
             // Find a value in an Object based on it's path
             path: function(obj, path, val) {
                 var Path = function(obj, path, lvl, init, val) {
@@ -497,14 +464,13 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                             // Wild Cards "..|.." or "(...)" or "[...]" and "* or abc*"
                             if (/[\(\[]([\s\S]+?)[\)\]]/g.test(curr) || 
                                 /[\|\^\$]/g.test(curr) || /\*/g.test(curr)) {
-                                    println(!/\/\//g.test(curr) + " - " + curr);
                                 // This is for multiple wildcards
                                 _.each(obj, function ($, idx) {
                                     var toReg = (/\$$/.test(curr) ? "" : "^") + 
                                         curr.replace(/\|/g, "$|^")
                                             .replace(/\*/g, "(.*?)") + 
                                     (/^\^/.test(curr) ? "" : "$");
-                                    var regex = new RegExp(toReg, "g");
+                                    var regex = RegExp(toReg, "g");
                                     // Finds all the subpaths for the wildcard
                                     var subPath = [idx].concat(pathLeft); 
                                     if (regex.test(idx)) 
@@ -523,7 +489,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                                         curr.replace(/\|/g, "$|^")
                                             .replace(/\*/g, "(.*?)") + 
                                     (/^\^/.test(curr) ? "" : "$");
-                                    return new RegExp(toReg, "g").test(idx);
+                                    return RegExp(toReg, "g").test(idx);
                                 }).map(function ($, idx) {
                                     // Find Keys of filtered Object
                                     idx = _keys[idx]; 
@@ -543,14 +509,17 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 };
                 return Path(obj, path, 0, path, val);
             },
-
             // Take a Function as a Value
             FnVal: function(val, arg, ctxt) {
                 if (!Util._.isFunction(val)) { return val; }
                 return val.apply(ctxt, arg);
-            }
+            },
+            // A more efficient `new` keyword that allows for arrays to be passed as Arguments
+            new: Core.Func("ctor", "args",
+                "var F = function() { return ctor.apply(this, args); };" +
+                "F.prototype = ctor.prototype;" +
+                "return new F")
         };
-    
         _.allKeys = Util._.allKeys = Util.allKeys;
         _.enumKeys = Util._.enumKeys = Util.enumKeys;
         _.isDefined = Util._.isDefined = Inertia.isDef;
@@ -561,7 +530,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         };
         return Util;
     });
-        
     // Underscore specific functionality
     Define("_", function() { return require("Util._"); }); 
     // Type Testing Functions
@@ -587,7 +555,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 }
                 return true;
             },
-            
             // Test if an Object is simmilar to an Array
             ArrayLike: function(obj) {
                 var len = _.isNumber(obj.length) && obj.length;
@@ -600,14 +567,43 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     // String Module the Native String Objects with some additions
     // Inertia's String Module V2 [www.khanacademy.org/computer-programming/_/4845861095374848]
     Define("String", function() {
-        var Util = require("Util"), $Map, Native = require("Core.String"),
-            MapFunc = Util.MapArr, _ = Util._, $Add = {}, $indx = 0;
-
+        var Util = require("Util"), Native = require("Core.String"),
+            MapFunc = Util.MapArr, _ = Util._, $Map;
         // Map Of Names And Functions
         $Map = [
             // Capitalize Strings
             [["cap", "Capital"], function(str) {
                 return str.slice(0, 1).toUpperCase() + str.slice(1).toLowerCase();
+            }],
+            
+            // Iterates on a String based on a given RegExp
+            [["stringEach", "forEach", "each"], function (str, search, fn) {
+                var chunks, chunk, reg, result = [];
+                if (_.isFunction(search)) { fn = search; reg = /[\s\S]/g; }
+                else if (!search) { reg = /[\s\S]/g; }
+                else if (_.isString(search)) { reg = RegExp(search, 'gi'); }
+                else if (_.isRegExp(search)) {
+                    reg = RegExp(search.source, search.flags || 'g');
+                }
+                
+                // Getting the entire array of chunks up front as we need to
+                // pass this into the callback function as an argument.
+                if ((chunks = str.match(reg))) {
+                    for (var i = 0, r; i < chunks.length; i++) {
+                        chunk = chunks[i]; result[i] = chunk;
+                        if (fn) {
+                            r = fn.call(str, chunk, i, chunks);
+                            if (r === false) { return result; }
+                            else if ($in.isDef(r)) { result[i] = r; }
+                        }
+                    }
+                }
+                return result;
+            }],
+            
+            // Each Word
+            [["eachWord", "word"], function (str, fn) {
+                return String.stringEach(str.trim(), /\S+/g, fn);
             }],
 
             // Cuts off a String that is a certain length long
@@ -642,7 +638,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             // Create's an Array of Index for the First Letter of all Occurances of a Certain String in a Larger String
             [["occur"], function(str, find) {
                 try {
-                    var result, _find = new RegExp(find, "g"), indx = [];
+                    var _find = _.isRegExp(find) ? find : RegExp(find, "g"), 
+                        result, indx = [];
                     if (str && find) {
                         while ((result = _find.exec(str)))
                             { indx.push(result.index); }
@@ -666,29 +663,34 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             [["grow"], function(str) {
                 return str.slice(0, str.length - 1) +
                     String.fromCharCode(str.charCodeAt(str.length - 1) + 1);
+            }],
+            
+            // Remove unesscessary space
+            [["compact"], function(str) {
+                return String.trim(str).replace(/([\r\n\s　])+/g, 
+                    function(match, whitespace) {
+                        return whitespace === '　' ? whitespace : ' ';
+                    });
+            }],
+            
+            // Template Settings
+            [["TemplateSet", "tempSet"], function(sets) {
+                _.extend(_.templateSettings, sets || {});
             }]
         ];
 
-        // Additional Functionality
-        $Add = {
-            // Template Settings
-            SetTemplate: function(sets) {
-                _.extend(_.templateSettings, sets || {});
-            }
-        };
-
         // Set Default Template Settings
-        $Add.SetTemplate({
+        _.templateSettings = {
             interpolate: /{=([\s\S]+?)=}/g, /* {= 2 + 2 =} // 4 */
             escape: /{{([\s\S]+?)}}/g, /* "a is {{ a }}".temp({ a: 5 }) // 5 */
             evaluate: /{-([\s\S]+?)-}/g /* "{- _.each([1, 2], function (v, i) { -}
                                                 loop {{ i }},
                                             {- }) -}".temp({}) // loop 0, loop 1, */
-        });
+        };
 
-        // Extend Inline Methods
-        _.extend(Native, $Add = MapFunc($Map));
-        _.extend(Native.prototype, MapFunc($Map, true));
+        // Extend Methods
+        MapFunc(Native, $Map);
+        MapFunc(Native.prototype, $Map, true);
         return Native;
     });
 })(); // String
@@ -699,7 +701,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         var Util = require("Util"), MapFunc = Util.MapArr,
             _ = Util._, Core = require("Core"), $Map,
             Func = Core.Func, Native = Core.Math;
-            
         // Allows for multiple Arguments to solve an Equation
         var Solve = function (formula) {
             var formula = formula || "a + b",
@@ -721,20 +722,16 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             [["Mult", "mult"], Solve("a * b")], // Multplication
             [["grow", "next"], Func("a", "return a + 1;")], // Next Value
             [["prev"], Func("a", "return a - 1;")], // Prev Value
-
             // Scale a Value
             [["map", "scale"], function(num) {
                 return Core.PJS.map.apply(this, [num]
                     .concat(Util.args(arguments, 1)));
             }],
-
             // Even & Odd Value
             [["iseven", "isEven", "even"], Func("num", "return num % 2 === 0;")],
             [["isodd", "isOdd", "odd"], Func("num", "return num % 2 === 1;")],
-            
             // Allows for multiple Arguments to solve an Equation
             [["Solve", "solve"], Solve],
-            
             // Scale two values to a percentage to create a new value
             [["lerp"], function (a, b, per) {
                 var $lerp = function (a, b, per) {
@@ -757,10 +754,9 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return $lerp(a, b, per);
             }]
         ];
-
         // Extend Methods
-        _.extend(Native, Number, MapFunc($Map));
-        _.extend(Number.prototype, MapFunc($Map, true));
+        MapFunc(Native, $Map, false, Number);
+        MapFunc(Number.prototype, $Map, true);
         return Native;
     });
 })(); // Math
@@ -770,19 +766,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     Define(["Func", "Function", "Fn"], function() {
         var Util = require("Util"), $Map, MapFunc = Util.MapArr,
             _ = Util._, Native = require("Core.Func");
-
         // Map Of Names And Functions
         $Map = [
             [["args"], Util.args], // Turn the Arguments Object into an Array
-            // A more efficient `new` keyword that allows for arrays to be passed as Arguments
-            [["new"], Native("ctor", "args",
-                "var F = function() { return ctor.apply(this, args); };" +
-                "F.prototype = ctor.prototype;" +
-                "return new F")],
-            
+            [["new"], Util.new], // A more efficient `new`
             // Empty / Noop / Dummy function
             [["empty", "noop", "dummy"], Native()],
-
             // List all the Names of a Functions Arguments
             [["argNames"], function(fn) {
                 var args = fn.toString()
@@ -791,7 +780,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     .replace(/\s+/g, '').split(',');
                 return args.length === 1 && !args[0] ? [] : args;
             }],
-
             // Remove extra code in a Stringifed Function
             [["toStr"], function(fn) {
                 var $fn = fn.toString().trim()
@@ -808,10 +796,9 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return $fn.match(/[\n]/g).length <= 2 ? copy : $fn;
             }]
         ];
-
         // Extend Methods
-        _.extend(Native, MapFunc($Map));
-        _.extend(Native.prototype, MapFunc($Map, true));
+        MapFunc(Native, $Map);
+        MapFunc(Native.prototype, $Map, true);
         return Native;
     }, true);
 })(); // Function
@@ -929,7 +916,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             // Create Classes
             Create: function () {
                 var Class, SubClass, Parent, arg = args(arguments);
-    
                 // SubClass Constructor
                 SubClass = function() {};
     
@@ -945,10 +931,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     // Current Class
                     if (!(this instanceof Class))
                         { return Fn.new(Class, arguments); }
-
-                    // Arguements
-                    this._args = arguments;
-
+                    this._args = arguments; // Arguements
+                    
                     // Initialize Class
                     return this.init.apply(this, arguments);
                 };
@@ -963,7 +947,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 
                 Class.SuperClass = Parent; // Current Class's Parent if any
                 Class.SubClasses = []; // List of SubClasses
-                
                 _.extend(Class, Static); // Extend Static Class
                 _.extend(Class.prototype, Fn, Static, Class); // Give Chainability
     
@@ -1005,7 +988,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                         println(method + ', method not found in prototype chain.');
                         return;
                     }
-    
                     return (arg.length > 0) ?
                         _Parent.apply(this, arg) : _Parent.bind(this) ();
                 };
@@ -1052,7 +1034,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     Define("Color", function() {
         var _ = require("Util")._, CssColors, Static, Fn = require("Core.Func"), Alias,
             Class = require("Class"), $lerp = require("Math.lerp"); require("String");
-        
         // Css Color maps. Color names and their hex values
         CssColors = {
             aliceblue: '#F0F8FF', antiquewhite: '#FAEBD7', aqua: '#00FFFF', aquamarine: '#7FFFD4', azure: '#F0FFFF', beige: '#F5F5DC', bisque: '#FFE4C4', black: '#000000', blanchedalmond: '#FFEBCD', blue: '#0000FF', blueviolet: '#8A2BE2', brown: '#A52A2A', burlywood: '#DEB887', cadetblue: '#5F9EA0', chartreuse: '#7FFF00', chocolate: '#D2691E', coral: '#FF7F50', cornflowerblue: '#6495ED', cornsilk: '#FFF8DC', crimson: '#DC143C', cyan: '#00FFFF', darkblue: '#00008B', darkcyan: '#008B8B', darkgoldenrod: '#B8860B', darkgray: '#A9A9A9', darkgrey: '#A9A9A9', darkgreen: '#006400', darkkhaki: '#BDB76B', darkmagenta: '#8B008B', darkolivegreen: '#556B2F', darkorange: '#FF8C00', darkorchid: '#9932CC', darkred: '#8B0000', darksalmon: '#E9967A', darkseagreen: '#8FBC8F', darkslateblue: '#483D8B', darkslategray: '#2F4F4F', darkslategrey: '#2F4F4F', darkturquoise: '#00CED1', darkviolet: '#9400D3', deeppink: '#FF1493', deepskyblue: '#00BFFF', dimgray: '#696969', dimgrey: '#696969', dodgerblue: '#1E90FF', firebrick: '#B22222', floralwhite: '#FFFAF0', forestgreen: '#228B22', fuchsia: '#FF00FF', gainsboro: '#DCDCDC', ghostwhite: '#F8F8FF', gold: '#FFD700', goldenrod: '#DAA520', gray: '#808080', grey: '#808080', green: '#008000', greenyellow: '#ADFF2F', honeydew: '#F0FFF0', hotpink: '#FF69B4', indianred: '#CD5C5C', indigo: '#4B0082', ivory: '#FFFFF0', khaki: '#F0E68C', lavender: '#E6E6FA', lavenderblush: '#FFF0F5', lawngreen: '#7CFC00', lemonchiffon: '#FFFACD', lightblue: '#ADD8E6', lightcoral: '#F08080', lightcyan: '#E0FFFF', lightgoldenrodyellow: '#FAFAD2', lightgray: '#D3D3D3', lightgrey: '#D3D3D3', lightgreen: '#90EE90', lightpink: '#FFB6C1', lightsalmon: '#FFA07A', lightseagreen: '#20B2AA', lightskyblue: '#87CEFA', lightslategray: '#778899', lightslategrey: '#778899', lightsteelblue: '#B0C4DE', lightyellow: '#FFFFE0', lime: '#00FF00', limegreen: '#32CD32', linen: '#FAF0E6', magenta: '#FF00FF', maroon: '#800000', mediumaquamarine: '#66CDAA', mediumblue: '#0000CD', mediumorchid: '#BA55D3', mediumpurple: '#9370D8', mediumseagreen: '#3CB371', mediumslateblue: '#7B68EE', mediumspringgreen: '#00FA9A', mediumturquoise: '#48D1CC', mediumvioletred: '#C71585', midnightblue: '#191970', mintcream: '#F5FFFA', mistyrose: '#FFE4E1', moccasin: '#FFE4B5', navajowhite: '#FFDEAD', navy: '#000080', oldlace: '#FDF5E6', olive: '#808000', olivedrab: '#6B8E23', orange: '#FFA500', orangered: '#FF4500', orchid: '#DA70D6', palegoldenrod: '#EEE8AA', palegreen: '#98FB98', paleturquoise: '#AFEEEE', palevioletred: '#D87093', papayawhip: '#FFEFD5', peachpuff: '#FFDAB9', peru: '#CD853F', pink: '#FFC0CB', plum: '#DDA0DD', powderblue: '#B0E0E6', purple: '#800080', rebeccapurple: '#663399', red: '#FF0000', rosybrown: '#BC8F8F', royalblue: '#4169E1', saddlebrown: '#8B4513', salmon: '#FA8072', sandybrown: '#F4A460', seagreen: '#2E8B57', seashell: '#FFF5EE', sienna: '#A0522D', silver: '#C0C0C0', skyblue: '#87CEEB', slateblue: '#6A5ACD', slategray: '#708090', slategrey: '#708090', snow: '#FFFAFA', springgreen: '#00FF7F', steelblue: '#4682B4', tan: '#D2B48C', teal: '#008080', thistle: '#D8BFD8', tomato: '#FF6347', turquoise: '#40E0D0', violet: '#EE82EE', wheat: '#F5DEB3', white: '#FFFFFF', whitesmoke: '#F5F5F5', yellow: '#FFFF00', yellowgreen: '#9ACD32'
@@ -1074,139 +1055,139 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     
         // Color Object
         return Class({
-                _class: "Color", // Set Class Name
-                init: function() {
-                    // Initial Value
-                    this.initVal = Array.from(arguments);
-    
-                    // Use Percent
+            _class: "Color", // Set Class Name
+            init: function() {
+                // Initial Value
+                this.initVal = Array.from(arguments);
+
+                // Use Percent
+                var _last = Fn("arr", "return arr[arr.length - 1]");
+                var args = _last(this.initVal);
+                this.percent = _.isBoolean(args) && args;
+
+                // Color Value
+                return (this.value = Static.parse
+                    .apply(this, arguments));
+            }
+        })
+
+        // Static Methods of the Color Object
+        .static(CssColors, Static = {
+                // Default Color Converter Functions
+                alpha: Alias(alpha), green: Alias(green),
+                blue: Alias(blue), red: Alias(red),
+                
+                // Linear interpoliation
+                lerp: function (a, b, per) {
+                    return $lerp.apply(null,
+                        Static.parse(a), Static.parse(b), per);
+                },
+                
+                // Is value a color?
+                isColor: _.isColor,
+
+                // Parser For Color HexCodes
+                torgb: function(hex, opacity, percent) {
                     var _last = Fn("arr", "return arr[arr.length - 1]");
-                    var args = _last(this.initVal);
+                    var args = _last(Array.from(arguments));
+                    var fn = Fn("v", "return v + v");
+                    hex = hex.replace(/#/g, "");
                     this.percent = _.isBoolean(args) && args;
-    
-                    // Color Value
-                    return (this.value = Static.parse
-                        .apply(this, arguments));
+                    var rgb = color.toArray("0xFF" +
+                        (hex.length === 3 ? hex.map(fn) : hex));
+                    rgb[3] = _.isUndefined(opacity) ? 255 :
+                        (this.percent ? opacity * 255 : opacity);
+                    return rgb;
+                },
+
+                // String Colors to Rgba
+                str_rgb: function(clr) {
+                    if (clr.includes("rgb")) {
+                        // Rgb | Rgba
+                        clr = clr.replace(/rgb?a|[^\d\.\,]/g, "");
+                        return clr.split(",");
+                    } else if (clr.includes("hsb")) {
+                        // Hsb
+                        clr = clr.replace(/hsb?a|[^\d\.\,]/g, "").split(",");
+                        colorMode(HSB); var $clr = color.apply({}, clr);
+                        colorMode(RGB);
+                        return [red($clr), green($clr), blue($clr), alpha($clr)];
+                    } else if (clr.includes("hsl")) {
+                        // Hsl
+                        clr = clr.replace(/hsl?a|[^\d\.\,]/g, "").split(",");
+                        colorMode(HSB); var temp = clr[2];
+                        clr[2] = temp - clr[1] / 2;
+                        var $clr = color.apply({}, clr);
+                        colorMode(RGB);
+                        return [red($clr), green($clr), blue($clr), alpha($clr)];
+                    } else { return Static.torgb.apply({}, arguments); }
+                },
+
+                // Color to Rgba Array
+                clr_rgb: function() {
+                    var _args = Array.from(arguments), clr;
+                    _args = _.isArray(_args[0]) ? _args[0] : _args;
+                    clr = color.apply({}, (_.isString(_args[0]) ?
+                        Static.str_rgb.apply({}, _args) : _args));
+                    return [red(clr), green(clr), blue(clr), alpha(clr)];
+                },
+
+                // Parse the Color inputed into an RGBA Array
+                parse: function(clr) {
+                    var args = Array.from(arguments);
+                    clr = (clr + "").toLowerCase();
+                    return Static.clr_rgb.apply(this,
+                        _.keys(CssColors).includes(clr) ? [CssColors[clr]]
+                        .concat(args.slice(1)) : args);
+                },
+                
+                // Is color dark?
+                isDark: function () {
+                    // YIQ equation from http://24ways.org/2010/calculating-color-contrast
+                    var rgb = Static.parse.apply(null, arguments);
+                    var yiq = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
+                    return yiq < 128;
+                },
+                
+                // Is color light?
+                isLight: function ()
+                    { return Static.isDark.apply(null, arguments); },
+                
+                // Parse the Color inputed into an RGBA String
+                tostr: function(clr) {
+                    var arr = Static.parse.apply(this, arguments);
+                    var obj = {
+                        r: arr[0], g: arr[1],  b: arr[2], a: arr[3] / 255
+                    };
+
+                    return "rgba({{r}}, {{g}}, {{b}}, {{a}})".temp(obj);
+                },
+
+                // Stronger Version Of The fill function that allows hexCodes & other color schemes
+                fill: function() {
+                    fill.apply(this,
+                        Static.parse.apply(this, arguments));
+                },
+
+                // Stronger Version Of The stroke function that allows hexCodes & other color schemes
+                stroke: function() {
+                    stroke.apply(this,
+                        Static.parse.apply(this, arguments));
+                },
+
+                // Stronger Version Of The background function that allows hexCodes & other color schemes
+                background: function() {
+                    background.apply(this,
+                        Static.parse.apply(this, arguments));
                 }
             })
-    
-            // Static Methods of the Color Object
-            .static(CssColors, Static = {
-                    // Default Color Converter Functions
-                    alpha: Alias(alpha), green: Alias(green),
-                    blue: Alias(blue), red: Alias(red),
-                    
-                    // Linear interpoliation
-                    lerp: function (a, b, per) {
-                        return $lerp.apply(null,
-                            Static.parse(a), Static.parse(b), per);
-                    },
-                    
-                    // Is value a color?
-                    isColor: _.isColor,
-    
-                    // Parser For Color HexCodes
-                    torgb: function(hex, opacity, percent) {
-                        var _last = Fn("arr", "return arr[arr.length - 1]");
-                        var args = _last(Array.from(arguments));
-                        var fn = Fn("v", "return v + v");
-                        hex = hex.replace(/#/g, "");
-                        this.percent = _.isBoolean(args) && args;
-                        var rgb = color.toArray("0xFF" +
-                            (hex.length === 3 ? hex.map(fn) : hex));
-                        rgb[3] = _.isUndefined(opacity) ? 255 :
-                            (this.percent ? opacity * 255 : opacity);
-                        return rgb;
-                    },
-    
-                    // String Colors to Rgba
-                    str_rgb: function(clr) {
-                        if (clr.includes("rgb")) {
-                            // Rgb | Rgba
-                            clr = clr.replace(/rgb?a|[^\d\.\,]/g, "");
-                            return clr.split(",");
-                        } else if (clr.includes("hsb")) {
-                            // Hsb
-                            clr = clr.replace(/hsb?a|[^\d\.\,]/g, "").split(",");
-                            colorMode(HSB); var $clr = color.apply({}, clr);
-                            colorMode(RGB);
-                            return [red($clr), green($clr), blue($clr), alpha($clr)];
-                        } else if (clr.includes("hsl")) {
-                            // Hsl
-                            clr = clr.replace(/hsl?a|[^\d\.\,]/g, "").split(",");
-                            colorMode(HSB); var temp = clr[2];
-                            clr[2] = temp - clr[1] / 2;
-                            var $clr = color.apply({}, clr);
-                            colorMode(RGB);
-                            return [red($clr), green($clr), blue($clr), alpha($clr)];
-                        } else { return Static.torgb.apply({}, arguments); }
-                    },
-    
-                    // Color to Rgba Array
-                    clr_rgb: function() {
-                        var _args = Array.from(arguments), clr;
-                        _args = _.isArray(_args[0]) ? _args[0] : _args;
-                        clr = color.apply({}, (_.isString(_args[0]) ?
-                            Static.str_rgb.apply({}, _args) : _args));
-                        return [red(clr), green(clr), blue(clr), alpha(clr)];
-                    },
-    
-                    // Parse the Color inputed into an RGBA Array
-                    parse: function(clr) {
-                        var args = Array.from(arguments);
-                        clr = (clr + "").toLowerCase();
-                        return Static.clr_rgb.apply(this,
-                            _.keys(CssColors).includes(clr) ? [CssColors[clr]]
-                            .concat(args.slice(1)) : args);
-                    },
-                    
-                    // Is color dark?
-                    isDark: function () {
-                        // YIQ equation from http://24ways.org/2010/calculating-color-contrast
-                        var rgb = Static.parse.apply(null, arguments);
-                        var yiq = (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000;
-                        return yiq < 128;
-                    },
-                    
-                    // Is color light?
-                    isLight: function ()
-                        { return Static.isDark.apply(null, arguments); },
-                    
-                    // Parse the Color inputed into an RGBA String
-                    tostr: function(clr) {
-                        var arr = Static.parse.apply(this, arguments);
-                        var obj = {
-                            r: arr[0], g: arr[1],  b: arr[2], a: arr[3] / 255
-                        };
-    
-                        return "rgba({{r}}, {{g}}, {{b}}, {{a}})".temp(obj);
-                    },
-    
-                    // Stronger Version Of The fill function that allows hexCodes & other color schemes
-                    fill: function() {
-                        fill.apply(this,
-                            Static.parse.apply(this, arguments));
-                    },
-    
-                    // Stronger Version Of The stroke function that allows hexCodes & other color schemes
-                    stroke: function() {
-                        stroke.apply(this,
-                            Static.parse.apply(this, arguments));
-                    },
-    
-                    // Stronger Version Of The background function that allows hexCodes & other color schemes
-                    background: function() {
-                        background.apply(this,
-                            Static.parse.apply(this, arguments));
-                    }
-                })
-    
-            // Prototype Methods of the Color Object
-            .addto(_.reduce(Static, function(obj, val, i) {
-                if (i !== "fill" && i !== "stroke" && i !== "background")
-                    { obj[i] = Alias(val, false); }
-                else { obj[i] = Alias(val); }
-                return obj;
-            }, {}));
+
+        // Prototype Methods of the Color Object
+        .addto(_.reduce(Static, function(obj, val, i) {
+            if (i !== "fill" && i !== "stroke" && i !== "background")
+                { obj[i] = Alias(val, false); }
+            else { obj[i] = Alias(val); }
+            return obj;
+        }, {}));
     });
 })(); // Color
