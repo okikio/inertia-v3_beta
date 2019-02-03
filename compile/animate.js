@@ -682,7 +682,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             // Add Methods to a Class
             Method: function() {
                 var Parent = this.SuperClass && this.SuperClass.prototype;
-                _.each(Util.args(arguments), function(obj) {
+                _.each(args(arguments), function(obj) {
                     var _obj = Util.FnVal(obj, [this, this.constructor], this.prototype);
                     _.each(_obj, function(val, i) {
                         var preVal = val;
@@ -709,7 +709,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             },
             // Set Static Methods
             Static: function() {
-                _.each(Util.args(arguments), function(obj) {
+                _.each(args(arguments), function(obj) {
                     obj = Util.FnVal(obj, [this, this.constructor], this.prototype);
                     _.each(obj, function(val, i) {
                         var preVal = val;
@@ -916,7 +916,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         Ease = function (strt, end, vel) {
             vel = vel || 12;
             return _.isString(strt) ?
-                    Ease[strt.toString().toLowerCase()]
+                    Ease.fn[strt.toString().toLowerCase()]
                          .apply({}, [].slice.call(arguments, 1))
                      : strt + (end - strt) / vel;
         };

@@ -595,7 +595,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         Ease = function (strt, end, vel) {
             vel = vel || 12;
             return _.isString(strt) ?
-                    Ease[strt.toString().toLowerCase()]
+                    Ease.fn[strt.toString().toLowerCase()]
                          .apply({}, [].slice.call(arguments, 1))
                      : strt + (end - strt) / vel;
         };
