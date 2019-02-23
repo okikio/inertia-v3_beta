@@ -1,10 +1,10 @@
 (function() {
     // Inertia's Timeline Module V2 [www.khanacademy.org/cs/_/--]
-    Define("Timeline", function() {
+    Define(["Motion.Timeline", "Timeline"], function() {
         var _ = require("Util._"), Motion = require("Motion"); 
         // Builds on the Motion Object for timeline functionality
         return Motion.extends({
-            duration: 0, children: [],
+            duration: 0, children: [], 
             add: function(params, offset) {
                 var settings = this.settings;
                 var tween = _.extend({}, settings.tween, this.params);
@@ -59,6 +59,7 @@
                 for (var i = len; i--;) { this.children[i].reset(); }
                 return this;
             }
-        });
-    });
-})(); // Animate
+        })
+        .static(_.extend({}, Motion)); // Add static to Timeline
+    }, true);
+})(); // Timeline

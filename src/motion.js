@@ -1,5 +1,6 @@
 (function() {
     // Inertia's Motion Module V2 [www.khanacademy.org/cs/_/--]
+    // Based on animejs [animejs.com]
     Define("Motion", function() {
         var Util = require("Util"), Class = require("Class"), Event = require("Event"), 
             Ease = require("Ease"), _ = Util._, Static, id = 0; // Used in identifing Motion Objects
@@ -109,8 +110,8 @@
             },
             
             setFn: function (cb) {
-                if (this[cb]) 
-                    { this[cb](this); this.emit(cb, this); }
+                if (this[cb]) { this[cb](this); }
+                this.emit(cb, this); 
                 return this;
             },
             
