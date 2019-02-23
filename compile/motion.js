@@ -1044,8 +1044,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
 (function() {
     // Inertia's Motion Module V2 [www.khanacademy.org/cs/_/--]
     Define("Motion", function() {
-        var Util = require("Util"), Core = require("Core"), 
-            Class = require("Class"), Event = require("Event"), 
+        var Util = require("Util"), Class = require("Class"), Event = require("Event"), 
             Ease = require("Ease"), _ = Util._, Static, id = 0; // Used in identifing Motion Objects
         return Class(Event, {
             ver: "2.0.0", speed: 1, _startTime: 0, _lastTime: 0, _now: 0, 
@@ -1258,7 +1257,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 if (this.completed) { this.reset(); }
                 this.paused = false; this.resetTime();
                 $in.draw(function () {
-                    var now = Core.global.performance.now();
+                    var now = $in.global.performance.now();
                     if (!$this.paused) { $this.tick(now); }
                 });
                 return this;
