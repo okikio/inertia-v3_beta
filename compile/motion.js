@@ -1598,4 +1598,4 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             }
         });
     });
-})(); // Animate
+})(); // Motion

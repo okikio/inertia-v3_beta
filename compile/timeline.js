@@ -1598,7 +1598,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             }
         });
     });
-})(); // Animate
+})(); // Motion
 (function() {
     // Inertia's Timeline Module V2 [www.khanacademy.org/cs/_/--]
     Define("Timeline", function() {
