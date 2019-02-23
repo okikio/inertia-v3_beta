@@ -1042,7 +1042,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     });
 })(); // Event
 (function() {
-    // Inertia's Motion Module V2 [www.khanacademy.org/cs/_/--]
+    // Inertia's Motion Module V2 [www.khanacademy.org/cs/_/4786220320063488]
     // Based on animejs [animejs.com]
     Define("Motion", function() {
         var Util = require("Util"), Class = require("Class"), Event = require("Event"), 

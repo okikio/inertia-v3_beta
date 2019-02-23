@@ -1,5 +1,5 @@
 (function() {
-    // Inertia's Timeline Module V2 [www.khanacademy.org/cs/_/--]
+    // Inertia's Timeline Module V2 [www.khanacademy.org/cs/_/5437978872545280]
     Define(["Motion.Timeline", "Timeline"], function() {
         var _ = require("Util._"), Motion = require("Motion"); 
         // Builds on the Motion Object for timeline functionality
