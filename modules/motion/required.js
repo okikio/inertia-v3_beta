@@ -3,9 +3,8 @@ module.exports = [
     "Core",
     "Util",
     "Function",
-    "Math",
     "Class",
     "Ease",
     "Event",
-    "Animate"
+    "Motion"
 ];

@@ -567,7 +567,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     // Inertia's Ease Module V2 [www.khanacademy.org/cs/_/--]
     // Ease Modules a basic set of Easing Utilities
     Define("Ease", function() {
-        var _ = require("Util")._, Static, Elastic, BounceOut, BounceIn, Ease;
+        var _ = require("Util")._, Static, Elastic, BounceOut, BounceIn, Ease, Steps;
         // Elastic easing based on animejs [github.com/juliangarnier/anime/blob/master/anime.js]
         Elastic = function (t, p) {
             p = p || 0.3;
@@ -590,6 +590,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         // Bouse In
         BounceIn = function (t) 
             { return 1 - BounceOut(1 - t); };
+        
+        // Basic step implementation
+        Steps = function (t, steps) {
+            steps = steps || 10;
+            return round(t * steps) * (1 / steps);
+        };
         
         // Easing Default
         Ease = function (strt, end, vel) {
@@ -625,8 +631,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return function(t) { return bezCoOrd(xForT(t), 1); };
             };
             
-            return function(t) {
-                return polyBez([bez[0], bez[1]], [bez[2], bez[3]]) (constrain(t / 1, 0, 1));
+            return function(t, f) {
+                return pow(polyBez([bez[0], bez[1]], [bez[2], bez[3]]) (constrain(t / 1, 0, 1)), f || 1);
             };
         };
         
@@ -635,6 +641,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         Ease.eq = Ease.equations = {
             ease: [0.25, 0.1, 0.25, 1], /* Ease */
             linear: [0.250, 0.250, 0.750, 0.750],
+            steps: Steps, step: Steps,
             in: {
                 quad: [0.550, 0.085, 0.680, 0.530], /* InQuad */
                 cubic: [0.550, 0.055, 0.675, 0.190], /* InCubic */
@@ -645,6 +652,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 circ: [0.600, 0.040, 0.980, 0.335], /* InCirc */
                 back: [0.600, -0.280, 0.735, 0.045], /* InBack */
                 ease: [0.42, 0, 1, 1], /* InEase */
+                poly: function (t, e) { return pow(t, +e || 1); }, /* InPoly */
                 elastic: Elastic, /* InElastic */
                 bounce: BounceIn, /* InBounce */
             },
@@ -658,6 +666,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 circ: [0.075, 0.820, 0.165, 1.000], /* OutCirc */
                 back: [0.175, 0.885, 0.320, 1.275], /* OutBack */
                 ease: [0, 0, 0.58, 1], /* OutEase */
+                poly: function (t, e) { return 1 - pow(1 - t, +e || 1); }, /* OutPoly */
                 elastic: function (t, f)
                     { return 1 - Elastic(1 - t, f); }, /* OutElastic */
                 bounce: BounceOut, /* OutBounce */
@@ -672,6 +681,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 circ: [0.785, 0.135, 0.150, 0.860], /* InOutCirc */
                 back: [0.680, -0.550, 0.265, 1.550], /* InOutBack */
                 ease: [0.42, 0, 0.58, 1], /* InOutEase */
+                poly: function (t, e) /* OutPoly */
+                    { return ((t *= 2) <= 1 ? pow(t, e) : 2 - pow(2 - t, e)) / 2; },
                 elastic: function (t, f) /* InOutElastic */
                     { return t < 0.5 ? Elastic(t * 2, f) / 2 : 1 - Elastic(t * -2 + 2, f) / 2; },
                 bounce: function (t) {
@@ -689,7 +700,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         **/
         
         _.each(Ease.equations, function (obj, type) {
-            if (_.isArray(obj)) {
+            if (_.isArray(obj) || _.isFunction(obj)) {
                 Ease[type] = Ease.fn[type] = Ease.bezier(obj);
                 Ease.eq[type] = obj;
             } else {

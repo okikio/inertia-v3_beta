@@ -1513,7 +1513,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     // Inertia's Ease Module V2 [www.khanacademy.org/cs/_/--]
     // Ease Modules a basic set of Easing Utilities
     Define("Ease", function() {
-        var _ = require("Util")._, Static, Elastic, BounceOut, BounceIn, Ease;
+        var _ = require("Util")._, Static, Elastic, BounceOut, BounceIn, Ease, Steps;
         // Elastic easing based on animejs [github.com/juliangarnier/anime/blob/master/anime.js]
         Elastic = function (t, p) {
             p = p || 0.3;
@@ -1536,6 +1536,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         // Bouse In
         BounceIn = function (t) 
             { return 1 - BounceOut(1 - t); };
+        
+        // Basic step implementation
+        Steps = function (t, steps) {
+            steps = steps || 10;
+            return round(t * steps) * (1 / steps);
+        };
         
         // Easing Default
         Ease = function (strt, end, vel) {
@@ -1571,8 +1577,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return function(t) { return bezCoOrd(xForT(t), 1); };
             };
             
-            return function(t) {
-                return polyBez([bez[0], bez[1]], [bez[2], bez[3]]) (constrain(t / 1, 0, 1));
+            return function(t, f) {
+                return pow(polyBez([bez[0], bez[1]], [bez[2], bez[3]]) (constrain(t / 1, 0, 1)), f || 1);
             };
         };
         
@@ -1581,6 +1587,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         Ease.eq = Ease.equations = {
             ease: [0.25, 0.1, 0.25, 1], /* Ease */
             linear: [0.250, 0.250, 0.750, 0.750],
+            steps: Steps, step: Steps,
             in: {
                 quad: [0.550, 0.085, 0.680, 0.530], /* InQuad */
                 cubic: [0.550, 0.055, 0.675, 0.190], /* InCubic */
@@ -1591,6 +1598,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 circ: [0.600, 0.040, 0.980, 0.335], /* InCirc */
                 back: [0.600, -0.280, 0.735, 0.045], /* InBack */
                 ease: [0.42, 0, 1, 1], /* InEase */
+                poly: function (t, e) { return pow(t, +e || 1); }, /* InPoly */
                 elastic: Elastic, /* InElastic */
                 bounce: BounceIn, /* InBounce */
             },
@@ -1604,6 +1612,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 circ: [0.075, 0.820, 0.165, 1.000], /* OutCirc */
                 back: [0.175, 0.885, 0.320, 1.275], /* OutBack */
                 ease: [0, 0, 0.58, 1], /* OutEase */
+                poly: function (t, e) { return 1 - pow(1 - t, +e || 1); }, /* OutPoly */
                 elastic: function (t, f)
                     { return 1 - Elastic(1 - t, f); }, /* OutElastic */
                 bounce: BounceOut, /* OutBounce */
@@ -1618,6 +1627,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 circ: [0.785, 0.135, 0.150, 0.860], /* InOutCirc */
                 back: [0.680, -0.550, 0.265, 1.550], /* InOutBack */
                 ease: [0.42, 0, 0.58, 1], /* InOutEase */
+                poly: function (t, e) /* OutPoly */
+                    { return ((t *= 2) <= 1 ? pow(t, e) : 2 - pow(2 - t, e)) / 2; },
                 elastic: function (t, f) /* InOutElastic */
                     { return t < 0.5 ? Elastic(t * 2, f) / 2 : 1 - Elastic(t * -2 + 2, f) / 2; },
                 bounce: function (t) {
@@ -1635,7 +1646,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         **/
         
         _.each(Ease.equations, function (obj, type) {
-            if (_.isArray(obj)) {
+            if (_.isArray(obj) || _.isFunction(obj)) {
                 Ease[type] = Ease.fn[type] = Ease.bezier(obj);
                 Ease.eq[type] = obj;
             } else {
@@ -3293,149 +3304,3 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         return $Err;
     });
 })(); // Error
-(function() {
-    // Inertia's Animate Module V2 [www.khanacademy.org/cs/_/--]
-    Define("Animate", function() {
-        var Util = require("Util"), Class = require("Class"), $Math = require("Math"),
-            Event = require("Event"), Fn = require("Func"), Ease = require("Ease"), 
-            _ = Util._, AnimArr, Default;
-        // List of Animate Objects
-        AnimArr = [];
-        // Default Loops
-        Default = {
-            complete: Fn("cb", "return cb.call(this)"),
-            progress: Fn("x", "return x")
-        };
-        var _prevTime = Date.now(), _time, _delta; // Temp. variables
-        $in.Event.on("draw", function () {
-            _time = Date.now(); _delta = _time - _prevTime;
-            for (var i = 0; i < AnimArr.length; i++) {
-                if (!AnimArr[i].completed) {
-                    AnimArr[i](_delta, Date.now() - AnimArr[i].start_time);
-                } 
-            }
-            _prevTime = _time;
-        });
-        // Animate Object [Based on Between.js - https://github.com/sasha240100/between.js]
-        return Class(Event, {
-            loopMode: 'once', completed: false,
-            paused: false, loopFn: Default,
-            end: 0, start: 0, progress: 0,
-            localTime: 0, duration: 1000,
-            ease: Fn("x", "return x"),
-            init: function (strt, end) {
-                this.value = _.isArray(strt) ? [].concat(strt) :
-                        (_.isObject(strt) ? _.extend({}, strt) : strt);
-                this.start = strt; this.end = end;
-                this.start_time = Date.now();
-                switch ((this.type = typeof strt)) {
-                    case 'number':
-                    case 'array':
-                    case 'object':
-                        this._updateValue = function (per) {
-                            this.value = $Math.lerp(this.start, this.end, per);
-                            return this;
-                        };
-                    break;
-                    default:
-                        this._updateValue = Fn("return null");
-                        println('Animate: Start Value type was unrecognized.');
-                }
-                AnimArr.push(this.update.call(this));
-            },
-            isPaused: Class.get("paused"),
-            easing: function (eas) {
-                this.ease = _.isString(eas) || _.isArray(eas) ?
-                    Ease.fn[eas.toString().toLowerCase()] || Ease.bezier(eas) : eas;
-                return this;
-            },
-            time: Fn("dur", "this.duration = dur; return this"),
-            pause: function () {
-                this.emit('pause', this.value, this, _delta);
-                this.paused = true;
-                return this;
-            },
-            play: function () {
-                this.emit('play', this.value, this, _delta);
-                this.paused = false;
-                return this;
-            },
-            reset: Fn("this.completed = false; this.localTime = 0; return this;"),
-            restart: Fn("this.reset().play(); return this;"),
-            toggle: Fn("this.paused = !this.paused; return this;"),
-            loop: function (mode, args) {
-                mode = mode || 'once'; args = Util.args(args || [], 1);
-                var loopFnName = "__loop_" + mode;
-                this.loopFn = loopFnName in this ?
-                    _.extend({}, Default, this[loopFnName].apply(this, args)) :
-                    Default;
-                return this;
-            },
-            set: function (val) {
-                this.localTime = (val || 0) * this.duration; 
-                this._updateValue(this.ease( // Progress
-                    this.progress = this.loopFn.progress(
-                        Math.min(1, this.localTime / this.duration)
-                    )
-                ));
-                this.completed = false; 
-                return this;
-            },
-            update: function () {
-                return function (delta, time) {
-                    if (!this.completed && !this.paused) { 
-                        if (this.localTime === 0) {
-                            this.emit('start', this.value, this);
-                        }
-                        this._updateValue(this.ease( // Progress
-                            this.progress = this.loopFn.progress(
-                                Math.min(1, (time || this.localTime) / this.duration)
-                            )
-                        ));
-                        this.emit('update', this.value, this, delta);
-                        if (this.localTime >= this.duration) {
-                            this.loopFn.complete.call(this, function () {
-                                this.completed = true;
-                                this.emit('complete', this.value, this);
-                            });
-                        }
-                        this.localTime += delta;
-                    }
-                }.bind(this);
-            },
-            __loop_repeat: function (times) {
-                var maxTimes = times; this.times = 0;
-                return {
-                    complete: function (callback) {
-                        this.localTime = 0;
-                        if (Number.isInteger(maxTimes) &&
-                            ++this.times === maxTimes) { callback.call(this); }
-                        else if (!Number.isInteger(maxTimes))
-                            { ++this.times; }
-                    }.bind(this)
-                };
-            },
-            __loop_bounce: function (times) {
-                var maxTimes = times, bounceDir = 1;
-                this.times = 0;
-                return {
-                    complete: function (callback) {
-                        this.localTime = 0; bounceDir = -bounceDir;
-                        if (Number.isInteger(maxTimes) &&
-                            ++this.times === maxTimes) { callback.call(this); }
-                        else if (!Number.isInteger(maxTimes))
-                            { ++this.times; }
-                    }.bind(this),
-                    progress: function (x)
-                        { return bounceDir > 0 ? x : 1 - x; },
-                };
-            },
-        })
-        // Static Methods
-        .static({
-            new: function ()
-                { return Fn.new(this, arguments); },
-            default: Default
-        });
-    });
-})(); // Animate
