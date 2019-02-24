@@ -18,7 +18,16 @@ Depending on the module package you which to use, go into the compile folder, op
 #### Usage
 `Inertia.js` can be called by using this:  
 ```javascript
+...
+Inertia.Manager.ready(function () {
+    /* code here */
+}).loop(100);
+```
+You put this after you have posted the library into your workspace. What this is doing is asyncronously loading the modules for easy on the machine loading. The `Inertia` object can also be called with the alias `$in` and the `Inertia.Manager` Object (Class) can be called using the alias `$in.mgr` so the code above can also be written as:
+```javascript
+...
 $in.mgr.ready(function () {
     /* code here */
 }).loop(100);
 ```
+The ```}).loop(100);``` details the rate at which modules should be loaded during runtime e.g. loading a module every second and how the modules are loaded (syncronously or asyncronously) otherwise known as (all at once or once at a time). For more info: [Modules](#modules).
