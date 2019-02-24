@@ -19,5 +19,7 @@ module.exports = [
     "Async",
     "Accum",
     "Range",
-    "Error"
+    "Error",
+    "Motion",
+    "Timeline"
 ];
