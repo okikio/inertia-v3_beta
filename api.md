@@ -70,89 +70,108 @@ Displays all modules missing in order to make `inertia` work
 ##### toArray  - [Function]
 Converts a String into an Array, based on specific values. Meant for 
 turning Strings into Arrays of little paths.
-###### Params
-* **[Array | String]** val - Value to convert 
+* ###### Params
+    * **[Array | String]** val - Value to convert 
 
-###### Return
-* **[Array]** Converted value
+* ###### Return
+    * **[Array]** Converted value
 
-###### Example
-```javascript
-$in.toArray("obj.key.val") // ["obj", "key", "val"]
-```
+* ###### Example
+    ```javascript
+    $in.toArray("obj.key.val") // ["obj", "key", "val"]
+    ```
 
 ##### isDef - [Function]
 Check if a value is defined.
-###### Params
-* **[Any]** val - Value to check
+* ###### Params
+    * **[Any]** val - Value to check
 
-###### Return
-* **[Boolean]** Whether `val` is defined
+* ###### Return
+    * **[Boolean]** Whether `val` is defined
 
-###### Example
-```javascript
-$in.isDef("Defined") // true
-```
+* ###### Example
+    ```javascript
+    $in.isDef("Defined") // true
+    ```
 
 ##### Find - [Function]
 Utility method to get and set Objects that may or may not exist.
-###### Params
-* **[String | Array]** path - Path to follow in an Object
-* **[Object]** obj - Object to find path in
+* ###### Params
+    * **[String | Array]** path - Path to follow in an Object
+    * **[Object]** obj - Object to find path in
 
-###### Return
-* **[Any | \*Object]** If value exists at path return value at path else return empty Object
+* ###### Return
+    * **[Any | \*Object]** If value exists at path return value at path else return empty Object
 
-###### Example
-```javascript
-var obj = {
-    x: {
-        y: "z"
-    },
-    a: {}
-};
-$in.Find("a.b", obj) // {}
-$in.Find("x.y", obj) // "z"
-```
----
+* ###### Example
+    ```javascript
+    var obj = {
+        x: {
+            y: "z"
+        },
+        a: {}
+    };
+    $in.Find("a.b", obj); // {}
+    $in.Find("x.y", obj); // "z"
+    ```
+
 ##### global (window) - [Object]
 Window Object
----
+ 
 ##### canvas (PJS | pjs) - [Object]
 The Processing JS Object
 
----
 ##### EventEmitter (evtemit) - [Object]
-* ###### eventCount - [Number]
+* ##### eventCount - [Number]
     The total [Number] of events
-* ###### _events - [Object]
+* ##### _events - [Object]
     Stores all events 
-* ###### _emit - [Array]
+* ######_emit - [Array]
     Stores events set to be Emitted
                 // Prepare the Event
-* ###### on - [Function]
+* ##### on - [Function]
     Add a Listener / Function For a Given Event
-    ###### Params
-    * **[String | Array | Object]** evt - The name of the event being listened for
-    * **[Function]** callback - The event handler function
-        ###### Params
-        * *(Specific)* **[Object]** $evt - If the callback has `$evt` as one of the parameters this will happen
-        * **[Any]** .... - Any Argument given in the `.emit` method appear has parameters here
-    * **[Object]** scope - The context for the event handler function
-    ###### Return
-    * **[Object]** Return the EventEmitter Object, allows other methods to be chained to this method
+    * ###### Params
+        * **[String | Array | Object]** evt - The name of the event being listened for
+        * **[Function]** callback - The event handler function
+            ###### Params
+            * *(Specific)* **[Object]** $evt - If the callback has `$evt` as one of the parameters this will happen
+            * **[Any]** .... - Any Argument given in the `.emit` method appear has parameters here
+        * **[Object]** scope - The context for the event handler function
+    * ###### Return
+        * **[Object]** Return the `EventEmitter` Object, allows other methods to be chained to this method
     
-    ###### Example
-    ```javascript
-    var obj = { a: "b" };
-    var evt = $in.evtemit();
+    * ###### Example
+        ```javascript
+        var obj = { a: "b" };
+        var evt = $in.evtemit();
+        
+        // Specifically `$evt` nothing else works
+        evt.on("event", function ($evt) { 
+            println(this.a + " Cool"); // "b Cool"
+            println($evt); // { callback: ..., scope: ...,  event: ...}
+        }, obj);
+        ....
+        ```
+
+* ##### emit - [Function]
+    Call all Function(s) for a certain event
+    * ###### Params
+        * **[String | Array | Object]** evt - The name of the event being emitted for
+    * ###### Return
+        * **[Object]** Return the `EventEmitter` Object, allows other methods to be chained to this method
     
-    // Specifically `$evt` nothing else works
-    evt.on("event", function ($evt) { 
-        println(this.a + " Cool"); // "b Cool"
-        println($evt); // { callback: ..., scope: ...,  event: ...}
-    }, obj);
-    ```
+    * ###### Example
+        ```javascript
+        var obj = { a: "b" };
+        var evt = $in.evtemit();
+        
+        // Specifically `$evt` nothing else works
+        evt.on("event", function ($evt) { 
+            println(this.a + " Cool"); // "b Cool"
+            println($evt); // { callback: ..., scope: ...,  event: ...}
+        }, obj);
+        ....
                 // Call All Function(s) Within An Event
                 emit: function(evt) {
                     var $Evt, arg = [].slice.call(arguments, 1);
