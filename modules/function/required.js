@@ -1,5 +1,5 @@
 module.exports = [
-    "Module", 
+    "Inertia", 
     "Core",
     "Util",
     "Function"
