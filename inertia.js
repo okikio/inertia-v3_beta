@@ -8,8 +8,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     
     /* Turn Strings into Arrays of little paths
         eg: toArray("obj.key.val") // ["obj", "key", "val"] */
-    var toArray = Inertia.toArray = function (val) {
-        return val.toString().split(/[\.\,]/g);
+    var toArray = Inertia.toArray = function (arr) {
+        return arr.toString().split(/[\.\,]/g);
     };
     
     /* Check if a value is defined
@@ -31,8 +31,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     // Window Object
     $in.global = $in.window = (0, eval)("this");
     
-    // Canvas Object
-    $in.canvas = $in.PJS = $in.pjs = (function() {
+    // Cnavas Object
+    $in.canvas = $in.PJS = $in.pjs = (function(prop) {
         setup = function() { return this; };
         return setup();
     })();
