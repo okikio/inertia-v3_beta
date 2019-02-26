@@ -114,13 +114,14 @@ var obj = {
 $in.Find("a.b", obj) // {}
 $in.Find("x.y", obj) // "z"
 ```
-
+---
 ##### global (window) - [Object]
 Window Object
-    
+---
 ##### canvas (PJS | pjs) - [Object]
 The Processing JS Object
-    
+
+---
 ##### EventEmitter (evtemit) - [Object]
 * ###### eventCount - [Number]
     The total [Number] of events
