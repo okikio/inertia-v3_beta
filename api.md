@@ -122,13 +122,13 @@ Window Object
 The Processing JS Object
 
 ##### EventEmitter (evtemit) - [Object]
+This Object expose an `evtemit.on()` function that allows one or more functions to be attached to named events emitted by the object. When the `EventEmitter` object emits an event, all of the functions attached to that specific event are called.
 * ##### eventCount - [Number]
     The total [Number] of events
 * ##### _events - [Object]
     Stores all events 
-* ######_emit - [Array]
+* ###### _emit - [Array]
     Stores events set to be Emitted
-                // Prepare the Event
 * ##### on - [Function]
     Add a Listener / Function For a Given Event
     * ###### Params
@@ -155,181 +155,129 @@ The Processing JS Object
         ```
 
 * ##### emit - [Function]
-    Call all Function(s) for a certain event
+    Calls each of the listeners registered for a named event, in the order they were registered, passing the supplied arguments to each.
     * ###### Params
         * **[String | Array | Object]** evt - The name of the event being emitted for
+        * **[Any]** .... - Any Argument given here is passed on to the `.on` method listeners (Functions)
     * ###### Return
         * **[Object]** Return the `EventEmitter` Object, allows other methods to be chained to this method
     
     * ###### Example
         ```javascript
-        var obj = { a: "b" };
         var evt = $in.evtemit();
-        
-        // Specifically `$evt` nothing else works
-        evt.on("event", function ($evt) { 
-            println(this.a + " Cool"); // "b Cool"
-            println($evt); // { callback: ..., scope: ...,  event: ...}
-        }, obj);
-        ....
-                // Call All Function(s) Within An Event
-                emit: function(evt) {
-                    var $Evt, arg = [].slice.call(arguments, 1);
-                    if (!evt) { return; } // If There is No Event, Break
-                    if (!_.isArray(evt)) { evt = [evt]; } // Set Evt to an Array
-                    _.each(evt, function($evt) {
-                        $Evt = this.preEvent($evt);
-                        if (!this._emit.includes($evt)) 
-                            { this._emit.push($evt); }
-                        _.each($Evt, function(_evt) {
-                            var $arg = arg;
-                            if (_evt.callback.argnames &&
-                                _evt.callback.argnames()[0] === "$evt")
-                                { $arg = [_evt].concat(arg); }
-                            _evt.callback.apply(_evt.scope, $arg);
-                        }, this);
-                    }, this);
-                    return this;
-                }
-            };
-        return EventEmitter;
-    }) ();
+        evt.emit("event", 2);
+        ```
     
-    // Async Object for Module Loading Based on the Async Module
-    Inertia.Async = (function () {
-        var Async = function(rate) {
-            this._class = "Async"; // Class Name
-            this.tasks = []; this.indx = 0; // Tasks Array & Task Index
-            this.loopThru = !(this.complete = false);
-            this.rate = isDef(rate) ? rate : 500;
-            this.external = false; // This tells it not to use requestAnimationFrame
-            this.prev = millis();
-            this.progress = 0;
-        };
-    
-        // Prototype in Object form
-        Async.prototype = {
-            readyFn: function () {},
-            loadFn: function () {
-                background(55);
-                fill(220);
-                noStroke();
-                rect(100, 200, 200, 4, 8);
-                    
-                fill(120);
-                rect(100, 200, this.progress / 100 * 200, 4, 8);
-                    
-                fill(250);
-                textAlign(CENTER, CENTER);
-                textFont(createFont("Trebuchet Bold"), 35);
-                text("Inertia.", 200, 200 - 50);
-            },
-            errFn: function (e) {
-                e = e || { message: "Unidentified Error" };
-                background(255, 0, 0);
-                fill(255);
-                textAlign(CENTER, CENTER);
-                textFont(createFont("Century Gothic Bold"), 22);
-                if (this.indx !== this.tasks.length) {
-                    text("Loading Error! Module: " + this.tasks[this.indx][1] +
-                        ". \n Message: " + e.message, 25, 0, 350, 400);
-                } else { text("Error!\n Message: " + e.message, 25, 0, 350, 400); }
-            },
-            // Set Rate
-            setRate: function (rate) {
-                this.rate = isDef(rate) ? rate : 500;
-                return this;
-            },
-            // Set External
-            setExternal: function (external) {
-                this.external = isDef(external) ? external : true;
-                return this;
-            },
-            // Add New Tasks
-            then: function(module, fn) {
-                this.tasks.push([fn || function() {}, module || "Module"]);
-                return this;
-            },
-            // On Load
-            load: function (fn) {
-                this.loadFn = fn || function () {};
-                return this;
-            },
-            // Error
-            error: function (fn) {
-                this.errFn = fn || function () {};
-                return this;
-            },
-            // Ready
-            ready: function (fn) {
-                this.readyFn = fn || function () {};
-                return this;
-            },
-            // Set Loop Thru
-            thruLoop: function (thru) {
-                this.loopThru = thru || true;
-                return this;
-            },
-            // Run Async
-            run: function() {
-                if (this.tasks.length <= 0) { return this; }
-                if (this.loopThru && !this.external) {
-                    while ((millis() - this.prev) > this.rate) {
-                        if (this.complete) { return this.clear(); }
-                        this.tasks[this.indx][0](); this.indx++;
-                        this.prev = millis();
-                    }
-                } else {
-                    for (var i = 0; i < this.tasks.length; i ++) {
-                        if (this.complete) { return this.clear(); }
-                        this.indx = i; this.tasks[this.indx][0]();
-                    }
-                }
-                return this;
-            },
-            // Creates a Loop for Loading
-            loop: function (rate, external) {
-                var window = $in.global, pjs = $in.pjs;
-                this.rate = isDef(rate) ? rate : this.rate;
-                this.external = isDef(external) ? external : false;
-                if (this.external) { this.run(); this.readyFn.bind(pjs)(); }
-                else {
-                    var _draw = function() {
-                        try {
-                            this.run();
-                            if (this.complete) { this.readyFn.bind(pjs)(); return; }
-                            else { this.loadFn(); }
-                            window.requestAnimationFrame(_draw);
-                        } catch (e) { this.errFn(e); }
-                    }.bind(this);
-                    window.requestAnimationFrame(_draw);
-                }
-                return this;
-            },
-            // Clear
-            clear: function() {
-                this.indx = 0; this.tasks = [];
-                return this;
-            },
-        };
+##### Async - [Object]
+This Object allows for loading Functions one after the other with a certain amount of time allocated for each Function. Meant for loading really big module's while not slowing the program to a crawl.
+* ###### Constructor - [Function]
+    * ###### Params
+        * **[Number]** rate - Sets the rate at which Functions are loaded
+* ##### tasks - [Array]
+    List of all Functions to be called
+* ##### indx - [Number]
+    Current index when calling a Function
+* ##### rate - [Number]
+    Rate at which to call the Functions
+* ##### progress - [Number]
+    The progress of loading the Function from 0 to 100
+* ##### complete - [Boolean]
+    Whether the progress is 100 or not
+* ##### readyFn - [Function]
+    What to do after the loading of the Functions are done
+* ##### loadFn - [Function]
+    What to do during the loading of the Functions
+* ##### errFn - [Function]
+    What to do if there is an error whilie loading the Functions
+    * ###### Params
+        * **[Object]** e - The error Object containing the error message
         
-        // More Info
-        Object.defineProperties(Async.prototype, {
-            // Complete
-           complete: {
-                get: function()
-                    { return this.indx >= this.tasks.length; }
-            },
-            // Progress
-            progress: {
-                get: function()
-                    { return this.indx / (this.tasks.length - 1) * 100; }
-            },
+* ###### setRate - [Function]
+    Sets the rate at which Functions are loaded
+    * ###### Params
+        * **[Object]** rate - The rate at which Functions are loaded
+    * ###### Return
+        * **[Object]** Return the `Async` Object, allows other methods to be chained to this method
+        
+* ##### setExternal - [Function]
+    Set's how the Functions load, once at a time or all at once. This was designed for development quick addition to code and a quick view for error fixes. When the first argument is set to true it allows for any Functions loaded after `.loop` to affect the code else if loaded one by one everything loaded will only affect the `.ready` callback and only that.
+    * ###### Params
+        * **[Boolean]** external - Whether the loaded Functions will affect the code after `.loop`
+    * ###### Return
+        * **[Object]** Return the `Async` Object, allows other methods to be chained to this method
+     
+* ##### then - [Function]
+    Adds a Function to the `.task` Array
+    * ###### Params
+        * **[String]** module - The name of the module or Function being added to `.task`
+        * **[Function]** fn - The Function to add to the `.task` Array
+    * ###### Return
+        * **[Object]** Return the `Async` Object, allows other methods to be chained to this method
+    
+    * ###### Example
+        ```javascript
+        var mgr = $in.Async();
+        mgr.then("Cool", function () {
+            println("Yeah");
         });
-        return Async;
-    }) ();
+        ...
+        ```
+
+* ##### [error, ready]  - [Function]
+    They do the same thing but for different properties the `.error` Function affects `.errFn` while `.ready` Function affects `.readyFn`. They both set each property to the Function given
+    * ###### Params
+        * **[Function]** fn - The Function to set either `.errFn` or `readyFn`
+    * ###### Return
+        * **[Object]** Return the `Async` Object, allows other methods to be chained to this method
     
-    // Inertia's Load Manager
+    * ###### Example
+        ```javascript
+        var mgr = $in.Async();
+        mgr.error(function (e) {
+            println(e.message); // Error ...
+        }).ready(function () {
+            println("Awesome); // When fixed "Awesome"
+        });
+        ...
+        ```
+
+* ##### thruLoop - [Function]
+    Changes the value of `.loopThru` which basically asks whether it should loop through the `.tasks` Array 
+    * ###### Params
+        * **[Boolean]** thru - Should loop go through
+    * ###### Return
+        * **[Object]** Return the `Async` Object, allows other methods to be chained to this method
+
+* ##### run - [Function]
+    Runs the loop through the `.tasks` Array
+    * ###### Return
+        * **[Object]** Return the `Async` Object, allows other methods to be chained to this method
+     
+* ##### loop - [Function]
+    Starts the loop
+    * ###### Params
+        * **[Number]** rate -  Rate at which to load each Function
+        * **[Boolean]** external -  Whether the loaded Functions will affect the code after `.loop`
+    * ###### Return
+        * **[Object]** Return the `Async` Object, allows other methods to be chained to this method
+     
+* ##### clear - [Function]
+    Clear & reset everything `.task`, and `.indx`
+    * ###### Return
+        * **[Object]** Return the `Async` Object, allows other methods to be chained to this method
+        
+##### Manager (mgr) - [Function]
+A new `$in.Async` Object
+* ###### Examples
+    
+    ```javascript
+    $in.mgr.ready(function () {
+        println("Cool"); // "Cool"
+    }).loop(100, false); // If set to true the Inertia loading screen won't appear
+    ```
+
+    
+// Inertia's Load Manager
     Inertia.Manager = $in.mgr = new Inertia.Async();
     // A Base Global Event Emmitter
     (function() {
