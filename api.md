@@ -278,7 +278,7 @@ A new `$in.Async` Object, it is `Inertia's` load manager.
 #### Event (evt) - [Object]
 A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
 * ##### Emitters
-    * draw - Represents `draw`
+    * **draw ** - Represents `draw`
         * ###### Examples
         ```javascript
         $in.evt.on("draw", function () {
@@ -290,7 +290,7 @@ A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
             println("Cool"); // Print "Cool" everytime draw loops  
         });
         ``` 
-    * onMouseRelease (mouseRelease) - Represents `mouseReleased`
+    * **onMouseRelease (mouseRelease) ** - Represents `mouseReleased`
         * ###### Examples
         ```javascript
         $in.evt.on("onMouseRelease", function () {
@@ -302,7 +302,7 @@ A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
             println("Cool"); // Print "Cool" everytime a mouseReleased function runs
         });
         ``` 
-    * onMouseScroll (mouseScroll) - Represents `mouseScrolled`
+    * **onMouseScroll (mouseScroll) ** - Represents `mouseScrolled`
         * ###### Examples
         ```javascript
         $in.evt.on("onMouseScroll", function () {
@@ -314,7 +314,7 @@ A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
             println("Cool"); // Print "Cool" everytime a mouseScrolled function runs
         });
         ``` 
-    * onMouseClick (mouseClick) - Represents `mouseClicked` 
+    * **onMouseClick (mouseClick) ** - Represents `mouseClicked` 
         * ###### Examples
         ```javascript
         $in.evt.on("onMouseClick", function () {
@@ -326,7 +326,7 @@ A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
             println("Cool"); // Print "Cool" everytime a mouseClicked function runs
         });
         ``` 
-    * onMousePress (mousePress) - Represents `mousePressed`
+    * **onMousePress (mousePress) ** - Represents `mousePressed`
         * ###### Examples
         ```javascript
         $in.evt.on("onMousePress", function () {
@@ -338,7 +338,7 @@ A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
             println("Cool"); // Print "Cool" everytime a mousePressed function runs
         });
         ``` 
-    * onMouseDrag (mouseDrag) - Represents `mouseDragged`
+    * **onMouseDrag (mouseDrag) ** - Represents `mouseDragged`
         * ###### Examples
         ```javascript
         $in.evt.on("onMouseDrag", function () {
@@ -350,7 +350,7 @@ A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
             println("Cool"); // Print "Cool" everytime a mouseDragged function runs 
         });
         ``` 
-    * onMouseMove (mouseMove) - Represents `mouseMoved`
+    * **onMouseMove (mouseMove) ** - Represents `mouseMoved`
         * ###### Examples
         ```javascript
         $in.evt.on("onMouseMove", function () {
@@ -362,7 +362,7 @@ A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
             println("Cool"); // Print "Cool" everytime a mouseMoved function runs
         });
         ``` 
-    * onMouseIn (mouseOver) - Represents `mouseOver`
+    * **onMouseIn (mouseOver) ** - Represents `mouseOver`
         * ###### Examples
         ```javascript
         $in.evt.on("onMouseIn", function () {
@@ -374,7 +374,7 @@ A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
             println("Cool"); // Print "Cool" everytime a mouseOver function runs
         });
         ``` 
-    * onMouseOut (mouseOut) - Represents `mouseOut` 
+    * **onMouseOut (mouseOut) ** - Represents `mouseOut` 
         * ###### Examples
         ```javascript
         $in.evt.on("onMouseOut", function () {
@@ -386,7 +386,7 @@ A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
             println("Cool"); // Print "Cool" everytime a ` function runs
         });
         ``` 
-    * onKeyType (keyType) - Represents `keyTyped`
+    * **onKeyType (keyType) ** - Represents `keyTyped`
         * ###### Examples
         ```javascript
         $in.evt.on("onKeyType", function () {
@@ -398,7 +398,7 @@ A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
             println("Cool"); // Print "Cool" everytime a keyTyped function runs
         });
         ``` 
-    * onKeyRelease (keyRelease) - Represents `keyReleased`
+    * **onKeyRelease (keyRelease) ** - Represents `keyReleased`
         * ###### Examples
         ```javascript
         $in.evt.on("onKeyRelease", function () {
@@ -410,7 +410,7 @@ A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
             println("Cool"); // Print "Cool" everytime a keyReleased function runs 
         });
         ``` 
-    * onKeyPress (keyPress) - Represents `keyPressed`
+    * **onKeyPress (keyPress) ** - Represents `keyPressed`
         * ###### Examples
         ```javascript
         $in.evt.on("onKeyPress", function () {
@@ -422,7 +422,7 @@ A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
             println("Cool"); // Print "Cool" everytime a keyPressed function runs 
         });
         ``` 
-    * onTouchCancel (touchCancel) - Represents `touchCancel`
+    * **onTouchCancel (touchCancel) ** - Represents `touchCancel`
         * ###### Examples
         ```javascript
         $in.evt.on("onTouchCancel", function () {
@@ -434,7 +434,7 @@ A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
             println("Cool"); // Print "Cool" everytime a touchCancel function runs
         });
         ``` 
-    * onTouchStart (touchStart) - Represents `touchStart`
+    * **onTouchStart (touchStart) ** - Represents `touchStart`
         * ###### Examples
         ```javascript
         $in.evt.on("onTouchStart", function () {
@@ -446,7 +446,7 @@ A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
             println("Cool"); // Print "Cool" everytime a touchStart function run 
         });
         ``` 
-    * onTouchMove (touchMove) - Represents `touchMove`
+    * **onTouchMove (touchMove) ** - Represents `touchMove`
         * ###### Examples
         ```javascript
         $in.evt.on("onTouchMove", function () {
@@ -458,7 +458,7 @@ A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
             println("Cool"); // Print "Cool" everytime a touchMove function runs
         });
         ``` 
-    * onTouchEnd (touchEnd) - Represents `touchEnd`
+    * **onTouchEnd (touchEnd) ** - Represents `touchEnd`
         * ###### Examples
         ```javascript
         $in.evt.on("onTouchEnd", function () {
