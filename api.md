@@ -58,7 +58,7 @@ The ```}).loop(100);``` details the rate at which modules should be loaded durin
 
 
 ## Inertia
-`inertia.js` has many built in modules, designed to make other modules work effectively. The most important part of `inertia` is the **Module** component which allows for it to be built on top of. That is what allows for accessing modules, as well as creating modules. 
+`Inertia.js` has many built in modules, designed to make other modules work effectively. The most important part of `inertia` is the **Module** component which allows for it to be built on top of. That is what allows for accessing modules, as well as creating modules. 
 
 #### Methods & Properties
 ##### $Modules - [Array]
@@ -192,7 +192,7 @@ This Object allows for loading Functions one after the other with a certain amou
     * ###### Params
         * **[Object]** e - The error Object containing the error message
         
-* ###### setRate - [Function]
+* ##### setRate - [Function]
     Sets the rate at which Functions are loaded
     * ###### Params
         * **[Object]** rate - The rate at which Functions are loaded
@@ -236,7 +236,7 @@ This Object allows for loading Functions one after the other with a certain amou
         mgr.error(function (e) {
             println(e.message); // Error ...
         }).ready(function () {
-            println("Awesome); // When fixed "Awesome"
+            println("Awesome); // When fixed \"Awesome\"
         });
         ...
         ```
@@ -518,48 +518,49 @@ An Object that stores keys currently being pressed for use later on in the progr
     ```
 
 ##### define - [Function]
-    Creates new modules when called, adds them to `$in.$Modules` creates a task that loads each module using `$in.mgr` (because some modules are big).
-    * ###### Params
-        * **[String | Array]** paths - A module name or path, or multiple modules name and path, as Arrays
-        * **[Function]** fn - Contains the contents of the modules
-            ###### Params
-            * **[Object]** module - A reference to the current module. In particular, `module.exports` is used for defining what a module exports and makes available through `require()`. In each module, the `module` parameter (the first argument in every module) is a reference to the Object representing the current module. For convenience, module is not actually a global but rather local to each module.
-                * **[Object | \*Any]** exports - The `module.exports` Object is created by the Module system. Sometimes this is not acceptable; many want their module to be an instance of some class. To do this, assign the desired export object to `module.exports`.
-            ###### Return
-                * **[Object | \*Any]** Return the exported module content
-        
-        * **[Boolean]** multi - Whether to treat the path given as a single path or an Array of multiple module paths.
+Creates new modules when called, adds them to `$in.$Modules` creates a task that loads each module using `$in.mgr` (because some modules are big).
+* ###### Params
+    * **[String | Array]** paths - A module name or path, or multiple modules name and path, as Arrays
+    * **[Function]** fn - Contains the contents of the modules
+        ###### Params
+        * **[Object]** module - A reference to the current module. In particular, `module.exports` is used for defining what a module exports and makes available through `require()`. In each module, the `module` parameter (the first argument in every module) is a reference to the Object representing the current module. For convenience, module is not actually a global but rather local to each module.
+            * **[Object | \*Any]** exports - The `module.exports` Object is created by the Module system. Sometimes this is not acceptable; many want their module to be an instance of some class. To do this, assign the desired export object to `module.exports`.
+        ###### Return
+        * **[Object | \*Any]** Return the exported module content
     
-    * ###### Example
-        ```javascript
-        // Creates a new module called Math whose content is the native Math Object
-        $in.Define("Math", function (module) {
-            module.exports = Math;
-        });
-        
-        // Creates a new module called Mat located in M full path looks like (M.Mat) whose content is the native Math Object
-        $in.Define(["M", "Mat"], function (module) {
-            module.exports = Math;
-        });
-        
-        // Creates multiple new modules called N and Nat located in V and G, full path looks like (V.N and G.Nat) whose content is the PVector Object
-        $in.Define(["V.N", "G.Nat"], function (module) {
-            module.exports = Math;
-            return new PVector(0, 0); // Returning a value overrides `module.exports`
-        }, true);
-        ```
+    * **[Boolean]** multi - Whether to treat the path given as a single path or an Array of multiple module paths.
+
+* ###### Example
+    ```javascript
+    // Creates a new module called Math whose content is the native Math Object
+    $in.Define("Math", function (module) {
+        module.exports = Math;
+    });
+    
+    // Creates a new module called Mat located in M full path looks like (M.Mat) whose content is the native Math Object
+    $in.Define(["M", "Mat"], function (module) {
+        module.exports = Math;
+    });
+    
+    // Creates multiple new modules called N and Nat located in V and G, full path looks like (V.N and G.Nat) whose content is the PVector Object
+    $in.Define(["V.N", "G.Nat"], function (module) {
+        module.exports = Math;
+        return new PVector(0, 0); // Returning a value overrides `module.exports`
+    }, true);
+    ```
     
 ##### require - [Function]
-    A module accessor better yet known as require. Used to import modules. Modules can be imported from `$in.$Modules` be imported using an absolute path **(a.b.c)**.
-    * ###### Params
-        * **[String | Array]** path - Module name or path
-    * ###### Return
-        * **[Object]** Return the exported module content
-    
-    * ###### Example
-        ```javascript
-        var _ = require("Util._"); // Require `Util` Module
-        println(_.isNumber); // function () {...}
+A module accessor better yet known as require. Used to import modules. Modules can be imported from `$in.$Modules` be imported using an absolute path **(a.b.c)**.
+* ###### Params
+    * **[String | Array]** path - Module name or path
+* ###### Return
+    * **[Object]** Return the exported module content
+
+* ###### Example
+    ```javascript
+    var _ = require("Util._"); // Require `Util` Module
+    println(_.isNumber); // function () {...}
+    ```
 
 #### Usage
 When working with modules two methods are important: `$in.require` and `$in.define`. They are the way `inertia's` many components communicate with each other. 
