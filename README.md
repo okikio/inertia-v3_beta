@@ -39,4 +39,3 @@ $in.mgr.ready(function () {
 }).loop(100);
 ```
 for more tutorials and the code required to get started go to the getting started folder.
-    ```
