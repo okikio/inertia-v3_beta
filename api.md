@@ -127,7 +127,7 @@ This Object expose an `evtemit.on()` function that allows one or more functions 
     The total [Number] of events
 * ##### _events - [Object]
     Stores all events 
-* ###### _emit - [Array]
+* ##### _emit - [Array]
     Stores events set to be Emitted
 * ##### on - [Function]
     Add a Listener / Function For a Given Event
@@ -266,107 +266,300 @@ This Object allows for loading Functions one after the other with a certain amou
     * ###### Return
         * **[Object]** Return the `Async` Object, allows other methods to be chained to this method
         
-##### Manager (mgr) - [Function]
-A new `$in.Async` Object
+##### Manager (mgr) - [Object]
+A new `$in.Async` Object, it is `Inertia's` load manager.
 * ###### Examples
-    
     ```javascript
     $in.mgr.ready(function () {
         println("Cool"); // "Cool"
-    }).loop(100, false); // If set to true the Inertia loading screen won't appear
+    }).loop(100, false); // If 2nd param set to `true` the Inertia loading screen won't appear
     ```
 
-    
-// Inertia's Load Manager
-    Inertia.Manager = $in.mgr = new Inertia.Async();
-    // A Base Global Event Emmitter
-    (function() {
-        var Emit;
-        $in.evt = $in.Event = new $in.EventEmitter(); // Inertia Event
-        // Emit An Event
-        Emit = function(evt, fn) {
-            $in.Event._emit.push(evt);
-            return function() {
-                (fn || function() {}) ();
-                try {
-                    // jshint noarg: false
-                    var arg = arguments.callee.caller.arguments;
-                    $in.evt.emit.apply($in.evt, [evt, arg[0]]);
-                } catch (e) { println(evt + " - " + e); }
-            };
-        };
+##### Event (evt) - [Object]
+A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
+* ##### Emitters
+    * draw - Represents `draw`
+        * ###### Examples
+        ```javascript
+        $in.evt.on("draw", function () {
+            println("Cool"); // Print "Cool" everytime draw loops  
+        });
         
-        // Global Draw Event
-        $in.pjs.draw = Emit("draw"); 
-        // Emit Mouse Events
-        $in.pjs.mouseReleased = Emit("onMouseRelease");
-        $in.pjs.mouseScrolled = Emit("onMouseScroll");
-        $in.pjs.mouseClicked = Emit("onMouseClick");
-        $in.pjs.mousePressed = Emit("onMousePress");
-        $in.pjs.mouseDragged = Emit("onMouseDrag");
-        $in.pjs.mouseMoved = Emit("onMouseMove");
-        $in.pjs.mouseOver = Emit("onMouseIn");
-        $in.pjs.mouseOut = Emit("onMouseOut");
+        // Does the same thing
+        $in.evt.draw(function () {
+            println("Cool"); // Print "Cool" everytime draw loops  
+        });
+        ``` 
+    * onMouseRelease (mouseRelease) - Represents `mouseReleased`
+        * ###### Examples
+        ```javascript
+        $in.evt.on("onMouseRelease", function () {
+            println("Cool"); // Print "Cool" everytime a mouseReleased function runs
+        });
+        
+        // Does the same thing
+        $in.evt.mouseRelease(function () {
+            println("Cool"); // Print "Cool" everytime a mouseReleased function runs
+        });
+        ``` 
+    * onMouseScroll (mouseScroll) - Represents `mouseScrolled`
+        * ###### Examples
+        ```javascript
+        $in.evt.on("onMouseScroll", function () {
+            println("Cool"); // Print "Cool" everytime a mouseScrolled function runs
+        });
+        
+        // Does the same thing
+        $in.evt.mouseScroll(function () {
+            println("Cool"); // Print "Cool" everytime a mouseScrolled function runs
+        });
+        ``` 
+    * onMouseClick (mouseClick) - Represents `mouseClicked` 
+        * ###### Examples
+        ```javascript
+        $in.evt.on("onMouseClick", function () {
+            println("Cool"); // Print "Cool" everytime a ` function runs
+        });
+        
+        // Does the same thing
+        $in.evt.mouseClick(function () {
+            println("Cool"); // Print "Cool" everytime a mouseClicked function runs
+        });
+        ``` 
+    * onMousePress (mousePress) - Represents `mousePressed`
+        * ###### Examples
+        ```javascript
+        $in.evt.on("onMousePress", function () {
+            println("Cool"); // Print "Cool" everytime a mousePressed function runs
+        });
+        
+        // Does the same thing
+        $in.evt.mousePress(function () {
+            println("Cool"); // Print "Cool" everytime a mousePressed function runs
+        });
+        ``` 
+    * onMouseDrag (mouseDrag) - Represents `mouseDragged`
+        * ###### Examples
+        ```javascript
+        $in.evt.on("onMouseDrag", function () {
+            println("Cool"); // Print "Cool" everytime a mouseDragged function runs
+        });
+        
+        // Does the same thing
+        $in.evt.mouseDrag(function () {
+            println("Cool"); // Print "Cool" everytime a mouseDragged function runs 
+        });
+        ``` 
+    * onMouseMove (mouseMove) - Represents `mouseMoved`
+        * ###### Examples
+        ```javascript
+        $in.evt.on("onMouseMove", function () {
+            println("Cool"); // Print "Cool" everytime a mouseMoved function runs
+        });
+        
+        // Does the same thing
+        $in.evt.mouseMove(function () {
+            println("Cool"); // Print "Cool" everytime a mouseMoved function runs
+        });
+        ``` 
+    * onMouseIn (mouseOver) - Represents `mouseOver`
+        * ###### Examples
+        ```javascript
+        $in.evt.on("onMouseIn", function () {
+            println("Cool"); // Print "Cool" everytime a mouseOver function runs
+        });
+        
+        // Does the same thing
+        $in.evt.mouseOver(function () {
+            println("Cool"); // Print "Cool" everytime a mouseOver function runs
+        });
+        ``` 
+    * onMouseOut (mouseOut) - Represents `mouseOut` 
+        * ###### Examples
+        ```javascript
+        $in.evt.on("onMouseOut", function () {
+            println("Cool"); // Print "Cool" everytime a ` function runs
+        });
+        
+        // Does the same thing
+        $in.evt.mouseOut(function () {
+            println("Cool"); // Print "Cool" everytime a ` function runs
+        });
+        ``` 
+    * onKeyType (keyType) - Represents `keyTyped`
+        * ###### Examples
+        ```javascript
+        $in.evt.on("onKeyType", function () {
+            println("Cool"); // Print "Cool" everytime a keyTyped function runs
+        });
+        
+        // Does the same thing
+        $in.evt.keyType(function () {
+            println("Cool"); // Print "Cool" everytime a keyTyped function runs
+        });
+        ``` 
+    * onKeyRelease (keyRelease) - Represents `keyReleased`
+        * ###### Examples
+        ```javascript
+        $in.evt.on("onKeyRelease", function () {
+            println("Cool"); // Print "Cool" everytime a keyReleased function runs
+        });
+        
+        // Does the same thing
+        $in.evt.keyRelease(function () {
+            println("Cool"); // Print "Cool" everytime a keyReleased function runs 
+        });
+        ``` 
+    * onKeyPress (keyPress) - Represents `keyPressed`
+        * ###### Examples
+        ```javascript
+        $in.evt.on("onKeyPress", function () {
+            println("Cool"); // Print "Cool" everytime a keyPressed function runs
+        });
+        
+        // Does the same thing
+        $in.evt.keyPress(function () {
+            println("Cool"); // Print "Cool" everytime a keyPressed function runs 
+        });
+        ``` 
+    * onTouchCancel (touchCancel) - Represents `touchCancel`
+        * ###### Examples
+        ```javascript
+        $in.evt.on("onTouchCancel", function () {
+            println("Cool"); // Print "Cool" everytime a touchCancel function runs
+        });
+        
+        // Does the same thing
+        $in.evt.touchCancel(function () {
+            println("Cool"); // Print "Cool" everytime a touchCancel function runs
+        });
+        ``` 
+    * onTouchStart (touchStart) - Represents `touchStart`
+        * ###### Examples
+        ```javascript
+        $in.evt.on("onTouchStart", function () {
+            println("Cool"); // Print "Cool" everytime a touchStart function runs
+        });
+        
+        // Does the same thing
+        $in.evt.touchStart(function () {
+            println("Cool"); // Print "Cool" everytime a touchStart function run 
+        });
+        ``` 
+    * onTouchMove (touchMove) - Represents `touchMove`
+        * ###### Examples
+        ```javascript
+        $in.evt.on("onTouchMove", function () {
+            println("Cool"); // Print "Cool" everytime a touchMove function runs
+        });
+        
+        // Does the same thing
+        $in.evt.touchMove(function () {
+            println("Cool"); // Print "Cool" everytime a touchMove function runs
+        });
+        ``` 
+    * onTouchEnd (touchEnd) - Represents `touchEnd`
+        * ###### Examples
+        ```javascript
+        $in.evt.on("onTouchEnd", function () {
+            println("Cool"); // Print "Cool" everytime a touchEnd function runs
+        });
+        
+        // Does the same thing
+        $in.evt.touchEnd(function () {
+            println("Cool"); // Print "Cool" everytime a touchEnd function runs
+        });
+        ``` 
+* ###### Usage / Examples
+    A more detailed example of how to use `$in.Event` or `$in.evt`
+    ```javascript
+    $in.evt.mousePress(function () {
+        println("Cool"); // "Cool" on mouse press
+    }).on("onKeyPress", function () {
+        println("Cool"); // "Cool" on key press
+    }); 
     
-        // Emit Key Events
-        var Key = $in.key = Inertia.Key = {
-            List: [], ListStr: [],
-        };
-        Object.defineProperties(Inertia.Key, {
-            list: { get: function () { return this.List; } },
-            listStr: { get: function () { return this.ListStr; } },
-        });
-        $in.pjs.keyTyped = Emit("onKeyType");
-        $in.pjs.keyReleased = Emit("onKeyRelease", function() {
-            var Code = (key.code === CODED ? keyCode : key.code);
-            if (Key.List.includes(Code)) {
-                var _i = Key.List.indexOf(Code);
-                Key.ListStr.splice(_i, 1);
-                Key.List.splice(_i, 1);
-            }
-        });
-        $in.pjs.keyPressed = Emit("onKeyPress", function() {
-            var Code = (key.code === CODED ? keyCode : key.code);
-            if (!Key.List.includes(Code)) {
-                Key.ListStr.push(key.toString());
-                Key.List.push(Code);
-            }
-        });
-        // Emit Touch Events
-        if ('ontouchstart' in (0, eval) ("this")) {
-            $in.pjs.touchCancel = Emit("onTouchCancel");
-            $in.pjs.touchStart = Emit("onTouchStart");
-            $in.pjs.touchMove = Emit("onTouchMove");
-            $in.pjs.touchEnd = Emit("onTouchEnd");
-        } else {
-            Inertia.Event.on("onMouseRelease", Emit("onTouchEnd"));
-            Inertia.Event.on("onMousePress", Emit("onTouchStart"));
-            Inertia.Event.on("onMouseDrag", Emit("onTouchMove"));
-        }
-        $in.evt._emit.forEach(function(val) {
-            var _val = val.replace("on", "");
-            _val = _val[0].toLowerCase() + _val.slice(1); // Changes `onMouseDrag` to `mouseDrag`
-            $in.evt[val] = $in.evt[_val] = $in[val] = $in[_val] = function (fn, ctxt) {
-                return $in.evt.on(val, fn || function () {}, ctxt);
-            };
-        });
-    })();
+    $in.evt.on({
+       onMouseScroll: function (e) {
+           e.preventDefault(); // Works like `e.preventDefault` is supposed to
+           println("Scroll"); // "Scroll" on mouse wheel scroll
+       },
+       
+       // Only works on touch supported devices, else uses the mouse as a replacement automatically
+       onTouchStart: function () {
+           println("Wow"); // "Wow"
+       }
+    });
     
-    // Creates new Modules When Called
-    Define = Inertia.define = Inertia.Define =  function(paths, fn, multi) {
-        Inertia.Manager.then(paths, function () {
-            var Define = function (path, fn) {
-                var paths = toArray(path), Module = paths.pop(), Temp = {},
-                    result = Find(paths, Inertia.$Modules);
-                Temp[Module] = { exports: {} };
-                fn = fn.call(Inertia.$Modules, Temp[Module]) || Temp[Module].exports;
-                return result && Module ? (result[Module] = fn) : undefined;
-            };
-            if (Array.isArray(paths) && multi) {
-                paths.forEach(function (path) { Define(path, fn); });
-            } else { Define(paths, fn); }
+    $in.onKeyPress(function () {
+        println($in.key.listStr); // List's out all keys being pressed in a single instance
+    });
+    ```
+
+##### Key (key) - [Object]
+An Object that stores keys currently being pressed for use later on in the program in two Arrays `.Key.List` and `.Key.ListStr`.
+* ##### List (list) - [Array]
+    This stores all the **key codes** being pressed in an Array.
+    ###### Example
+    ```javascript
+    $in.draw(function () {
+        // If you pressed "a", and "s"
+        println($in.Key.List); // It will print "97, 115"
+    });
+    ```
+* ##### ListStr (listStr) - [Array]
+    This stores all the **keys as strings** being pressed in an Array.
+    ###### Example
+    ```javascript
+    $in.draw(function () {
+        // If you pressed "a", and "s"
+        println($in.Key.ListStr); // It will print "a, s"
+    });
+    ```
+
+##### define - [Function]
+    Creates new modules when called, adds them to `$in.$Modules` creates a task that loads each module using `$in.mgr` (because some modules are big).
+    * ###### Params
+        * **[String | Array]** paths - A module name or path, or multiple modules name and path, as Arrays
+        * **[Function]** fn - Contains the contents of the modules
+            ###### Params
+            * **[Object]** module - A reference to the current module. In particular, `module.exports` is used for defining what a module exports and makes available through `require()`. In each module, the `module` parameter (the first argument in every module) is a reference to the Object representing the current module. For convenience, module is not actually a global but rather local to each module.
+                * **[Object | \*Any]** exports - The `module.exports` Object is created by the Module system. Sometimes this is not acceptable; many want their module to be an instance of some class. To do this, assign the desired export object to `module.exports`.
+            ###### Return
+                * **[Object | \*Any]** Return the exported module content
+        
+        * **[Boolean]** multi - Whether to treat the path given as a single path or an Array of multiple module paths.
+    
+    * ###### Example
+        ```javascript
+        // Creates a new module called Math whose content is the native Math Object
+        $in.Define("Math", function (module) {
+            module.exports = Math;
         });
-    };
+        
+        // Creates a new module called Mat located in M full path looks like (M.Mat) whose content is the native Math Object
+        $in.Define(["M", "Mat"], function (module) {
+            module.exports = Math;
+        });
+        
+        // Creates multiple new modules called N and Nat located in V and G, full path looks like (V.N and G.Nat) whose content is the PVector Object
+        $in.Define(["V.N", "G.Nat"], function (module) {
+            module.exports = Math;
+            return new PVector(0, 0); // Returning a value overrides `module.exports`
+        }, true);
+        ```
+    
+##### require - [Function]
+    A module accessor better yet known as require. Used to import modules. Modules can be imported from `$in.$Modules` be imported using an absolute path **(a.b.c)**.
+    * ###### Params
+        * **[String | Array]** path - Module name or path
+    * ###### Return
+        * **[Object]** Return the exported module content
+    
+    * ###### Example
+        ```javascript
+        var _ = require("Util._"); // Require `Util` Module
+        println(_.isNumber); // function () {...}
 
 #### Usage
 When working with modules two methods are important: `$in.require` and `$in.define`. They are the way `inertia's` many components communicate with each other. 
