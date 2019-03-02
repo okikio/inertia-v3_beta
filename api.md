@@ -60,14 +60,14 @@ The ```}).loop(100);``` details the rate at which modules should be loaded durin
 ## Inertia
 `Inertia.js` has many built in modules, designed to make other modules work effectively. The most important part of `inertia` is the **Module** component which allows for it to be built on top of. That is what allows for accessing modules, as well as creating modules. 
 
-#### Methods & Properties
-##### $Modules - [Array]
+### Methods & Properties
+#### $Modules - [Array]
 An [Array] that stores all modules created.
 
-##### $Required ($req) - [Array]
+#### $Required ($req) - [Array]
 Displays all modules missing in order to make `inertia` work
     
-##### toArray  - [Function]
+#### toArray  - [Function]
 Converts a String into an Array, based on specific values. Meant for 
 turning Strings into Arrays of little paths.
 * ###### Params
@@ -81,7 +81,7 @@ turning Strings into Arrays of little paths.
     $in.toArray("obj.key.val") // ["obj", "key", "val"]
     ```
 
-##### isDef - [Function]
+#### isDef - [Function]
 Check if a value is defined.
 * ###### Params
     * **[Any]** val - Value to check
@@ -94,7 +94,7 @@ Check if a value is defined.
     $in.isDef("Defined") // true
     ```
 
-##### Find - [Function]
+#### Find - [Function]
 Utility method to get and set Objects that may or may not exist.
 * ###### Params
     * **[String | Array]** path - Path to follow in an Object
@@ -115,21 +115,21 @@ Utility method to get and set Objects that may or may not exist.
     $in.Find("x.y", obj); // "z"
     ```
 
-##### global (window) - [Object]
+#### global (window) - [Object]
 Window Object
  
-##### canvas (PJS | pjs) - [Object]
+#### canvas (PJS | pjs) - [Object]
 The Processing JS Object
 
-##### EventEmitter (evtemit) - [Object]
+#### EventEmitter (evtemit) - [Object]
 This Object expose an `evtemit.on()` function that allows one or more functions to be attached to named events emitted by the object. When the `EventEmitter` object emits an event, all of the functions attached to that specific event are called.
-* ##### eventCount - [Number]
+* #### eventCount - [Number]
     The total [Number] of events
-* ##### _events - [Object]
+* #### _events - [Object]
     Stores all events 
-* ##### _emit - [Array]
+* #### _emit - [Array]
     Stores events set to be Emitted
-* ##### on - [Function]
+* #### on - [Function]
     Add a Listener / Function For a Given Event
     * ###### Params
         * **[String | Array | Object]** evt - The name of the event being listened for
@@ -154,7 +154,7 @@ This Object expose an `evtemit.on()` function that allows one or more functions 
         ....
         ```
 
-* ##### emit - [Function]
+* #### emit - [Function]
     Calls each of the listeners registered for a named event, in the order they were registered, passing the supplied arguments to each.
     * ###### Params
         * **[String | Array | Object]** evt - The name of the event being emitted for
@@ -168,45 +168,45 @@ This Object expose an `evtemit.on()` function that allows one or more functions 
         evt.emit("event", 2);
         ```
     
-##### Async - [Object]
+#### Async - [Object]
 This Object allows for loading Functions one after the other with a certain amount of time allocated for each Function. Meant for loading really big module's while not slowing the program to a crawl.
-* ###### Constructor - [Function]
+* ##### Constructor - [Function]
     * ###### Params
         * **[Number]** rate - Sets the rate at which Functions are loaded
-* ##### tasks - [Array]
+* #### tasks - [Array]
     List of all Functions to be called
-* ##### indx - [Number]
+* #### indx - [Number]
     Current index when calling a Function
-* ##### rate - [Number]
+* #### rate - [Number]
     Rate at which to call the Functions
-* ##### progress - [Number]
+* #### progress - [Number]
     The progress of loading the Function from 0 to 100
-* ##### complete - [Boolean]
+* #### complete - [Boolean]
     Whether the progress is 100 or not
-* ##### readyFn - [Function]
+* #### readyFn - [Function]
     What to do after the loading of the Functions are done
-* ##### loadFn - [Function]
+* #### loadFn - [Function]
     What to do during the loading of the Functions
-* ##### errFn - [Function]
+* #### errFn - [Function]
     What to do if there is an error whilie loading the Functions
     * ###### Params
         * **[Object]** e - The error Object containing the error message
         
-* ##### setRate - [Function]
+* #### setRate - [Function]
     Sets the rate at which Functions are loaded
     * ###### Params
         * **[Object]** rate - The rate at which Functions are loaded
     * ###### Return
         * **[Object]** Return the `Async` Object, allows other methods to be chained to this method
         
-* ##### setExternal - [Function]
+* #### setExternal - [Function]
     Set's how the Functions load, once at a time or all at once. This was designed for development quick addition to code and a quick view for error fixes. When the first argument is set to true it allows for any Functions loaded after `.loop` to affect the code else if loaded one by one everything loaded will only affect the `.ready` callback and only that.
     * ###### Params
         * **[Boolean]** external - Whether the loaded Functions will affect the code after `.loop`
     * ###### Return
         * **[Object]** Return the `Async` Object, allows other methods to be chained to this method
      
-* ##### then - [Function]
+* #### then - [Function]
     Adds a Function to the `.task` Array
     * ###### Params
         * **[String]** module - The name of the module or Function being added to `.task`
@@ -223,7 +223,7 @@ This Object allows for loading Functions one after the other with a certain amou
         ...
         ```
 
-* ##### [error, ready]  - [Function]
+* #### [error, ready]  - [Function]
     They do the same thing but for different properties the `.error` Function affects `.errFn` while `.ready` Function affects `.readyFn`. They both set each property to the Function given
     * ###### Params
         * **[Function]** fn - The Function to set either `.errFn` or `readyFn`
@@ -241,19 +241,19 @@ This Object allows for loading Functions one after the other with a certain amou
         ...
         ```
 
-* ##### thruLoop - [Function]
+* #### thruLoop - [Function]
     Changes the value of `.loopThru` which basically asks whether it should loop through the `.tasks` Array 
     * ###### Params
         * **[Boolean]** thru - Should loop go through
     * ###### Return
         * **[Object]** Return the `Async` Object, allows other methods to be chained to this method
 
-* ##### run - [Function]
+* #### run - [Function]
     Runs the loop through the `.tasks` Array
     * ###### Return
         * **[Object]** Return the `Async` Object, allows other methods to be chained to this method
      
-* ##### loop - [Function]
+* #### loop - [Function]
     Starts the loop
     * ###### Params
         * **[Number]** rate -  Rate at which to load each Function
@@ -261,12 +261,12 @@ This Object allows for loading Functions one after the other with a certain amou
     * ###### Return
         * **[Object]** Return the `Async` Object, allows other methods to be chained to this method
      
-* ##### clear - [Function]
+* #### clear - [Function]
     Clear & reset everything `.task`, and `.indx`
     * ###### Return
         * **[Object]** Return the `Async` Object, allows other methods to be chained to this method
         
-##### Manager (mgr) - [Object]
+#### Manager (mgr) - [Object]
 A new `$in.Async` Object, it is `Inertia's` load manager.
 * ###### Examples
     ```javascript
@@ -275,7 +275,7 @@ A new `$in.Async` Object, it is `Inertia's` load manager.
     }).loop(100, false); // If 2nd param set to `true` the Inertia loading screen won't appear
     ```
 
-##### Event (evt) - [Object]
+#### Event (evt) - [Object]
 A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
 * ##### Emitters
     * draw - Represents `draw`
@@ -496,9 +496,9 @@ A new `$in.EventEmitter` Object, it is `Inertia's` base global event emmitter.
     });
     ```
 
-##### Key (key) - [Object]
+#### Key (key) - [Object]
 An Object that stores keys currently being pressed for use later on in the program in two Arrays `.Key.List` and `.Key.ListStr`.
-* ##### List (list) - [Array]
+* #### List (list) - [Array]
     This stores all the **key codes** being pressed in an Array.
     ###### Example
     ```javascript
@@ -507,7 +507,7 @@ An Object that stores keys currently being pressed for use later on in the progr
         println($in.Key.List); // It will print "97, 115"
     });
     ```
-* ##### ListStr (listStr) - [Array]
+* #### ListStr (listStr) - [Array]
     This stores all the **keys as strings** being pressed in an Array.
     ###### Example
     ```javascript
@@ -517,7 +517,7 @@ An Object that stores keys currently being pressed for use later on in the progr
     });
     ```
 
-##### define - [Function]
+#### define - [Function]
 Creates new modules when called, adds them to `$in.$Modules` creates a task that loads each module using `$in.mgr` (because some modules are big).
 * ###### Params
     * **[String | Array]** paths - A module name or path, or multiple modules name and path, as Arrays
@@ -549,7 +549,7 @@ Creates new modules when called, adds them to `$in.$Modules` creates a task that
     }, true);
     ```
     
-##### require - [Function]
+### require - [Function]
 A module accessor better yet known as require. Used to import modules. Modules can be imported from `$in.$Modules` be imported using an absolute path **(a.b.c)**.
 * ###### Params
     * **[String | Array]** path - Module name or path
