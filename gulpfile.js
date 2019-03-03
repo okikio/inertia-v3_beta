@@ -19,6 +19,7 @@ function start () {
         .pipe(concat('inertia.js'))
         .pipe(gulp.dest('./getting-started'))
 } 
+
 gulp.task("start", start);
 gulp.task('default', function() {
     return gulp.src(scripts)
