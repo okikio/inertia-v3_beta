@@ -5,6 +5,5 @@ module.exports = [
     "Function",
     "Class",
     "Ease",
-    "Event",
     "Motion"
 ];

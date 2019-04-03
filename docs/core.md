@@ -1,4 +1,6 @@
 ## Core
+* Version - 2.0.0
+
 `Inertia.js` works using many built in modules, designed to make other modules work effectively. But this is the module that lets the other modules work so effectively. The is the `Core` module, no module can work without it. 
 
 ### Methods & Properties

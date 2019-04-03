@@ -562,6 +562,8 @@ A module accessor better yet known as require. Used to import modules. Modules c
     ```
 
 ## Core
+* Version - 2.0.0
+
 `Inertia.js` works using many built in modules, designed to make other modules work effectively. But this is the module that lets the other modules work so effectively. The is the `Core` module, no module can work without it. 
 
 ### Methods & Properties
@@ -625,4 +627,46 @@ Creates a Function with the PJS context embedded by default. It follows the defa
     * **[Array | String]** fn - Params and code or just code for the Function
     * **[Object]** ctxt - Context for the Function
 
+
+## Util
+
+## Function
+
+## Object
+
+## Math
+
+## String
+
+## Class
+
+## Vector
+
+## Size
+
+## Color
+
+## Ease
+
+## Event
+
+## UIEvent
+
+## Mouse
+
+## Key
+
+## Touch
+
+## Async
+
+## Accum
+
+## Range
+
+## Error
+
+## Motion
+
+## Timeline
 
