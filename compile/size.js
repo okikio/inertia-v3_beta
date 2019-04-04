@@ -834,11 +834,11 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 // Extend Static Class
                 _.extend(Class, Static, {
                     // Based on [khanacademy.org/cs/_/4684587452399616]
-                    _freed: [], _recycle: false, // For creating more efficient Classes
+                    _freed: [], // For creating more efficient Classes
                     // Creates efficient new Classes
                     new: function (arg) {
                         var _class;
-                        if (Class._recycle.length > 0) {
+                        if (Class._freed.length > 0) {
                             _class = Class._freed.pop();
                             _class.init.apply(_class, arg);
                         } else {
