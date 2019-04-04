@@ -7,6 +7,9 @@ An [Array] that stores all modules created.
 
 #### $Required ($req) - [Array]
 Displays all modules missing in order to make `inertia` work
+
+#### $Unused ($unused) - [Array]
+Displays all modules not in use.
     
 #### toArray  - [Function]
 Converts a String into an Array, based on specific values. Meant for 

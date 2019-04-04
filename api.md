@@ -64,7 +64,10 @@ The ```}).loop(100);``` details the rate at which modules should be loaded durin
 An [Array] that stores all modules created.
 
 #### $Required ($req) - [Array]
-Displays all modules missing in order to make `inertia` work
+Displays all modules missing in order to make `inertia` work.
+
+#### $Unused ($unused) - [Array]
+Displays all modules not in use.
     
 #### toArray  - [Function]
 Converts a String into an Array, based on specific values. Meant for 

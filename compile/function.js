@@ -6,6 +6,9 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     Inertia.$Modules = {}; // Cache / List of all Modules
     Inertia.$req = Inertia.$Required = []; // All Modules Required
     
+    // All Unused Modules
+    Inertia.$Unused = Inertia.$unused = [];
+    
     /* Turn Strings into Arrays of little paths
         eg: toArray("obj.key.val") // ["obj", "key", "val"] */
     var toArray = Inertia.toArray = function (arr) {
@@ -313,6 +316,17 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     
     // Creates new Modules When Called
     Define = Inertia.define = Inertia.Define =  function(paths, fn, multi) {
+        // Store unused modules
+        $in.$unused.push(multi ? paths : [paths]);
+        $in.$unused = $in.$unused.map(function (arr) {
+            return arr.reduce(function (acc, val, i) {
+                if (val.indexOf(".") < 0 || val.length === 1) {
+                    acc = acc.concat(val);
+                }
+                return acc;
+            }, []);
+        });
+        
         Inertia.Manager.then(paths, function () {
             var Define = function (path, fn) {
                 var paths = toArray(path), Module = paths.pop(), Temp = {},
@@ -330,8 +344,14 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     // Module Accessor better yet known as require
     require = Inertia.require = Inertia.Require = function(path) {
         try {
-            var result = Find(toArray(path), Inertia.$Modules);
-            return result;
+            // When a module is accessed it is removed from the unused Array
+            $in.$unused.forEach(function (dep, i) {
+                if (dep.indexOf(path) > -1) {
+                    $in.$unused.splice(i, 1);
+                }
+            });
+            
+            return Find(toArray(path), Inertia.$Modules);
         } catch (e) { throw "Cannot find module(s) " + Inertia.$Required; }
     };
 })();

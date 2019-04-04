@@ -6,6 +6,9 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     Inertia.$Modules = {}; // Cache / List of all Modules
     Inertia.$req = Inertia.$Required = []; // All Modules Required
     
+    // All Unused Modules
+    Inertia.$Unused = Inertia.$unused = [];
+    
     /* Turn Strings into Arrays of little paths
         eg: toArray("obj.key.val") // ["obj", "key", "val"] */
     var toArray = Inertia.toArray = function (arr) {
@@ -313,6 +316,17 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     
     // Creates new Modules When Called
     Define = Inertia.define = Inertia.Define =  function(paths, fn, multi) {
+        // Store unused modules
+        $in.$unused.push(multi ? paths : [paths]);
+        $in.$unused = $in.$unused.map(function (arr) {
+            return arr.reduce(function (acc, val, i) {
+                if (val.indexOf(".") < 0 || val.length === 1) {
+                    acc = acc.concat(val);
+                }
+                return acc;
+            }, []);
+        });
+        
         Inertia.Manager.then(paths, function () {
             var Define = function (path, fn) {
                 var paths = toArray(path), Module = paths.pop(), Temp = {},
@@ -330,8 +344,14 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     // Module Accessor better yet known as require
     require = Inertia.require = Inertia.Require = function(path) {
         try {
-            var result = Find(toArray(path), Inertia.$Modules);
-            return result;
+            // When a module is accessed it is removed from the unused Array
+            $in.$unused.forEach(function (dep, i) {
+                if (dep.indexOf(path) > -1) {
+                    $in.$unused.splice(i, 1);
+                }
+            });
+            
+            return Find(toArray(path), Inertia.$Modules);
         } catch (e) { throw "Cannot find module(s) " + Inertia.$Required; }
     };
 })();
@@ -622,7 +642,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                         var preVal = val;
                         // If a Parent Class is Present, Set any argument/params named `$super` to the `Parent`
                         if (_.isFunction(val)) {
-                            if (Parent && val.argNames()[0] === "$super") {
+                            if (Parent && val.argNames && val.argNames()[0] === "$super") {
                                 val = _.wrap(function() {
                                     return function() {
                                         return (Parent[i].apply(this, arguments));
@@ -727,7 +747,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 Class = function() {
                     // Current Class
                     if (!(this instanceof Class))
-                        { return Fn.new(Class, arguments); }
+                        { return Class.new(Class, arguments); }
                     this._args = arguments; // Arguements
                     
                     // Initialize Class
@@ -744,8 +764,31 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 
                 Class.SuperClass = Parent; // Current Class's Parent if any
                 Class.SubClasses = []; // List of SubClasses
-                _.extend(Class, Static); // Extend Static Class
-                _.extend(Class.prototype, Fn, Static, Class); // Give Chainability
+                
+                // Extend Static Class
+                _.extend(Class, Static, {
+                    // Based on [khanacademy.org/cs/_/4684587452399616]
+                    _freed: [], _recycle: false, // For creating more efficient Classes
+                    // Creates efficient new Classes
+                    new: function (arg) {
+                        var _class;
+                        if (Class._recycle.length > 0) {
+                            _class = Class._freed.pop();
+                            _class.init.apply(_class, arg);
+                        } else {
+                            _class = Util.new(Class, arg);
+                        }
+                        return _class;
+                    },
+                });
+                
+                 // Give Chainability
+                _.extend(Class.prototype, Fn, Static, Class, {
+                    // Put Classes in a place to be recycled
+                    free: function () {
+                        Class._freed.push(this);
+                    },
+                });
     
                 // Add Methods to Class
                 Class.Method.apply(Class, arg);

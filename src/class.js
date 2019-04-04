@@ -15,7 +15,7 @@
                         var preVal = val;
                         // If a Parent Class is Present, Set any argument/params named `$super` to the `Parent`
                         if (_.isFunction(val)) {
-                            if (Parent && val.argNames()[0] === "$super") {
+                            if (Parent && val.argNames && val.argNames()[0] === "$super") {
                                 val = _.wrap(function() {
                                     return function() {
                                         return (Parent[i].apply(this, arguments));
@@ -120,7 +120,7 @@
                 Class = function() {
                     // Current Class
                     if (!(this instanceof Class))
-                        { return Fn.new(Class, arguments); }
+                        { return Class.new(Class, arguments); }
                     this._args = arguments; // Arguements
                     
                     // Initialize Class
@@ -137,8 +137,31 @@
                 
                 Class.SuperClass = Parent; // Current Class's Parent if any
                 Class.SubClasses = []; // List of SubClasses
-                _.extend(Class, Static); // Extend Static Class
-                _.extend(Class.prototype, Fn, Static, Class); // Give Chainability
+                
+                // Extend Static Class
+                _.extend(Class, Static, {
+                    // Based on [khanacademy.org/cs/_/4684587452399616]
+                    _freed: [], _recycle: false, // For creating more efficient Classes
+                    // Creates efficient new Classes
+                    new: function (arg) {
+                        var _class;
+                        if (Class._recycle.length > 0) {
+                            _class = Class._freed.pop();
+                            _class.init.apply(_class, arg);
+                        } else {
+                            _class = Util.new(Class, arg);
+                        }
+                        return _class;
+                    },
+                });
+                
+                 // Give Chainability
+                _.extend(Class.prototype, Fn, Static, Class, {
+                    // Put Classes in a place to be recycled
+                    free: function () {
+                        Class._freed.push(this);
+                    },
+                });
     
                 // Add Methods to Class
                 Class.Method.apply(Class, arg);
