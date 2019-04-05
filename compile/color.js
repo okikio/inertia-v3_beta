@@ -837,7 +837,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                     _freed: [], // For creating more efficient Classes
                     // Creates efficient new Classes
                     new: function (arg) {
-                        var _class; arg = arg.length ? arg : [arg]
+                        var _class; arg = arg.length ? arg : [arg];
                         if (Class._freed.length > 0) {
                             _class = Class._freed.pop();
                             _class.init.apply(_class, arg);
