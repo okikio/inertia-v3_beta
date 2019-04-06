@@ -1506,8 +1506,9 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 var args = Array.from(arguments);
                 clr = (clr + "").toLowerCase();
                 return Static.clr_rgb.apply(this,
-                    _.keys(CssColors).includes(clr) ? [CssColors[clr]]
-                    .concat(args.slice(1)) : args);
+                    _.keys(CssColors).includes(clr) ? 
+                    [CssColors[clr]].concat(args.slice(1)) :
+                    (args[0].value ? args[0].value : args));
             },
             // Is color dark?
             isDark: function () {
@@ -1848,6 +1849,25 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             Btn: {
                 get: function() {
                     return !this.Disabled && mouseButton;
+                }
+            },
+            // Mouse hover over a shape, circle, or rectangle
+            hover: {
+                value: function(type, args) {
+                    if (Array.isArray(type)) { args = type; }
+                    
+                    var pos = args[0], sz = args[1];
+                    pos = pos.array ? pos.array() : pos;
+                    sz = sz.array ? sz.array() : sz;
+                    
+                    if (type.indexOf("circ") > -1) {
+                        pos = new PVector(pos[0], pos[1]);
+                        return this.setDist(pos) <= sz / 2;
+                        
+                    } else {
+                        return this.x >= pos[0] && this.x <= pos[0] + sz[0] && this.y >= pos[1] && this.y <= pos[1] + sz[1];
+                        
+                    }
                 }
             },
             // Distance From the Mouse's Positon To the Mouse's Previous Position

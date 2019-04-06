@@ -1025,8 +1025,9 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 var args = Array.from(arguments);
                 clr = (clr + "").toLowerCase();
                 return Static.clr_rgb.apply(this,
-                    _.keys(CssColors).includes(clr) ? [CssColors[clr]]
-                    .concat(args.slice(1)) : args);
+                    _.keys(CssColors).includes(clr) ? 
+                    [CssColors[clr]].concat(args.slice(1)) :
+                    (args[0].value ? args[0].value : args));
             },
             // Is color dark?
             isDark: function () {
