@@ -634,8 +634,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             Native = Core.Object, $indx = -1;
         // Map Of Names And Functions
         $Map = _.reduce(_.keys(_), function (acc, val, i) {
-            return !["toArray"].includes(val) ?
-                    acc.concat([ [val, _[val]] ]) : acc;
+            return acc.concat([ ["_" + val, _[val]] ]);
         }, [])
         .concat([
             // Nth Element in an Object
