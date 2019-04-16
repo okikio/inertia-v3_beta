@@ -2,7 +2,7 @@
     // Inertia's Function Module V2 [www.khanacademy.org/cs/_/5415663367127040]
     // Function Module adds to the Native Function Object
     Define(["Func", "Function", "Fn"], function() {
-        var Core = require("Core"), Util = require("Util"), _ = Util._, 
+        var Core = require("Core"), Util = require("Util"), _ = Util._,
             MapFunc = Util.MapArr, Native = Core.Func, $Map;
         // Map Of Names And Functions
         $Map = [
@@ -34,9 +34,10 @@
                 return $fn.match(/[\n]/g).length <= 2 ? copy : $fn;
             }]
         ];
+        
         // Extend Methods
-        MapFunc(Native, $Map);
-        MapFunc(Native.prototype, $Map, true);
+        _.extend(Native, MapFunc(Native, $Map));
+        _.extend(Native.prototype, MapFunc(Native.prototype, $Map, true));
         return Native;
     }, true);
 })(); // Function

@@ -439,61 +439,55 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 for (var _key in obj) { _keys.push(_key); }
                 return _keys;
             },
-            // Maps An Array to an Object
-            MapArr: function(host, obj, type, extra) {
-                var result = {}, _ = Core.window("_");
-                // Iterate Map
-                _.each(obj, function(arr) {
-                    // Iterate In Each Element Of the Array
-                    _.each(arr, function(ele) {
-                        // Iteration of each Array
-                        _.each((_.isArray(arr[0]) ? arr[0] : [ele]), function(name) {
-                            // Set [name] of the [obj] Object to the Array Function
-                            result[name] = type && _.isFunction(arr[1]) ? function() {
-                                return arr[1].apply(this, [this]
-                                        .concat(Array.from(arguments)));
-                            } : arr[1];
-
-                            if (type && _.isFunction(arr[1])) {
-                                result[name].toString = arr[1].toString.bind(arr[1]);
-                                result[name].valueOf = arr[1].valueOf.bind(arr[1]);
-                            }
-                        }, this);
-                    }, this);
-                }, this);
+            // Map An Array to an Object
+            MapArr: function(obj, $map, type) {
+                var _ = Core.window("_"), result;
                 
-                _.extend(extra || {}, result);
-                for (var i in result) {
-                    host[i] = (!_.has(host, i) ? result : host)[i];
-                }
+                // Iterate Map
+                result = _.reduce($map, function(acc, arr) {
+                    // Iteration of each Array
+                    _.each((_.isArray(arr[0]) ? arr[0] : [arr[0]]), function(name) {
+                        // Set [name] of the [obj] Object to the Array Function
+                        acc[name] = type && _.isFunction(arr[1]) ? function() {
+                            return arr[1].apply(this, [this]
+                                    .concat(Array.from(arguments)));
+                        } : arr[1];
+                    });
+                    return acc;
+                }, {});
+                
+                return _.reduce(_.keys(result), function (acc, v) {
+                    if (obj[v] === undefined) { acc[v] = result[v]; }
+                    return acc;
+                }, {});
             },
             // Find a value in an Object based on it's path
             path: function(obj, path, val) {
                 var Path = function(obj, path, lvl, init, val) {
                     var curr, path = $in.toArray(path), _keys;
                     init = init || [].concat(path);
-                    lvl = Math.max(lvl, 0) || 0; 
+                    lvl = Math.max(lvl, 0) || 0;
                     _keys = Object.keys(obj);
                     
                     try {
-                        // Returns the path left to travel 
-                        var pathLeft = _.rest(path); 
+                        // Returns the path left to travel
+                        var pathLeft = _.rest(path);
                         curr = path[0]; ++ lvl; // For error checking
                         // Check if value is given
                         if ($in.isDef(val)) {
                             // Wild Cards "..|.." or "(...)" or "[...]" and "* or abc*"
-                            if (/[\(\[]([\s\S]+?)[\)\]]/g.test(curr) || 
+                            if (/[\(\[]([\s\S]+?)[\)\]]/g.test(curr) ||
                                 /[\|\^\$]/g.test(curr) || /\*/g.test(curr)) {
                                 // This is for multiple wildcards
                                 _.each(obj, function ($, idx) {
-                                    var toReg = (/\$$/.test(curr) ? "" : "^") + 
+                                    var toReg = (/\$$/.test(curr) ? "" : "^") +
                                         curr.replace(/\|/g, "$|^")
-                                            .replace(/\*/g, "(.*?)") + 
+                                            .replace(/\*/g, "(.*?)") +
                                     (/^\^/.test(curr) ? "" : "$");
                                     var regex = RegExp(toReg, "g");
                                     // Finds all the subpaths for the wildcard
-                                    var subPath = [idx].concat(pathLeft); 
-                                    if (regex.test(idx)) 
+                                    var subPath = [idx].concat(pathLeft);
+                                    if (regex.test(idx))
                                         { Path(obj, subPath, lvl, init, val); }
                                 });
                             } else if (path.length > 1) {
@@ -502,19 +496,19 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                             return obj;
                         } else {
                             // Wild Cards "..|.." or "(...)" or "[...]" and "* or abc*"
-                            if (/[\(\[]([\s\S]+?)[\)\]]/g.test(curr) || 
+                            if (/[\(\[]([\s\S]+?)[\)\]]/g.test(curr) ||
                                 /[\|\^\$]/g.test(curr) || /\*/g.test(curr)) {
                                 obj = _(obj).filter(function ($, idx) {
-                                    var toReg = (/\$$/.test(curr) ? "" : "^") + 
+                                    var toReg = (/\$$/.test(curr) ? "" : "^") +
                                         curr.replace(/\|/g, "$|^")
-                                            .replace(/\*/g, "(.*?)") + 
+                                            .replace(/\*/g, "(.*?)") +
                                     (/^\^/.test(curr) ? "" : "$");
                                     return RegExp(toReg, "g").test(idx);
                                 }).map(function ($, idx) {
                                     // Find Keys of filtered Object
-                                    idx = _keys[idx]; 
+                                    idx = _keys[idx];
                                     // Finds all the subpaths for the wildcard
-                                    var subPath = [idx].concat(pathLeft); 
+                                    var subPath = [idx].concat(pathLeft);
                                     return Path(obj, subPath, lvl, init);
                                 });
                             } else if (path.length > 1) {
@@ -522,8 +516,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                             } else { obj = obj[curr]; }
                             return obj;
                         }
-                    } catch (e) { 
-                        Core.log("Error! - Path [" + init  + "] is stuck on level: `" + lvl + "`, Current Position: `" + curr + "`,\n----------------\nMessage: " + e.message); 
+                    } catch (e) {
+                        Core.log("Error! - Path [" + init  + "] is stuck on level: `" + lvl + "`, Current Position: `" + curr + "`,\n----------------\nMessage: " + e.message);
                     }
                     return obj;
                 };
@@ -551,13 +545,13 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         return Util;
     });
     // Underscore specific functionality
-    Define("_", function() { return require("Util._"); }); 
+    Define("_", function() { return require("Util._"); });
     // Type Testing Functions
     Define(["is", "Util.is"], function() {
         var _ = require("_");
         // Type Check Functions
         return ['Symbol', 'Map', 'WeakMap', 'Set', 'WeakSet', 'Object', 'Array', 'Arguments', 'Function', 'String', 'Number', 'Boolean', 'Date', 'RegExp', 'Undefined', 'Null', 'Equal', 'Empty', 'Finite', 'NaN'].reduce(function(obj, name) {
-            obj[name.toLowerCase()] = obj[name] = _[["is" + name]] ? 
+            obj[name.toLowerCase()] = obj[name] = _[["is" + name]] ?
                 _[["is" + name]] : _[["is" + name]] = function(obj) {
                 return Object.prototype.toString.call(obj) === '[object ' + name + ']';
             };
@@ -570,7 +564,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 obj = Object(obj);
                 for (var i = 0; i < length; i++) {
                     var key = keys[i];
-                    if (attrs[key] !== obj[key] || !(key in obj)) 
+                    if (attrs[key] !== obj[key] || !(key in obj))
                         { return false; }
                 }
                 return true;
@@ -587,7 +581,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     // Inertia's Function Module V2 [www.khanacademy.org/cs/_/5415663367127040]
     // Function Module adds to the Native Function Object
     Define(["Func", "Function", "Fn"], function() {
-        var Core = require("Core"), Util = require("Util"), _ = Util._, 
+        var Core = require("Core"), Util = require("Util"), _ = Util._,
             MapFunc = Util.MapArr, Native = Core.Func, $Map;
         // Map Of Names And Functions
         $Map = [
@@ -619,9 +613,10 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return $fn.match(/[\n]/g).length <= 2 ? copy : $fn;
             }]
         ];
+        
         // Extend Methods
-        MapFunc(Native, $Map);
-        MapFunc(Native.prototype, $Map, true);
+        _.extend(Native, MapFunc(Native, $Map));
+        _.extend(Native.prototype, MapFunc(Native.prototype, $Map, true));
         return Native;
     }, true);
 })(); // Function
@@ -629,14 +624,21 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     // Object Module [all] the Native Object's with some additions
     // Inertia's Object Modules V2 [www.khanacademy.org/computer-programming/_/5993936052584448]
     Define("Object", function() {
-        var Core = require("Core"), Util = require("Util"), args = Util.args, 
+        var Core = require("Core"), Util = require("Util"), args = Util.args,
             _ = Util._, $Map, MapFunc = Util.MapArr, $JSON = Core.JSON,
             Native = Core.Object, $indx = -1;
         // Map Of Names And Functions
         $Map = _.reduce(_.keys(_), function (acc, val, i) {
-            return acc.concat([ ["_" + val, _[val]] ]);
+            return acc.concat([ [val, _[val]] ]);
         }, [])
-        .concat([
+        .concat([ 
+            // Map that supports Objects 
+            [["map"], function (obj, fn, ctxt) {
+                return _.map(Object.keys(obj), function (i, $) {
+                    return (fn || function () {})(obj[i], i, obj);
+                }, ctxt);
+            }],
+            [["filter"], _.filter], // Filter a List of values in an Object
             // Nth Element in an Object
             [["nth", "indx"], function(obj, id) {
                 return _.isNumber(id) ? _.values(obj)[id] :
@@ -779,9 +781,9 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             }], 
             // Dump all values at a certain point in the Object
             [["dump", "log"], function (obj) { Core.log.apply(obj, arguments); return obj; }],
-            // Set prototype methods quickly
+            // Set methods quickly
             [["macro"], function (obj, name, fn) { 
-                obj.prototype[name] = fn || Core.Fn("return this;"); 
+                obj[name] = fn || Core.Fn("return this;"); 
                 return obj; 
             }],
             // Instantiates the given class with Object values as a constructor
@@ -808,9 +810,12 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             [["pipe"], function (obj, fn) 
                 { return (fn || Core.Fn("v", "return v;")) (obj); }]
         ]);
+        
         // Extend Methods
-        MapFunc(Native, $Map);
-        MapFunc(Native.prototype, $Map, true);
+        _.extend(Native, MapFunc(Native, $Map));
+        Native.prototype.chain = function () {
+            return _.extend(this, MapFunc(this, $Map, true));
+        };
         return Native;
     });
 })(); // Object
@@ -874,9 +879,10 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return $lerp(a, b, per);
             }]
         ];
+        
         // Extend Methods
-        MapFunc(Native, $Map, false, Number);
-        MapFunc(Number.prototype, $Map, true);
+        _.extend(Native, Number, MapFunc(Native, $Map));
+        _.extend(Number.prototype, MapFunc(Number.prototype, $Map, true));
         return Native;
     });
 })(); // Math

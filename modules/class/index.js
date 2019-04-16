@@ -2,7 +2,7 @@
     // Inertia's Class Module V2 [www.khanacademy.org/cs/_/5398825551822848]
     // Class Module acts like the ES6 `class` keyword replacement
     Define("Class", function() {
-        var Util = require("Util"), Fn = require("Func"), 
+        var Util = require("Util"), Fn = require("Func"),
             _ = Util._, args = Util.args, Class, Static;
         // Set Static Methods
         Static = {
@@ -28,8 +28,10 @@
                         }
                         
                         this.prototype[i] = val; // Redefinition Error Fix
-                        Object.defineProperty(this.prototype, i,
-                            typeof val === "object" && (val.get || val.set) ? val : { value: val });
+                        if (typeof val === "object" && 
+                            (val.get || val.set || val.$$prop) && !val._class) { 
+                            Object.defineProperty(this.prototype, i, val);
+                        }
                     }, this);
                 }, this);
                 return this;
@@ -46,8 +48,10 @@
                         }
                         
                         this[i] = val; // Redefinition Error Fix
-                        Object.defineProperty(this, i,
-                            typeof val === "object" && (val.get || val.set) ? val : { value: val });
+                        if (typeof val === "object" && 
+                            (val.get || val.set || val.$$prop) && !val._class) { 
+                            Object.defineProperty(this, i, val);
+                        }
                     }, this);
                 }, this);
                 return this;
@@ -120,7 +124,7 @@
                 Class = function() {
                     // Current Class
                     if (!(this instanceof Class))
-                        { return Class._new(Class, arguments); }
+                        { return Fn.new(Class, arguments); }
                     this._args = arguments; // Arguements
                     
                     // Initialize Class
@@ -143,7 +147,7 @@
                     // Based on [khanacademy.org/cs/_/4684587452399616]
                     _freed: [], // For creating more efficient Classes
                     // Creates efficient new Classes
-                    _new: function (arg) {
+                    new: function (arg) {
                         var _class; arg = arg.length ? arg : [arg];
                         if (Class._freed.length > 0) {
                             _class = Class._freed.pop();
@@ -151,7 +155,7 @@
                         } else {
                             _class = Util.new(Class, arg);
                         }
-                        return _class;
+                        return Util.new(Class, arg);
                     },
                 });
                 

@@ -2,14 +2,21 @@
     // Object Module [all] the Native Object's with some additions
     // Inertia's Object Modules V2 [www.khanacademy.org/computer-programming/_/5993936052584448]
     Define("Object", function() {
-        var Core = require("Core"), Util = require("Util"), args = Util.args, 
+        var Core = require("Core"), Util = require("Util"), args = Util.args,
             _ = Util._, $Map, MapFunc = Util.MapArr, $JSON = Core.JSON,
             Native = Core.Object, $indx = -1;
         // Map Of Names And Functions
         $Map = _.reduce(_.keys(_), function (acc, val, i) {
-            return acc.concat([ ["_" + val, _[val]] ]);
+            return acc.concat([ [val, _[val]] ]);
         }, [])
-        .concat([
+        .concat([ 
+            // Map that supports Objects 
+            [["map"], function (obj, fn, ctxt) {
+                return _.map(Object.keys(obj), function (i, $) {
+                    return (fn || function () {})(obj[i], i, obj);
+                }, ctxt);
+            }],
+            [["filter"], _.filter], // Filter a List of values in an Object
             // Nth Element in an Object
             [["nth", "indx"], function(obj, id) {
                 return _.isNumber(id) ? _.values(obj)[id] :
@@ -152,9 +159,9 @@
             }], 
             // Dump all values at a certain point in the Object
             [["dump", "log"], function (obj) { Core.log.apply(obj, arguments); return obj; }],
-            // Set prototype methods quickly
+            // Set methods quickly
             [["macro"], function (obj, name, fn) { 
-                obj.prototype[name] = fn || Core.Fn("return this;"); 
+                obj[name] = fn || Core.Fn("return this;"); 
                 return obj; 
             }],
             // Instantiates the given class with Object values as a constructor
@@ -181,9 +188,12 @@
             [["pipe"], function (obj, fn) 
                 { return (fn || Core.Fn("v", "return v;")) (obj); }]
         ]);
+        
         // Extend Methods
-        MapFunc(Native, $Map);
-        MapFunc(Native.prototype, $Map, true);
+        _.extend(Native, MapFunc(Native, $Map));
+        Native.prototype.chain = function () {
+            return _.extend(this, MapFunc(this, $Map, true));
+        };
         return Native;
     });
 })(); // Object

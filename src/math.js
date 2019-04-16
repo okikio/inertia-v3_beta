@@ -58,9 +58,10 @@
                 return $lerp(a, b, per);
             }]
         ];
+        
         // Extend Methods
-        MapFunc(Native, $Map, false, Number);
-        MapFunc(Number.prototype, $Map, true);
+        _.extend(Native, Number, MapFunc(Native, $Map));
+        _.extend(Number.prototype, MapFunc(Number.prototype, $Map, true));
         return Native;
     });
 })(); // Math
