@@ -192,7 +192,14 @@
         // Extend Methods
         _.extend(Native, MapFunc(Native, $Map));
         Native.prototype.chain = function () {
-            return _.extend(this, MapFunc(this, $Map, true));
+            _.each(MapFunc(this, $Map, true), function (val, i) {
+                Object.defineProperty(this, i, {
+                    enumerable: false,
+                    writable: true,
+                    value: val
+                });
+            }, this);
+            return this;
         };
         return Native;
     });
