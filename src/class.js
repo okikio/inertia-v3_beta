@@ -10,9 +10,10 @@
             Method: function() {
                 var Parent = this.SuperClass && this.SuperClass.prototype;
                 _.each(args(arguments), function(obj) {
-                    var _obj = Util.FnVal(obj, [this, this.constructor], this.prototype);
-                    _.each(_obj, function(val, i) {
-                        var preVal = val;
+                    obj = Util.FnVal(obj, [this, this.constructor], this.prototype);
+                    var _keys = _.keys(obj);
+                    _.each(_keys, function(i) {
+                        var val = obj[i], preVal = val;
                         // If a Parent Class is Present, Set any argument/params named `$super` to the `Parent`
                         if (_.isFunction(val)) {
                             if (Parent && val.argNames && val.argNames()[0] === "$super") {
@@ -38,10 +39,11 @@
             },
             // Set Static Methods
             Static: function() {
-                _.each(args(arguments), function(obj) {
+                _.each(Util.args(arguments), function(obj) {
                     obj = Util.FnVal(obj, [this, this.constructor], this.prototype);
-                    _.each(obj, function(val, i) {
-                        var preVal = val;
+                    var _keys = _.keys(obj);
+                    _.each(_keys, function(i) {
+                        var val = obj[i], preVal = val;
                         if (_.isFunction(val)) {
                             val.valueOf = preVal.valueOf.bind(preVal);
                             val.toString = preVal.toString.bind(preVal);

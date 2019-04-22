@@ -525,7 +525,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             },
             // Take a Function as a Value
             FnVal: function(val, arg, ctxt) {
-                if (!_.isFunction(val) || (val.prototype && val.prototype._class)) 
+                if (!_.isFunction(val) || 
+                    _.keys(val.prototype || {}).length > 0) 
                     { return val; }
                 return val.apply(ctxt, arg);
             },

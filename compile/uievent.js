@@ -525,7 +525,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             },
             // Take a Function as a Value
             FnVal: function(val, arg, ctxt) {
-                if (!_.isFunction(val) || (val.prototype && val.prototype._class)) 
+                if (!_.isFunction(val) || 
+                    _.keys(val.prototype || {}).length > 0) 
                     { return val; }
                 return val.apply(ctxt, arg);
             },
@@ -633,9 +634,10 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             Method: function() {
                 var Parent = this.SuperClass && this.SuperClass.prototype;
                 _.each(args(arguments), function(obj) {
-                    var _obj = Util.FnVal(obj, [this, this.constructor], this.prototype);
-                    _.each(_obj, function(val, i) {
-                        var preVal = val;
+                    obj = Util.FnVal(obj, [this, this.constructor], this.prototype);
+                    var _keys = _.keys(obj);
+                    _.each(_keys, function(i) {
+                        var val = obj[i], preVal = val;
                         // If a Parent Class is Present, Set any argument/params named `$super` to the `Parent`
                         if (_.isFunction(val)) {
                             if (Parent && val.argNames && val.argNames()[0] === "$super") {
@@ -661,10 +663,11 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             },
             // Set Static Methods
             Static: function() {
-                _.each(args(arguments), function(obj) {
+                _.each(Util.args(arguments), function(obj) {
                     obj = Util.FnVal(obj, [this, this.constructor], this.prototype);
-                    _.each(obj, function(val, i) {
-                        var preVal = val;
+                    var _keys = _.keys(obj);
+                    _.each(_keys, function(i) {
+                        var val = obj[i], preVal = val;
                         if (_.isFunction(val)) {
                             val.valueOf = preVal.valueOf.bind(preVal);
                             val.toString = preVal.toString.bind(preVal);
