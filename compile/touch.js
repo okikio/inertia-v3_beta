@@ -525,7 +525,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             },
             // Take a Function as a Value
             FnVal: function(val, arg, ctxt) {
-                if (!Util._.isFunction(val)) { return val; }
+                if (!_.isFunction(val) || val._class) 
+                    { return val; }
                 return val.apply(ctxt, arg);
             },
             // A more efficient `new` keyword that allows for arrays to be passed as Arguments
@@ -867,6 +868,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         require("Func");
         // Event Object
         return Class($in.EventEmitter, {
+            _class: "Event", // Set Class Name
             // Alias for the `on` method
             add: Class.get("on"), bind: Class.get("on"),
             // Add a One - Time Listener / Function For a Given Event
@@ -928,7 +930,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             fire: Class.get("emit"),
             trigger: Class.get("emit"),
             // Clear
-            clear: function () 
+            clear: function ()
                 { this._eventCount = 0; this._events = {}; }
         });
     });
@@ -941,7 +943,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         return function(_class) {
             // A Modified Extension of The Event Emitter `Inertia.Event`
             return Class(Event, {
-                _class: _class || "UIEvent", // Class Name
+                _class: _class || "UIEvent", // Set Class Name
                 // Add a Listener / Function For a Given Event
                 on: $in.Event[["on"]],
                 add: $in.Event[["on"]],

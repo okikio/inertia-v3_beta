@@ -525,7 +525,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             },
             // Take a Function as a Value
             FnVal: function(val, arg, ctxt) {
-                if (!Util._.isFunction(val)) { return val; }
+                if (!_.isFunction(val) || val._class) 
+                    { return val; }
                 return val.apply(ctxt, arg);
             },
             // A more efficient `new` keyword that allows for arrays to be passed as Arguments
@@ -931,7 +932,7 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     // Inertia's Vector Module V2 [www.khanacademy.org/cs/_/5402431084593152]
     // PVector with Tweaks
     Define(["Math.Vector", "Vector", "vector", "vec"], function() {
-        var Util = require("Util"), Func = require("Core.Func"), _ = Util._, 
+        var Util = require("Util"), Func = require("Core.Func"), _ = Util._,
             args = Util.args, VSolve, Static, VFn, Obj,
             Class = require("Class"), Vector,
             Chain = ["rotate", "lerp", "normalize", "limit"]; // Chainable Methods
@@ -947,7 +948,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 Func("$this", "$vec", "$this.x " + symbol + "= $vec.x;").call({}, $this, $vec);
                 Func("$this", "$vec", "$this.y " + symbol + "= $vec.y;").call({}, $this, $vec);
                 Func("$this", "$vec", "$this.z " + symbol + "= $vec.z;").call({}, $this, $vec);
-                println($this);
                 return $this;
             };
         };
@@ -961,7 +961,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
         };
         // Vector Object
         Vector = Class({
-            init: function () 
+            _class: "Vector", // Set Class Name
+            init: function ()
                 { this.set.apply(this, arguments); }
         })
         // Static Methods of the Vector Object
@@ -991,10 +992,10 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                 return $this;
             },
             // Project this vector on to another vector
-            project: function (v) 
+            project: function (v)
                 { return this.scale(this.dot(v) / v.magSq()); },
             // Project this vector onto a vector of unit length
-            projectN: function (v) 
+            projectN: function (v)
                 { return this.mult(this.dot(v)); },
             // Run a Vector through a Function
             fn: VFn,

@@ -5,6 +5,7 @@
         require("Func");
         // Event Object
         return Class($in.EventEmitter, {
+            _class: "Event", // Set Class Name
             // Alias for the `on` method
             add: Class.get("on"), bind: Class.get("on"),
             // Add a One - Time Listener / Function For a Given Event
@@ -66,7 +67,7 @@
             fire: Class.get("emit"),
             trigger: Class.get("emit"),
             // Clear
-            clear: function () 
+            clear: function ()
                 { this._eventCount = 0; this._events = {}; }
         });
     });

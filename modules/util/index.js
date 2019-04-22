@@ -118,7 +118,8 @@
             },
             // Take a Function as a Value
             FnVal: function(val, arg, ctxt) {
-                if (!Util._.isFunction(val)) { return val; }
+                if (!_.isFunction(val) || val._class) 
+                    { return val; }
                 return val.apply(ctxt, arg);
             },
             // A more efficient `new` keyword that allows for arrays to be passed as Arguments

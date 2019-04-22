@@ -6,7 +6,7 @@
         return function(_class) {
             // A Modified Extension of The Event Emitter `Inertia.Event`
             return Class(Event, {
-                _class: _class || "UIEvent", // Class Name
+                _class: _class || "UIEvent", // Set Class Name
                 // Add a Listener / Function For a Given Event
                 on: $in.Event[["on"]],
                 add: $in.Event[["on"]],

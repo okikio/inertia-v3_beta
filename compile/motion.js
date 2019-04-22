@@ -525,7 +525,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
             },
             // Take a Function as a Value
             FnVal: function(val, arg, ctxt) {
-                if (!Util._.isFunction(val)) { return val; }
+                if (!_.isFunction(val) || val._class) 
+                    { return val; }
                 return val.apply(ctxt, arg);
             },
             // A more efficient `new` keyword that allows for arrays to be passed as Arguments
@@ -1011,16 +1012,17 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
     });
 })(); // Ease
 (function() {
-    // Inertia's Motion Module V2 [www.khanacademy.org/cs/_/4786220320063488]
+    // Inertia's Motion Module V2 [www.khanacademy.org/cs/_/--]
     // Based on animejs [animejs.com]
     Define("Motion", function() {
         var Util = require("Util"), Class = require("Class"), Event = $in.EventEmitter,
-            Ease = require("Ease"), _ = Util._, Static, id = 0; // Used in identifing Motion Objects
+            Ease = require("Ease"), _ = Util._, Static = {}, id = 0; // Used in identifing Motion Objects
         return Class(Event, {
+            _class: "Motion", // Set Class Name
             ver: "2.0.0", speed: 1, _startTime: 0, _lastTime: 0, _now: 0, 
             init: function (params, reset, _id) {
                 this.params = (params = params || {});
-                var settings = this.settings;
+                var settings = this.settings || Static.settings;
                 
                 // Remove any undefined parameters (for settings)
                 var instance = this.replaceObj(settings.default, params);

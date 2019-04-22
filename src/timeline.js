@@ -1,9 +1,10 @@
 (function() {
-    // Inertia's Timeline Module V2 [www.khanacademy.org/cs/_/5437978872545280]
+    // Inertia's Timeline Module V2 [www.khanacademy.org/cs/_/--]
     Define(["Motion.Timeline", "Timeline"], function() {
         var _ = require("Util._"), Motion = require("Motion"); 
         // Builds on the Motion Object for timeline functionality
         return Motion.extends({
+            _class: "Timeline", // Set Class Name
             duration: 0, children: [], 
             add: function(params, offset) {
                 var settings = this.settings;
@@ -60,6 +61,6 @@
                 return this;
             }
         })
-        .static(_.extend({}, Motion)); // Add static to Timeline
+            .static(_.extend({}, Motion)); // Add static to Timeline
     }, true);
 })(); // Timeline
