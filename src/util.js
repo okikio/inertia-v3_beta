@@ -118,7 +118,7 @@
             },
             // Take a Function as a Value
             FnVal: function(val, arg, ctxt) {
-                if (!_.isFunction(val) || val._class) 
+                if (!_.isFunction(val) || (val.prototype && val.prototype._class)) 
                     { return val; }
                 return val.apply(ctxt, arg);
             },
