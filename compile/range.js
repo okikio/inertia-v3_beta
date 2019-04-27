@@ -756,8 +756,8 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                                             {- }) -}".temp({}) // loop 0, loop 1, */
         };
         // Extend Methods
-        MapFunc(Native, $Map);
-        MapFunc(Native.prototype, $Map, true);
+        _.extend(Native, MapFunc(Native, $Map));
+        _.extend(Native.prototype, MapFunc(Native.prototype, $Map, true));
         return Native;
     });
 })(); // String

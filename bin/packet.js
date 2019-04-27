@@ -17,15 +17,14 @@ let packeteer = function(from, to, fn) {
                 // Make new packet directory
                 mkdirp(to + dir, function(err, content) {
                     if (err) { throw err; }
-
+                    
                     // Read each js file
                     fs.readFile(from + filename, 'utf-8', function(err, content) {
                         if (err) { throw err; }
-
                         // Write the contents to the index.js of packet folders
                         fs.writeFile(to + dir + '/index.js', content, function(err) {
                             if (err) { throw err; }
-                            else { console.log(to + dir + '/index.js - Write operation complete.'); }
+                            console.log(to + dir + '/index.js - Write operation complete.');
                         });
                     });
                 });
