@@ -653,8 +653,9 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                         }
                         
                         this.prototype[i] = val; // Redefinition Error Fix
-                        if (typeof val === "object" && 
-                            (val.get || val.set || val.$$prop) && !val._class) { 
+                        if (typeof val === "object" && val !== undefined && 
+                            val !== null && (val.get || val.set || val.$$prop) && 
+                            !val._class) {
                             Object.defineProperty(this.prototype, i, val);
                         }
                     }, this);
@@ -674,8 +675,9 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                         }
                         
                         this[i] = val; // Redefinition Error Fix
-                        if (typeof val === "object" && 
-                            (val.get || val.set || val.$$prop) && !val._class) { 
+                        if (typeof val === "object" && val !== undefined && 
+                            val !== null && (val.get || val.set || val.$$prop) && 
+                            !val._class) {
                             Object.defineProperty(this, i, val);
                         }
                     }, this);
@@ -816,7 +818,6 @@ var Inertia = {}, $in, Define, require; // Inertia Entry Point
                         _const = $, _super = _const.SuperClass;
                     // Climb prototype chain to find method not equal to callee's method
                     while (_super) {
-                        var Method = _super.prototype[method];
                         if ($[method] !== _super.prototype[method]) {
                             _Parent = _super.prototype[method];
                             break;
