@@ -71,7 +71,7 @@ Displays all modules not in use.
     
 #### toArray  - [Function]
 Converts a String into an Array, based on specific values. Meant for 
-turning Strings into Arrays of little paths.
+turning Strings into Arrays of little paths. It splits a String into Array where it finds ',' or '.'.
 * ###### Params
     * **[Array | String]** val - Value to convert 
 
